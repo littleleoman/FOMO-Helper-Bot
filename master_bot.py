@@ -22,7 +22,7 @@ BOT_DESCRIPTION = '''FOMO Helper is a general service bot for all your consumer 
 
 There are a couple of utility commands which are showcased here, and should serve you well.
 
-To use all commands other than help, precede the keyword by the exclamation mark (!) or a question mark (?).
+To use all commands, precede the keyword by an exclamation mark (!) or a question mark (?).
 
 Example:
     !gmail example@gmail.com
@@ -33,6 +33,7 @@ Example:
 
 TOKEN = os.environ["TOKEN"]
 client = Bot(command_prefix=BOT_PREFIX, description=BOT_DESCRIPTION)
+client.remove_command('help')
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.ERROR)
@@ -52,6 +53,35 @@ async def on_ready():
     print(client.user.id)
     print('------')
     
+    
+@client.command(name='help',
+                pass_context=True)
+async def help(ctx):
+    author = ctx.message.author
+    
+    embed = Embed(
+        color = discord.colour.blue(),
+        description = '''**FOMO Helper** is a general service bot for all your consumer needs.
+        
+        There are a couple of utility commands which are showcased here, and should serve you well.
+        
+        To use all commands, precede the keyword by the exclamation mark ( **!** ) or a question mark ( **?** ).
+        
+        '''
+    )
+    
+    keywords = '!help/?help \n!gmail/?gmail \n!address/?address \n!atc/?atc \n'
+    keyword_descriptions = '''Shows this message
+    Jig your google email address 
+    Jig your home address by writing it in between quotation marks(**""**)
+    ATC links for any Shopify website, generated from an item\'s URL\n'''
+    
+    embed.set_author(name='FOMO Helper')
+    embed.add_field(name='Keywords:', value=keywords, inline=True)
+    embed.add_field(name='Brief:', value=keyword_descriptions, inline=False)
+    embed.add_field(name='Extra Help:', value="For extra help type **!help/?help command** for more info on a command", inline=False)
+    
+    await client.send_message(author, embed=embed)
 
 @client.command(name='gmail',
                 description='This command manipulates any gmail address passed to it as a parameter.',
