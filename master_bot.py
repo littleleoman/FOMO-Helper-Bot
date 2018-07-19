@@ -62,7 +62,7 @@ async def custom_help(ctx):
     author = ctx.message.author
     
     embed = Embed(
-        color = discord.colour.blue(),
+        color = 0xffffff,
         description = '''**FOMO Helper** is a general service bot for all your consumer needs.
         
         There are a couple of utility commands which are showcased here, and should serve you well.
