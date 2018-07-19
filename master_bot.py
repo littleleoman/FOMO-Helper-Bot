@@ -54,8 +54,7 @@ async def on_ready():
     print('------')
     
     
-@client.command(name='help',
-                pass_context=True)
+@client.command(pass_context=True)
 async def help(ctx):
     author = ctx.message.author
     
