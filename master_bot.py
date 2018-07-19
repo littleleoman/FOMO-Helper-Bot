@@ -18,15 +18,18 @@ from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed
 
 BOT_PREFIX = ("?", "!")
-BOT_DESCRIPTION = ''' **FOMO Helper** is a general service bot for all your consumer needs.
+BOT_DESCRIPTION = '''FOMO Helper is a general service bot for all your consumer needs.
 
 There are a couple of utility commands which are showcased here, and should serve you well.
+
 To use all commands other than help, precede the keyword by the exclamation mark (!) or a question mark (?).
 
 Example:
     !gmail example@gmail.com
-                or
-    ?gmail example@gmail.com'''
+                OR
+    ?gmail example@gmail.com
+
+'''
 
 TOKEN = os.environ["TOKEN"]
 client = Bot(command_prefix=BOT_PREFIX, description=BOT_DESCRIPTION)
