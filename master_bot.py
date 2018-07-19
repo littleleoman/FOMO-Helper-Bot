@@ -54,8 +54,11 @@ async def on_ready():
     print('------')
     
     
-@client.command(pass_context=True)
-async def help(ctx):
+@client.command(name='help',
+                description='Help message to guide the user through using the bot.',
+                brief='User guide',
+                pass_context=True)
+async def custom_help(ctx):
     author = ctx.message.author
     
     embed = Embed(
