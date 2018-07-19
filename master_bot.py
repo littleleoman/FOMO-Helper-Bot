@@ -18,9 +18,15 @@ from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed
 
 BOT_PREFIX = ("?", "!")
-BOT_DESCRIPTION = ''' Your lord and savior, Yung Messiah, is a general service bot for all your consumer needs.
+BOT_DESCRIPTION = ''' **FOMO Helper** is a general service bot for all your consumer needs.
 
-There are a couple of utility commands which are showcased here, and should serve you well.'''
+There are a couple of utility commands which are showcased here, and should serve you well.
+To use all commands other than help, precede the keyword by the exclamation mark (!) or a question mark (?).
+
+Example:
+    !gmail example@gmail.com
+                or
+    ?gmail example@gmail.com'''
 
 TOKEN = os.environ["TOKEN"]
 client = Bot(command_prefix=BOT_PREFIX, description=BOT_DESCRIPTION)
@@ -45,7 +51,7 @@ async def on_ready():
     
 
 @client.command(name='gmail',
-                description='Manipulates any gmail address passed to it as a parameter.',
+                description='This command manipulates any gmail address passed to it as a parameter.',
                 brief='Jig your google email address',
                 aliases=['mail', 'email'],
                 pass_context=True)
@@ -55,7 +61,7 @@ async def gmail_jig(ctx, email):
     
 
 @client.command(name='address',
-                description='Manipulates any residential address passed to it as a parameter.',
+                description='This command manipulates any residential address passed to it as a parameter.',
                 brief='Jig your home address by writing it in between quotation marks ("")',
                 aliases=['jig', 'addr', 'adr'],
                 pass_context=True)
