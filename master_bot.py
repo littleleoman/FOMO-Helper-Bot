@@ -79,7 +79,7 @@ def tiny(url, ctx):
 #                 All the Discord Bot methods                   #
 #                                                               #   
 # ------------------------------------------------------------- #
-@client.event
+'''@client.event
 async def on_message(message):
     # Don't want the bot to reply to itself
     if message.author == client.user:
@@ -93,6 +93,7 @@ async def on_message(message):
 # @client.event
 # async def on_member_join(member):
 #     pass
+'''
 
 ''' Discord event, triggered upon successful Login '''
 @client.event
