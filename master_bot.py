@@ -79,6 +79,21 @@ def tiny(url, ctx):
 #                 All the Discord Bot methods                   #
 #                                                               #   
 # ------------------------------------------------------------- #
+@client.event
+async def on_message(message):
+    # Don't want the bot to reply to itself
+    if message.author == client.user:
+        return 
+    
+    if not message.content.startswith('!') and not message.content.startswith('?'):
+        await client.send_message(message.author, 'Hello! Before I begin to help you out, make sure you\'re familiar with all the commands by typing **!help**')
+    else:
+        await client.process_commands(message)
+        
+# @client.event
+# async def on_member_join(member):
+#     pass
+
 ''' Discord event, triggered upon successful Login '''
 @client.event
 async def on_ready():
@@ -87,7 +102,7 @@ async def on_ready():
     print(client.user.id)
     print('------')
     
-    
+
 ''' Discord custom help command, formatted different from the defaul help command
 
     @param ctx: Discord information
