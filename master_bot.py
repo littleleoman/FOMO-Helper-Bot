@@ -11,12 +11,14 @@ import random
 import re
 import requests
 import string
+from decimal import Decimal
 
 
 from discord.ext.commands import Bot
 import logging
 from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed    
+from pydoc import describe
 
 
 # Discord command triggers
@@ -43,11 +45,15 @@ client = Bot(command_prefix=BOT_PREFIX)#, description=BOT_DESCRIPTION#)
 client.remove_command('help')
 
 # Logger for tracking errors.
-# logger = logging.getLogger('discord')
-# logger.setLevel(logging.ERROR)
-# handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-# handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-# logger.addHandler(handler)
+logger = logging.getLogger('discord')
+logger.setLevel(logging.ERROR)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
+
+# Header to make the requests
+headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
+
 
 # ------------------------------------------------------------- #
 #                                                               #
@@ -61,8 +67,6 @@ client.remove_command('help')
     @return: The shortened url
 '''
 def tiny(url, ctx):
-    headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
-    
     URL = "https://tinyurl.com/create.php?source=indexpage&url=" + url + "&submit=Make+TinyURL%21&alias="
     raw_HTML = requests.get(URL, headers=headers, timeout=5)
         
@@ -110,25 +114,21 @@ async def on_ready():
     @param *command: List of arguements passed with the command ''' 
 @client.command(name='help',
                 description='Help message to guide the user through using the bot.',
-                brief='User guide',
                 pass_context=True)
 async def custom_help(ctx, *command):
     author = ctx.message.author
     
     if len(command) == 0:
-#         desc = '**FOMO Helper** is a general service bot for all your consumer needs.'
-#         desc += '\n\nThere are a couple of utility commands which are showcased here, and should serve you well.'
-#         desc += '\n\nTo use all commands, precede the keyword by the exclamation mark ( **!** ) or a question mark ( **?** ).\n\n'
-#         
         embed = Embed(
             color = 0xffffff,
             description = BOT_DESCRIPTION
         )
         
-        keywords = '**!address** \n**!gmail** \n**!atc**'
+        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify**'
         keyword_descriptions = 'Jig your home address; type input between **" "**\n'
         keyword_descriptions += 'Jig your gmail address\n'
-        keyword_descriptions += 'Generate ATC for a shopify URL'
+        keyword_descriptions += 'Generate ATC for a shopify URL\n'
+        keyword_descriptions += 'Checks if a website is Shopify'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
@@ -152,17 +152,97 @@ async def custom_help(ctx, *command):
         embed.add_field(name='Aliases', value='[ address | addr | adr ]', inline=False)
         
         await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'atc' or command[0] == 'shopify')):
+    elif (len(command) > 0 and (command[0] == 'atc')):
         desc = 'Add To Cart command for any Shopify website. Generates a link leading the user '
         desc += 'straight to the payment page. Takes in the item\'s URL as a parameter'
         embed = Embed(
             color = 0xffffff,
             description = desc
         )
-        embed.add_field(name='Aliases', value='[ atc | shopify ]', inline=False)
+        embed.add_field(name='Aliases', value='[ atc ]', inline=False)
+        
+        await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'isshopify')):
+        desc = 'This command uses a given URL in order to determine whether '
+        desc += 'a website is a shopify site or not.'
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        embed.add_field(name='Aliases', value='[ isshopify ]', inline=False)
+    elif (len(command) > 0 and (command[0] == 'fee')):
+        desc = "Calculates the seller fees applied by different websites."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ fee ]', inline=False)
         
         await client.send_message(author, embed=embed)
 
+''' Discord command to calcualte the feels that are applied to sale products on multiple websites.
+
+    @param ctx: Discord information
+    @param sale_price: Price for which to make the calculations'''
+@client.command(name='fee',
+                description='Calculates the seller fees applied by different websites',
+                pass_context=True)
+async def fee_calculator(ctx, sale_price):
+    sites = []
+    author = ctx.message.author
+    
+    if re.match('^\d+(\.\d*)*$', sale_price) == None:
+        await client.send_message(author, 'The value given is not a proper monetary value')
+    else:
+        price = Decimal(sale_price)
+        price = round(price, 2)
+        
+        # Tuple format
+        #    - site title
+        #    - fee percentage
+        #    - fixed fee (0 if none)
+        ebay = ('eBay', 0.09, 0.00)
+        grailed = ('Grailed', 0.089, 0.30)
+        paypal = ('PayPal', 0.029, 0.30)
+        goat = ('Goat', 0.095, 5.00)
+        stockx = ('StockX', 0.095, 0.00)
+        shopify = ('Basic Shopify', 0.029, 0.30)
+        sites.append(ebay)
+        sites.append(grailed)
+        sites.append(paypal)
+        sites.append(goat)
+        sites.append(stockx)
+        sites.append(shopify)
+        
+        websites = ''
+        fees = ''
+        profits = ''
+        for i in sites:
+            websites += i[0] + '\n'
+            fee = round(price * Decimal(i[1]), 2)
+            fees += '$' + str(round(fee + Decimal(i[2]), 2)) + '\n'
+            after_fee = round(price - fee - Decimal(i[2]), 2)
+            profits += '$' + str(after_fee) + '\n'
+            
+        embed = Embed(color = 0x008f00)
+        embed.add_field(name='Website', value=websites, inline=True)
+        embed.add_field(name='Fee', value=fees, inline=True)
+        embed.add_field(name='Profit After Fees', value=profits, inline=True)
+        
+        await client.send_message(author, embed=embed)
+
+
+''' Discord command to check if a specific website is a Shopify website
+    
+    @param ctx: Discord information
+    @param url: URL to be checked '''  
+@client.command(name='isshopify',
+                description='This command uses a given URL in order to determine whether a website is a shopify site or not.',
+                pass_context=True)
+async def shopify_check(ctx, url):
+    shopify = Shopify()
+    await shopify.check_if_shopify(ctx, url)
 
 ''' Discord command to Jig a specific gmail address.
 
@@ -183,7 +263,7 @@ async def gmail_jig(ctx, email):
     @param adr: Residential address to be jigged ''' 
 @client.command(name='address',
                 description='This command manipulates any residential address passed to it as a parameter.',
-                aliases=['jig', 'addr', 'adr'],
+                aliases=['addr', 'adr'],
                 pass_context=True)
 async def address_jig(ctx, adr):
     address = AddressJig()
@@ -196,10 +276,10 @@ async def address_jig(ctx, adr):
 @client.command(name='atc',
                 description='Add To Cart command for any Shopify website. Generates a link leading the user ' +
                 'straight to the payment page. Takes in the item\'s URL as a parameter',
-                aliases=['shopify'],
                 pass_context=True)
-async def shopify(ctx, url):
+async def add_to_cart(ctx, url):
     shopify = Shopify()
+    await client.send_message(ctx.message.author, ':hourglass: Retrieving sizes. Please wait...')
     await shopify.run(str(url), ctx)
 
 
@@ -351,13 +431,45 @@ class Shopify(object):
     sizes = ''
     atc_links = ''
     
+    ''' Checks whether a given url is a Shopify website or not.
+    
+        @param ctx: Discord information 
+        @param url: The URL to check for Shopify status ''' 
+    async def check_if_shopify(self, ctx, url):
+        author = ctx.message.author
+        
+        # Ensure url starts with https:// in case url only contains www....
+        url_formatting = re.match('https://', url)
+        if url_formatting == None:
+            url = 'https://' + url
+        try:
+            raw_HTML = requests.get(url, headers=headers, timeout=5)
+            if raw_HTML.status_code != 200:
+                await client.send_message(author, "An error has occured completing your request.")
+            else:
+                page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
+                script = page.find_all('script')
+                for i in script:
+                    if 'shopify' in str(i).lower():
+                        await client.send_message(author, "It IS a Shopify website!")
+                        return
+                await client.send_message(author, 'It IS NOT a Shopify website!')
+        except requests.Timeout as error:
+            logger.error('Timeout Error: %s', str(error))
+            await client.send_message(author, "There was a timeout error")
+        except requests.ConnectionError as error:
+            logger.error('Connection Error: %s', str(error))
+            await client.send_message(author, "A connection error has occured. Make sure you are connected to the Internet.")
+        except requests.RequestException as error:
+            logger.error('Request Error: %s', str(error))
+            await client.send_message(author, "An error occured making the internet request.")
+    
+    
     ''' Retrieves sizes for item in stock.
         
         @param url: The url passed by the user pointing to the item he/she wants
         @param ctx: Discord information  ''' 
     async def get_sizes(self, url, ctx):
-        headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
-    
         # Ensure url starts with https:// in case url only contains www....
         url_formatting = re.match('https://', url)
         if url_formatting == None:
@@ -373,14 +485,14 @@ class Shopify(object):
                 await self.get_size_variant(url, page, ctx)
                 return
         except requests.Timeout as error:
-            await client.send_message(ctx.message.author,"There was a timeout error")
             logger.error('Timeout Error: %s', str(error))
+            await client.send_message(ctx.message.author,"There was a timeout error")
         except requests.ConnectionError as error:
-            await client.send_message(ctx.message.author,"A connection error has occured. Make sure you are connected to the Internet. The details are below.\n")
             logger.error('Connection Error: %s', str(error))
+            await client.send_message(ctx.message.author,"A connection error has occured. Make sure you are connected to the Internet.")
         except requests.RequestException as error:
-            await client.send_message(ctx.message.author,"An error occured making the internet request.")
             logger.error('Request Error: %s', str(error))
+            await client.send_message(ctx.message.author,"An error occured making the internet request.")
             
     ''' Retrieves only the absolute URL from passed in URL.
     
@@ -430,7 +542,7 @@ class Shopify(object):
     async def get_size_variant(self, url, page, ctx):
         scripts = page.find_all("script")
         if scripts == None:
-            await client.send_message(ctx.message.author,"An error has occured completing your request")
+            await client.send_message(ctx.message.author,"An error has occured completing your request. Check that the website is a shopify website.")
             return
         
         script_index = self.find_variant_script(scripts)
