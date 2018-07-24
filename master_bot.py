@@ -124,11 +124,12 @@ async def custom_help(ctx, *command):
             description = BOT_DESCRIPTION
         )
         
-        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify**'
+        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee**'
         keyword_descriptions = 'Jig your home address; type input between **" "**\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
-        keyword_descriptions += 'Checks if a website is Shopify'
+        keyword_descriptions += 'Checks if a website is Shopify\n'
+        keyword_descriptions += 'Calculates seller profit after fees for a given sale price'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
