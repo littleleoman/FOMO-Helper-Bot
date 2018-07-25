@@ -99,14 +99,14 @@ async def on_message(message):
         # keywords_4 = ['FOMO','guide','tutorial','how to','FOMO Guide: https://goo.gl/MQUnG7']
          if re.search('presto', message.content, re.IGNORECASE):
              if re.search('sitelist', message.content, re.IGNORECASE):
-                await client.send_message(message.channel, 'presto sitelist URL (there isn\'t one yet)')
+                await client.send_message(message.channel, 'presto sitelist URL: <https://goo.gl/b7m6hi>')
              elif re.search('keyword', message.content, re.IGNORECASE) or re.search('kw', message.content, re.IGNORECASE):
                 await client.send_message(message.channel, 'presto keywords (unavailable at this time)')
              elif re.search('raffle', message.content, re.IGNORECASE):
-                 await client.send_message(message.channel, 'Open raffles can be found in #raffles or on https://fomo.supply/')
+                 await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
          elif re.search('fomo', message.content, re.IGNORECASE):
              if re.search('guide', message.content, re.IGNORECASE) or re.search('tutorial', message.content, re.IGNORECASE) or re.search('how\s+to', message.content, re.IGNORECASE):
-                 await client.send_message(message.channel, 'FOMO Guide: https://goo.gl/MQUnG7')
+                 await client.send_message(message.channel, 'FOMO Guide: <https://goo.gl/MQUnG7>')
     else:
         await client.process_commands(message)
 
