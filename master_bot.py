@@ -51,6 +51,8 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+
+
 # Header to make the requests
 headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
 
@@ -71,7 +73,7 @@ def tiny(url, ctx):
     raw_HTML = requests.get(URL, headers=headers, timeout=5)
         
     if raw_HTML.status_code != 200:
-        client.send_message(ctx.message.author, "An error has occured completing your request")
+        client.send_message(ctx.message.channel, "An error has occured completing your request")
         return None
     else:
         page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
@@ -83,17 +85,33 @@ def tiny(url, ctx):
 #                 All the Discord Bot methods                   #
 #                                                               #   
 # ------------------------------------------------------------- #
-'''@client.event
+@client.event
 async def on_message(message):
     # Don't want the bot to reply to itself
     if message.author == client.user:
         return 
-    
+      
     if not message.content.startswith('!') and not message.content.startswith('?'):
-        await client.send_message(message.author, 'Hello! Before I begin to help you out, make sure you\'re familiar with all the commands by typing **!help**')
+        # List of keywords for automated responses
+        # keywords_1 = ['presto','prestos','sitelist','presto sitelist URL (there isn\'t one yet)']
+        # keywords_2 = ['presto','prestos', 'keywords','kw','presto keywords (unavailable at this time)']
+        # keywords_3 = ['presto','prestos','raffle','raffles','Open raffles can be found in #raffles or on https://fomo.supply/']
+        # keywords_4 = ['FOMO','guide','tutorial','how to','FOMO Guide: https://goo.gl/MQUnG7']
+         if re.search('presto', message.content, re.IGNORECASE):
+             if re.search('sitelist', message.content, re.IGNORECASE):
+                await client.send_message(message.channel, 'presto sitelist URL (there isn\'t one yet)')
+             elif re.search('keyword', message.content, re.IGNORECASE) or re.search('kw', message.content, re.IGNORECASE):
+                await client.send_message(message.channel, 'presto keywords (unavailable at this time)')
+             elif re.search('raffle', message.content, re.IGNORECASE):
+                 await client.send_message(message.channel, 'Open raffles can be found in #raffles or on https://fomo.supply/')
+         elif re.search('fomo', message.content, re.IGNORECASE):
+             if re.search('guide', message.content, re.IGNORECASE) or re.search('tutorial', message.content, re.IGNORECASE) or re.search('how\s+to', message.content, re.IGNORECASE):
+                 await client.send_message(message.channel, 'FOMO Guide: https://goo.gl/MQUnG7')
     else:
         await client.process_commands(message)
-        
+
+            
+'''
 # @client.event
 # async def on_member_join(member):
 #     pass
@@ -111,7 +129,7 @@ async def on_ready():
 ''' Discord custom help command, formatted different from the defaul help command
 
     @param ctx: Discord information
-    @param *command: List of arguements passed with the command ''' 
+    @param *command: List of arguements passed with the command '''  
 @client.command(name='help',
                 description='Help message to guide the user through using the bot.',
                 pass_context=True)
@@ -191,10 +209,10 @@ async def custom_help(ctx, *command):
                 pass_context=True)
 async def fee_calculator(ctx, sale_price):
     sites = []
-    author = ctx.message.author
+    channel = ctx.message.channel
     
     if re.match('^\d+(\.\d*)*$', sale_price) == None:
-        await client.send_message(author, 'The value given is not a proper monetary value')
+        await client.send_message(channel, 'The value given is not a proper monetary value')
     else:
         price = Decimal(sale_price)
         price = round(price, 2)
@@ -231,7 +249,7 @@ async def fee_calculator(ctx, sale_price):
         embed.add_field(name='Fee', value=fees, inline=True)
         embed.add_field(name='Profit After Fees', value=profits, inline=True)
         
-        await client.send_message(author, embed=embed)
+        await client.send_message(channel, embed=embed)
 
 
 ''' Discord command to check if a specific website is a Shopify website
@@ -280,7 +298,7 @@ async def address_jig(ctx, adr):
                 pass_context=True)
 async def add_to_cart(ctx, url):
     shopify = Shopify()
-    await client.send_message(ctx.message.author, ':hourglass: Retrieving sizes. Please wait...')
+    await client.send_message(ctx.message.channel, ':hourglass: Retrieving sizes. Please wait...')
     await shopify.run(str(url), ctx)
 
 
@@ -437,7 +455,7 @@ class Shopify(object):
         @param ctx: Discord information 
         @param url: The URL to check for Shopify status ''' 
     async def check_if_shopify(self, ctx, url):
-        author = ctx.message.author
+        channel = ctx.message.channel
         
         # Ensure url starts with https:// in case url only contains www....
         url_formatting = re.match('https://', url)
@@ -446,24 +464,24 @@ class Shopify(object):
         try:
             raw_HTML = requests.get(url, headers=headers, timeout=5)
             if raw_HTML.status_code != 200:
-                await client.send_message(author, "An error has occured completing your request.")
+                await client.send_message(channel, "An error has occured completing your request.")
             else:
                 page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
                 script = page.find_all('script')
                 for i in script:
                     if 'shopify' in str(i).lower():
-                        await client.send_message(author, "It IS a Shopify website!")
+                        await client.send_message(channel, "It IS a Shopify website!")
                         return
-                await client.send_message(author, 'It IS NOT a Shopify website!')
+                await client.send_message(channel, 'It IS NOT a Shopify website!')
         except requests.Timeout as error:
             logger.error('Timeout Error: %s', str(error))
-            await client.send_message(author, "There was a timeout error")
+            await client.send_message(channel, "There was a timeout error")
         except requests.ConnectionError as error:
             logger.error('Connection Error: %s', str(error))
-            await client.send_message(author, "A connection error has occured. Make sure you are connected to the Internet.")
+            await client.send_message(channel, "A connection error has occured. Make sure you are connected to the Internet.")
         except requests.RequestException as error:
             logger.error('Request Error: %s', str(error))
-            await client.send_message(author, "An error occured making the internet request.")
+            await client.send_message(channel, "An error occured making the internet request.")
     
     
     ''' Retrieves sizes for item in stock.
@@ -478,7 +496,7 @@ class Shopify(object):
         try:
             raw_HTML = requests.get(url, headers=headers, timeout=5)
             if raw_HTML.status_code != 200:
-                await client.send_message(ctx.message.author,"An error has occured completing your request")
+                await client.send_message(ctx.message.channel,"An error has occured completing your request")
                 return 
             else:
                 page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
@@ -487,13 +505,13 @@ class Shopify(object):
                 return
         except requests.Timeout as error:
             logger.error('Timeout Error: %s', str(error))
-            await client.send_message(ctx.message.author,"There was a timeout error")
+            await client.send_message(ctx.message.channel,"There was a timeout error")
         except requests.ConnectionError as error:
             logger.error('Connection Error: %s', str(error))
-            await client.send_message(ctx.message.author,"A connection error has occured. Make sure you are connected to the Internet.")
+            await client.send_message(ctx.message.channel,"A connection error has occured. Make sure you are connected to the Internet.")
         except requests.RequestException as error:
             logger.error('Request Error: %s', str(error))
-            await client.send_message(ctx.message.author,"An error occured making the internet request.")
+            await client.send_message(ctx.message.channel,"An error occured making the internet request.")
             
     ''' Retrieves only the absolute URL from passed in URL.
     
@@ -543,7 +561,7 @@ class Shopify(object):
     async def get_size_variant(self, url, page, ctx):
         scripts = page.find_all("script")
         if scripts == None:
-            await client.send_message(ctx.message.author,"An error has occured completing your request. Check that the website is a shopify website.")
+            await client.send_message(ctx.message.channel,"An error has occured completing your request. Check that the website is a shopify website.")
             return
         
         script_index = self.find_variant_script(scripts)
@@ -599,7 +617,7 @@ class Shopify(object):
         else:
             embed.set_thumbnail(url=thumbnail_url)
 
-        await client.send_message(ctx.message.author, embed=embed)
+        await client.send_message(ctx.message.channel, embed=embed)
     
     
     ''' Prints a correctly formated link which takes user straight to purchase.
@@ -612,7 +630,7 @@ class Shopify(object):
     async def print_link(self, url, size, retrieved_id, ctx):
         absolute_url = self.get_absolute_url(url)
         if absolute_url == False:
-            await client.send_message(ctx.message.author, "An error has occured completing your request")
+            await client.send_message(ctx.message.channel, "An error has occured completing your request")
             return False
         
         self.sizes += size + "\n"
