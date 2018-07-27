@@ -101,7 +101,7 @@ async def on_message(message):
              if re.search('sitelist', message.content, re.IGNORECASE):
                 await client.send_message(message.channel, 'presto sitelist URL: <https://goo.gl/b7m6hi>')
              elif re.search('keyword', message.content, re.IGNORECASE) or re.search('kw', message.content, re.IGNORECASE):
-                await client.send_message(message.channel, 'presto keywords (unavailable at this time)')
+                await client.send_message(message.channel, 'presto keywords: `+presto, +off`')
              elif re.search('raffle', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
          elif re.search('fomo', message.content, re.IGNORECASE):
