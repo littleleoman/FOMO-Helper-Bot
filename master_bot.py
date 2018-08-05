@@ -51,8 +51,6 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-
-
 # Header to make the requests
 headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
 
@@ -70,7 +68,7 @@ headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleW
 '''
 def tiny(url, ctx):
     URL = "https://tinyurl.com/create.php?source=indexpage&url=" + url + "&submit=Make+TinyURL%21&alias="
-    raw_HTML = requests.get(URL, headers=headers, timeout=5)
+    raw_HTML = requests.get(URL, headers=headers, timeout=10)
         
     if raw_HTML.status_code != 200:
         client.send_message(ctx.message.channel, "An error has occured completing your request")
@@ -225,7 +223,7 @@ async def fee_calculator(ctx, sale_price):
         grailed = ('Grailed', 0.089, 0.30)
         paypal = ('PayPal', 0.029, 0.30)
         goat = ('Goat', 0.095, 5.00)
-        stockx = ('StockX', 0.095, 0.00)
+        stockx = ('StockX', 0.125, 0.00)
         shopify = ('Basic Shopify', 0.029, 0.30)
         sites.append(ebay)
         sites.append(grailed)
@@ -462,7 +460,7 @@ class Shopify(object):
         if url_formatting == None:
             url = 'https://' + url
         try:
-            raw_HTML = requests.get(url, headers=headers, timeout=5)
+            raw_HTML = requests.get(url, headers=headers, timeout=10)
             if raw_HTML.status_code != 200:
                 await client.send_message(channel, "An error has occured completing your request.")
             else:
@@ -478,7 +476,7 @@ class Shopify(object):
             await client.send_message(channel, "There was a timeout error")
         except requests.ConnectionError as error:
             logger.error('Connection Error: %s', str(error))
-            await client.send_message(channel, "A connection error has occured. Make sure you are connected to the Internet.")
+            await client.send_message(channel, "A connection error has occured.")
         except requests.RequestException as error:
             logger.error('Request Error: %s', str(error))
             await client.send_message(channel, "An error occured making the internet request.")
@@ -494,7 +492,7 @@ class Shopify(object):
         if url_formatting == None:
             url = 'https://' + url
         try:
-            raw_HTML = requests.get(url, headers=headers, timeout=5)
+            raw_HTML = requests.get(url, headers=headers, timeout=10)
             if raw_HTML.status_code != 200:
                 await client.send_message(ctx.message.channel,"An error has occured completing your request")
                 return 
@@ -508,7 +506,7 @@ class Shopify(object):
             await client.send_message(ctx.message.channel,"There was a timeout error")
         except requests.ConnectionError as error:
             logger.error('Connection Error: %s', str(error))
-            await client.send_message(ctx.message.channel,"A connection error has occured. Make sure you are connected to the Internet.")
+            await client.send_message(ctx.message.channel,"A connection error has occured.")
         except requests.RequestException as error:
             logger.error('Request Error: %s', str(error))
             await client.send_message(ctx.message.channel,"An error occured making the internet request.")
@@ -658,9 +656,9 @@ class Shopify(object):
                 return number
                 break
             
-            
-''' Initialize Discord bot by making the first call to it '''
-try:
-    client.run(TOKEN)
-except (HTTPException, LoginFailure) as e:
-    client.loop.run_until_complete(client.logout())
+if __name__ == "__main__":           
+    ''' Initialize Discord bot by making the first call to it '''
+    try:
+        client.run(TOKEN)
+    except (HTTPException, LoginFailure) as e:
+        client.loop.run_until_complete(client.logout())
