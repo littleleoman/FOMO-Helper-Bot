@@ -95,16 +95,16 @@ async def on_message(message):
         # keywords_2 = ['presto','prestos', 'keywords','kw','presto keywords (unavailable at this time)']
         # keywords_3 = ['presto','prestos','raffle','raffles','Open raffles can be found in #raffles or on https://fomo.supply/']
         # keywords_4 = ['FOMO','guide','tutorial','how to','FOMO Guide: https://goo.gl/MQUnG7']
-         if re.search('presto', message.content, re.IGNORECASE):
+         if re.search('travis|scott|air force|sail', message.content, re.IGNORECASE):
              if re.search('sitelist', message.content, re.IGNORECASE):
-                await client.send_message(message.channel, 'presto sitelist URL: <https://goo.gl/b7m6hi>')
-             elif re.search('keyword', message.content, re.IGNORECASE) or re.search('kw', message.content, re.IGNORECASE):
-                await client.send_message(message.channel, 'presto keywords: `+presto, +off`')
+                await client.send_message(message.channel, 'Travis Scott sitelist URL: <https://goo.gl/b7m6hi>')
+             elif re.search('keyword|kw', message.content, re.IGNORECASE):
+                await client.send_message(message.channel, 'Travis Scott keywords: `+travis, +sail, +force')
              elif re.search('raffle', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
          elif re.search('fomo', message.content, re.IGNORECASE):
-             if re.search('guide', message.content, re.IGNORECASE) or re.search('tutorial', message.content, re.IGNORECASE) or re.search('how\s+to', message.content, re.IGNORECASE):
-                 await client.send_message(message.channel, 'FOMO Guide: <https://goo.gl/MQUnG7>')
+             if re.search('guide|how\s+do|slots|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
+                 await client.send_message(message.channel, 'You can find a detailed explanation on how slots work in <#471003962854604810> or in the FOMO Guide: <https://goo.gl/MQUnG7>')
     else:
         await client.process_commands(message)
 
