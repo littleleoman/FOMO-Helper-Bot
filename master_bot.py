@@ -102,8 +102,8 @@ async def on_message(message):
                 await client.send_message(message.channel, 'Travis Scott keywords: +travis, +sail, +force')
              elif re.search('raffle', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
-         elif re.search('fomo', message.content, re.IGNORECASE):
-             if re.search('guide|how\s+do|slots|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
+         elif re.search('slots', message.content, re.IGNORECASE):
+             if re.search('guide|how\s+do|fomo|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'You can find a detailed explanation on how slots work in <#471003962854604810> or in the FOMO Guide: <https://goo.gl/MQUnG7>')
     else:
         await client.process_commands(message)
