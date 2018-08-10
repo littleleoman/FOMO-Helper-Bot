@@ -5,17 +5,19 @@ Created on Jul 15, 2018
 '''
 
 import bs4
-from datetime import datetime
+import discord
+import logging
 import os
+import pymongo
 import random
 import re
 import requests
 import string
 from decimal import Decimal
 
-
+from datetime import datetime
 from discord.ext.commands import Bot
-import logging
+from discord.utils import get
 from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed    
 from pydoc import describe
@@ -39,10 +41,21 @@ Example:
 
 # Token for Discord Bot, retrieved 
 TOKEN = os.environ["TOKEN"]
+# Variables to make calls to Shopify (Subscription related data)
+SHOPIFY_USER = os.environ["SHOPIFY_USER"]
+SHOPIFY_PASS = os.environ["SHOPIFY_PASS"]
+
+MONGODB_URI = os.environ["MONGODB_URI"]
+
+
 # Create Discord Bot instance with the given command triggers
 client = Bot(command_prefix=BOT_PREFIX)#, description=BOT_DESCRIPTION#)
 # Remove the default Discord help command
 client.remove_command('help')
+# Reference to Mongo/Heroku database
+db = None
+# Reference to subscriptions collection
+subscriptions = None
 
 # Logger for tracking errors.
 logger = logging.getLogger('discord')
@@ -71,18 +84,57 @@ def tiny(url, ctx):
     raw_HTML = requests.get(URL, headers=headers, timeout=10)
         
     if raw_HTML.status_code != 200:
-        client.send_message(ctx.message.channel, "An error has occured completing your request")
+        client.send_message(ctx.message.channel, "An error has occurred completing your request")
         return None
     else:
         page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
         return page.find_all('div', {'class': 'indent'})[1].b.string
+    
+    
 
-
+async def sub_and_assign_roles(email, author):
+    data = subscriptions.find_one({"email": f"{email}"})
+    if data == None:
+        subscriptions.insert({
+            "email": email,
+            "status": "active",
+            "discord_id": author.id
+        })
+        #role = "Member"
+        await client.send_message(author, "Your subscription has been successfully activated!")
+        return True
+    else:
+        status = data['status']
+        if status == "active":
+            await client.send_message(author, "You have already activated your subscription. If you believe this to be a mistake, please contact an admin.")
+            return False
+        else:
+            subscriptions.replace_one({
+                "email": email
+            }, {
+                "email": email,
+                "status": "active",
+                "discord_id": author.id
+            })
+            await client.send_message(author, "Your subscription has been reactivated!")
+            return True
 # ------------------------------------------------------------- #
 #                                                               #
 #                 All the Discord Bot methods                   #
 #                                                               #   
 # ------------------------------------------------------------- #
+@client.event
+async def on_member_remove(member):
+    for role in member.roles:
+        if "Member" in role.name:
+            result = subscriptions.update_one({
+                "discord_id": member.id
+            }, {
+                "$set": {
+                    "status": "disabled"
+                }
+            }, upsert=False)
+    
 @client.event
 async def on_message(message):
     # Don't want the bot to reply to itself
@@ -122,6 +174,72 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+
+
+@client.command(name='activate',
+                description='Activate your subscription to be assigned the appropriate roles',
+                pass_context=True)
+async def activate_subscription(ctx, email):
+    author = ctx.message.author 
+    discord_server = client.get_server("355178719809372173")
+    
+    try:
+        customers_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/customers/search.json?query=email:{email}', timeout=10)
+        if customers_req.status_code != 200:
+            print("THE ERROR IS COMING RIGHT HERE")
+            await client.send_message(author, "An error has occurred completing your request")
+        else:
+            customers_resp = customers_req.json()
+            print(customers_resp)
+            valid_email = len(customers_resp['customers'])
+            print("VALID EMAIL: " + str(valid_email))
+            if valid_email == 0:
+                await client.send_message(author, "This email is invalid. Make sure you use the email you used to create an account on our FOMO website.")
+            else:
+                customer = customers_resp['customers'][0]
+                if customer.get("orders_count") <= 0:
+                    pass
+                else:
+                    customer_id = str(customer.get("id"))
+                    customer_last_order_id = str(customer.get("last_order_id"))
+        
+                    last_order_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/orders/{customer_last_order_id}.json', timeout=10)
+                    if last_order_req.status_code != 200:
+                        await client.send_message(author, "An error has occurred")
+                    else:
+                        order_resp = last_order_req.json()
+                        is_beta = re.search("line_items':.*title':\s'(discord beta access)',\s'quantity", str(order_resp).lower())
+                        if is_beta == None:
+                            orders_req = requests.get(f'https://{USER}:{PASS}@fomosuptest.myshopify.com/admin/customers/{customer_id}/orders.json', timeout=10)
+                            if orders_req.status_code != 200:
+                                await client.send_message(author, "An error has occurred")
+                            else:
+                                orders_resp = orders_req.json()
+                                is_beta = re.search("line_items':.*title':\s'(discord beta access)',\s'quantity", str(orders_resp).lower())
+                                if is_beta == None:
+                                    await client.send_message(author, "You do not have a subscription. If you believe this to be a mistake, please contact an admin.")
+                                else:
+                                    status = await sub_and_assign_roles(email, author)
+                                    if status == True:
+                                        role = get(discord_server.roles, name="Member")
+                                        user = discord_server.get_member(author.id)
+                                        await client.add_roles(user, role)
+                        else:
+                            status = await sub_and_assign_roles(email, author)
+                            if status == True:
+                                role = get(discord_server.roles, name="Member")
+                                user = discord_server.get_member(author.id)
+                                await client.add_roles(user, role)
+
+    except requests.Timeout as error:
+        print("There was a timeout error")
+        print(str(error))
+    except requests.ConnectionError as error:
+        print("A connection error has occurred. The details are below.\n")
+        print(str(error))
+    except requests.RequestException as error:
+        print("An error occurred making the internet request.")
+        print(str(error))
     
 
 ''' Discord custom help command, formatted different from the defaul help command
@@ -462,7 +580,7 @@ class Shopify(object):
         try:
             raw_HTML = requests.get(url, headers=headers, timeout=10)
             if raw_HTML.status_code != 200:
-                await client.send_message(channel, "An error has occured completing your request.")
+                await client.send_message(channel, "An error has occurred completing your request.")
             else:
                 page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
                 script = page.find_all('script')
@@ -476,10 +594,10 @@ class Shopify(object):
             await client.send_message(channel, "There was a timeout error")
         except requests.ConnectionError as error:
             logger.error('Connection Error: %s', str(error))
-            await client.send_message(channel, "A connection error has occured.")
+            await client.send_message(channel, "A connection error has occurred.")
         except requests.RequestException as error:
             logger.error('Request Error: %s', str(error))
-            await client.send_message(channel, "An error occured making the internet request.")
+            await client.send_message(channel, "An error occurred making the internet request.")
     
     
     ''' Retrieves sizes for item in stock.
@@ -494,7 +612,7 @@ class Shopify(object):
         try:
             raw_HTML = requests.get(url, headers=headers, timeout=10)
             if raw_HTML.status_code != 200:
-                await client.send_message(ctx.message.channel,"An error has occured completing your request")
+                await client.send_message(ctx.message.channel,"An error has occurred completing your request")
                 return 
             else:
                 page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
@@ -506,10 +624,10 @@ class Shopify(object):
             await client.send_message(ctx.message.channel,"There was a timeout error")
         except requests.ConnectionError as error:
             logger.error('Connection Error: %s', str(error))
-            await client.send_message(ctx.message.channel,"A connection error has occured.")
+            await client.send_message(ctx.message.channel,"A connection error has occurred.")
         except requests.RequestException as error:
             logger.error('Request Error: %s', str(error))
-            await client.send_message(ctx.message.channel,"An error occured making the internet request.")
+            await client.send_message(ctx.message.channel,"An error occurred making the internet request.")
             
     ''' Retrieves only the absolute URL from passed in URL.
     
@@ -559,7 +677,7 @@ class Shopify(object):
     async def get_size_variant(self, url, page, ctx):
         scripts = page.find_all("script")
         if scripts == None:
-            await client.send_message(ctx.message.channel,"An error has occured completing your request. Check that the website is a shopify website.")
+            await client.send_message(ctx.message.channel,"An error has occurred completing your request. Check that the website is a shopify website.")
             return
         
         script_index = self.find_variant_script(scripts)
@@ -628,7 +746,7 @@ class Shopify(object):
     async def print_link(self, url, size, retrieved_id, ctx):
         absolute_url = self.get_absolute_url(url)
         if absolute_url == False:
-            await client.send_message(ctx.message.channel, "An error has occured completing your request")
+            await client.send_message(ctx.message.channel, "An error has occurred completing your request")
             return False
         
         self.sizes += size + "\n"
@@ -659,6 +777,11 @@ class Shopify(object):
 if __name__ == "__main__":           
     ''' Initialize Discord bot by making the first call to it '''
     try:
+        db_client = pymongo.MongoClient(MONGODB_URI)
+        db = db_client.get_default_database()
+        subscriptions = db['subscriptions']
+        subscriptions.create_index('email')
+
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
