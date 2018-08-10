@@ -44,7 +44,7 @@ TOKEN = os.environ["TOKEN"]
 # Variables to make calls to Shopify (Subscription related data)
 SHOPIFY_USER = os.environ["SHOPIFY_USER"]
 SHOPIFY_PASS = os.environ["SHOPIFY_PASS"]
-
+# URI for Mongo/Heroku Database
 MONGODB_URI = os.environ["MONGODB_URI"]
 
 
