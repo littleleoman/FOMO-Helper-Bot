@@ -134,6 +134,7 @@ async def on_member_remove(member):
                 }
             }, upsert=False)
     
+    
 @client.event
 async def on_message(message):
     # Don't want the bot to reply to itself
