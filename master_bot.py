@@ -90,7 +90,10 @@ def tiny(url, ctx):
         return page.find_all('div', {'class': 'indent'})[1].b.string
     
     
+''' Subscribes user to service by adding them to the database and assigning the appropriate role(s).
 
+    @param email: The email to be added to the database
+    @param author: User responsible for sending authentication message '''
 async def sub_and_assign_roles(email, author):
     data = subscriptions.find_one({"email": f"{email}"})
     if data == None:
@@ -154,8 +157,8 @@ async def on_message(message):
                 await client.send_message(message.channel, 'Travis Scott keywords: +travis, +sail, +force')
              elif re.search('raffle', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
-         elif re.search('slots', message.content, re.IGNORECASE):
-             if re.search('guide|how\s+do|fomo|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
+         elif re.search('slots|fomo', message.content, re.IGNORECASE):
+             if re.search('guide|how\s+do|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'You can find a detailed explanation on how slots work in <#471003962854604810> or in the FOMO Guide: <https://goo.gl/MQUnG7>')
     else:
         await client.process_commands(message)
@@ -258,12 +261,13 @@ async def custom_help(ctx, *command):
             description = BOT_DESCRIPTION
         )
         
-        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee**'
+        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate**'
         keyword_descriptions = 'Jig your home address; type input between **" "**\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
         keyword_descriptions += 'Checks if a website is Shopify\n'
-        keyword_descriptions += 'Calculates seller profit after fees for a given sale price'
+        keyword_descriptions += 'Calculates seller profit after fees for a given sale price\n'
+        keyword_descriptions += 'Authenticates you in database and assigns correct role'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
@@ -276,7 +280,6 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ gmail | mail | email ]', inline=False)
-        
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'address' or command[0] == 'adr' or command[0] == 'addr')):
         desc = 'This command manipulates any residential address passed to it as a parameter.'
@@ -285,7 +288,6 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ address | addr | adr ]', inline=False)
-        
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'atc')):
         desc = 'Add To Cart command for any Shopify website. Generates a link leading the user '
@@ -295,7 +297,6 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ atc ]', inline=False)
-        
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'isshopify')):
         desc = 'This command uses a given URL in order to determine whether '
@@ -305,6 +306,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ isshopify ]', inline=False)
+        await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'fee')):
         desc = "Calculates the seller fees applied by different websites."
         embed = Embed(
@@ -313,10 +315,19 @@ async def custom_help(ctx, *command):
         )
         
         embed.add_field(name='Aliases', value='[ fee ]', inline=False)
-        
         await client.send_message(author, embed=embed)
-
-''' Discord command to calcualte the feels that are applied to sale products on multiple websites.
+    elif (len(command) > 0 and (command[0] == 'activate')):
+        desc = "Authenticates new members of the group in the database "
+        desc += "and assigns correct role(s) so they can have access to all the correct content."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        embed.add_field(name='Aliases', value='[ activate ]', inline=False)
+        await client.send_message(author, embed=embed)
+        
+        
+''' Discord command to calculate the fees that are applied to sale products on multiple websites.
 
     @param ctx: Discord information
     @param sale_price: Price for which to make the calculations'''
