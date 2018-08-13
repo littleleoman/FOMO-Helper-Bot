@@ -94,15 +94,27 @@ def tiny(url, ctx):
 
     @param email: The email to be added to the database
     @param author: User responsible for sending authentication message '''
-async def sub_and_assign_roles(email, author):
+async def sub_and_assign_roles(email, author, is_beta):
     data = subscriptions.find_one({"email": f"{email}"})
+    discord_server = client.get_server("355178719809372173")
     if data == None:
         subscriptions.insert({
             "email": email,
             "status": "active",
-            "discord_id": author.id
+            "discord_id": author.id,
+            "beta": str(is_beta),
+            "monitors": str(not is_beta)
         })
-        #role = "Member"
+        
+        if is_beta:
+            role = get(discord_server.roles, name="Member")
+            user = discord_server.get_member(author.id)
+            await client.add_roles(user, role)
+        else:
+            role = get(discord_server.roles, name="Monitor")
+            user = discord_server.get_member(author.id)
+            await client.add_roles(user, role)
+        
         await client.send_message(author, "Your subscription has been successfully activated!")
         return True
     else:
@@ -111,15 +123,44 @@ async def sub_and_assign_roles(email, author):
             await client.send_message(author, "You have already activated your subscription. If you believe this to be a mistake, please contact an admin.")
             return False
         else:
-            subscriptions.replace_one({
-                "email": email
-            }, {
-                "email": email,
-                "status": "active",
-                "discord_id": author.id
-            })
-            await client.send_message(author, "Your subscription has been reactivated!")
-            return True
+            if status == "canceled":
+                await client.send_message(author, "Your subscription was previously canceled by one of our admins. Please contact one of them to reactivate it.")
+                return False
+            else:
+                beta = str(data["beta"])
+                monitors = str(data["monitors"])
+                
+                if beta == "True":
+                    subscriptions.replace_one({
+                        "email": email
+                    }, {
+                        "email": email,
+                        "status": "active",
+                        "discord_id": author.id,
+                        "beta": "True",
+                        "monitors": "False"
+                    })
+                    
+                    role = get(discord_server.roles, name="Member")
+                    user = discord_server.get_member(author.id)
+                    await client.add_roles(user, role)
+                else:
+                    subscriptions.replace_one({
+                        "email": email
+                    }, {
+                        "email": email,
+                        "status": "active",
+                        "discord_id": author.id,
+                        "beta": "False",
+                        "monitors": "True"
+                    })
+                    
+                    role = get(discord_server.roles, name="Monitor")
+                    user = discord_server.get_member(author.id)
+                    await client.add_roles(user, role)
+                    
+                await client.send_message(author, "Your subscription has been reactivated!")
+                return True
 # ------------------------------------------------------------- #
 #                                                               #
 #                 All the Discord Bot methods                   #
@@ -145,23 +186,18 @@ async def on_message(message):
         return 
       
     if not message.content.startswith('!') and not message.content.startswith('?'):
-        # List of keywords for automated responses
-        # keywords_1 = ['presto','prestos','sitelist','presto sitelist URL (there isn\'t one yet)']
-        # keywords_2 = ['presto','prestos', 'keywords','kw','presto keywords (unavailable at this time)']
-        # keywords_3 = ['presto','prestos','raffle','raffles','Open raffles can be found in #raffles or on https://fomo.supply/']
-        # keywords_4 = ['FOMO','guide','tutorial','how to','FOMO Guide: https://goo.gl/MQUnG7']
-         if re.search('travis|scott|air force|sail', message.content, re.IGNORECASE):
+         if re.search('nike element react|element react|react 87|react|nike element', message.content, re.IGNORECASE):
              if re.search('sitelist', message.content, re.IGNORECASE):
-                await client.send_message(message.channel, 'Travis Scott sitelist URL: <https://goo.gl/b7m6hi>')
-             elif re.search('keyword|kw', message.content, re.IGNORECASE):
-                await client.send_message(message.channel, 'Travis Scott keywords: +travis, +sail, +force')
-             elif re.search('raffle', message.content, re.IGNORECASE):
+                await client.send_message(message.channel, 'Nike Element React sitelist URL: <https://goo.gl/b7m6hi>')
+             elif re.search('keyword|kw|kws|keywords', message.content, re.IGNORECASE):
+                await client.send_message(message.channel, 'Nike Element React keywords: +react, +element, +87')
+             elif re.search('raffle|raffles', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
          elif re.search('slots', message.content, re.IGNORECASE):
              if re.search('guide|how\s+do|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'You can find a detailed explanation on how slots work in <#471003962854604810> or in the FOMO Guide: <https://goo.gl/MQUnG7>')
          elif re.search('fomo', message.content, re.IGNORECASE):
-             if re.search('guide|how\s+to|works|work', message.content, re.IGNORECASE):
+             if re.search('guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, "FOMO Guide: <https://goo.gl/MQUnG7>")
     else:
         await client.process_commands(message)
@@ -182,6 +218,90 @@ async def on_ready():
     print('------')
 
 
+@client.command(name='resub',
+                description='Gives a member back his subscription if they had their subscription canceled',
+                pass_context=True)
+async def resub(ctx, *args):
+    author = ctx.message.author 
+    discord_server = client.get_server("355178719809372173")
+    member = discord_server.get_member(author.id)
+    
+    if "Admin" in [role.name for role in member.roles]:
+        if len(args) < 2:
+            await client.send_message(author, "Command is missing an argument. Make sure you provide the shopify email and the role to be given")
+        elif len(args) > 2:
+            await client.send_message(author, "Command has extra argument(s). Make sure you provide the shopify email and the role to be given only.")
+        else:
+            email = args[0]
+            sub = args[1]
+            
+            data = subscriptions.find_one({"email": f"{email}"})
+            if data == None:
+                await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
+            else:
+                if sub.lower() == "beta" or sub.lower() == "monitors":
+                    if sub.lower() == "beta":
+                        subscriptions.update_one({
+                            "email": email
+                        }, {
+                            "$set": {
+                                "status": "disabled",
+                                "beta": "True"
+                            }
+                        }, upsert=False)
+                    else:
+                        subscriptions.update_one({
+                            "email": email
+                        }, {
+                            "$set": {
+                                "status": "disabled",
+                                "monitors": "True"
+                            }
+                        }, upsert=False)
+                
+                    await client.send_message(author, "User has been given permission to reactivate their account!")
+                else:
+                    await client.send_message(author, "Provided subscription isn't valid. Please make sure it is either **beta** or **monitors**")
+                
+    else:
+        await client.send_message(author, "This command is for admins only")
+        
+
+
+@client.command(name='cancel',
+                description='Cancel a user\'s subscription',
+                pass_context=True)
+async def cancel(ctx, email):
+    discord_server = client.get_server("355178719809372173")
+    author = ctx.message.author 
+    member = discord_server.get_member(author.id)
+    
+    if "Admin" in [role.name for role in member.roles]:
+        data = subscriptions.find_one({"email": f"{email}"})
+        if data == None:
+            await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
+        else:
+            subscriptions.update_one({
+                "email": email
+            }, {
+                "$set": {
+                    "status": "canceled",
+                    "beta": "False",
+                    "monitors": "False"
+                }
+            })
+                
+            user_id = data["discord_id"]
+            user = discord_server.get_member(user_id)
+            monitor_role = get(discord_server.roles, name='Monitor')
+            member_role = get(discord_server.roles, name='Member')
+            await client.remove_roles(user, monitor_role)
+            await client.remove_roles(user, member_role)
+            await client.send_message(author, "User subscription successfully canceled")
+    else:
+        await client.send_message(author, "This command is for admins only")        
+
+
 @client.command(name='activate',
                 description='Activate your subscription to be assigned the appropriate roles',
                 pass_context=True)
@@ -189,63 +309,63 @@ async def activate_subscription(ctx, email):
     author = ctx.message.author 
     discord_server = client.get_server("355178719809372173")
     
-    try:
-        customers_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/customers/search.json?query=email:{email}', timeout=10)
-        if customers_req.status_code != 200:
-            print("THE ERROR IS COMING RIGHT HERE")
-            await client.send_message(author, "An error has occurred completing your request")
-        else:
-            customers_resp = customers_req.json()
-            print(customers_resp)
-            valid_email = len(customers_resp['customers'])
-            print("VALID EMAIL: " + str(valid_email))
-            if valid_email == 0:
-                await client.send_message(author, "This email is invalid. Make sure you use the email you used to create an account on our FOMO website.")
+    if isinstance(ctx.message.channel, discord.PrivateChannel):
+        try:
+            customers_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/customers/search.json?query=email:{email}', timeout=10)
+            if customers_req.status_code != 200:
+                await client.send_message(author, "An error has occurred completing your request")
             else:
-                customer = customers_resp['customers'][0]
-                if customer.get("orders_count") <= 0:
-                    pass
+                customers_resp = customers_req.json()
+                print(customers_resp)
+                valid_email = len(customers_resp['customers'])
+                print("VALID EMAIL: " + str(valid_email))
+                if valid_email == 0:
+                    await client.send_message(author, "This email is invalid. Make sure you use the email you used to create an account on our FOMO website.")
                 else:
-                    customer_id = str(customer.get("id"))
-                    customer_last_order_id = str(customer.get("last_order_id"))
-        
-                    last_order_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/orders/{customer_last_order_id}.json', timeout=10)
-                    if last_order_req.status_code != 200:
-                        await client.send_message(author, "An error has occurred")
+                    customer = customers_resp['customers'][0]
+                    if customer.get("orders_count") <= 0:
+                        pass
                     else:
-                        order_resp = last_order_req.json()
-                        is_beta = re.search("line_items':.*title':\s'(discord beta access)',\s'quantity", str(order_resp).lower())
-                        if is_beta == None:
-                            orders_req = requests.get(f'https://{USER}:{PASS}@fomosuptest.myshopify.com/admin/customers/{customer_id}/orders.json', timeout=10)
-                            if orders_req.status_code != 200:
-                                await client.send_message(author, "An error has occurred")
-                            else:
-                                orders_resp = orders_req.json()
-                                is_beta = re.search("line_items':.*title':\s'(discord beta access)',\s'quantity", str(orders_resp).lower())
-                                if is_beta == None:
-                                    await client.send_message(author, "You do not have a subscription. If you believe this to be a mistake, please contact an admin.")
-                                else:
-                                    status = await sub_and_assign_roles(email, author)
-                                    if status == True:
-                                        role = get(discord_server.roles, name="Member")
-                                        user = discord_server.get_member(author.id)
-                                        await client.add_roles(user, role)
+                        customer_id = str(customer.get("id"))
+                        customer_last_order_id = str(customer.get("last_order_id"))
+             
+                        last_order_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/orders/{customer_last_order_id}.json', timeout=10)
+                        if last_order_req.status_code != 200:
+                            await client.send_message(author, "An error has occurred")
                         else:
-                            status = await sub_and_assign_roles(email, author)
-                            if status == True:
-                                role = get(discord_server.roles, name="Member")
-                                user = discord_server.get_member(author.id)
-                                await client.add_roles(user, role)
-
-    except requests.Timeout as error:
-        print("There was a timeout error")
-        print(str(error))
-    except requests.ConnectionError as error:
-        print("A connection error has occurred. The details are below.\n")
-        print(str(error))
-    except requests.RequestException as error:
-        print("An error occurred making the internet request.")
-        print(str(error))
+                            order_resp = last_order_req.json()
+                            is_beta = re.search("line_items':.*title':\s'(discord beta access.*)',\s'quantity", str(order_resp).lower())
+                            if is_beta == None:
+                                is_monitor = re.search("line_items':.*title':\s'(discord monitors access.*)',\s'quantity", str(order_resp).lower())
+                                if is_monitor == None:
+                                    orders_req = requests.get(f'https://{USER}:{PASS}@fomosuptest.myshopify.com/admin/customers/{customer_id}/orders.json', timeout=10)
+                                    if orders_req.status_code != 200:
+                                        await client.send_message(author, "An error has occurred")
+                                    else:
+                                        orders_resp = orders_req.json()
+                                        is_beta = re.search("line_items':.*title':\s'(discord beta access.*)',\s'quantity", str(orders_resp).lower())
+                                        if is_beta == None:
+                                            is_monitor = re.search("line_items':.*title':\s'(discord monitors access)',\s'quantity", str(orders_resp).lower())
+                                            if is_monitor == None:
+                                                await client.send_message(author, "You do not have a subscription. If you believe this to be a mistake, please contact an admin.")
+                                            else:
+                                                await sub_and_assign_roles(email, author, False)
+                                        else:
+                                            await sub_and_assign_roles(email, author, True)
+                                else:
+                                    await sub_and_assign_roles(email, author, False)
+                            else:
+                                await sub_and_assign_roles(email, author, True)
+ 
+        except requests.Timeout as error:
+            print("There was a timeout error")
+            print(str(error))
+        except requests.ConnectionError as error:
+            print("A connection error has occurred. The details are below.\n")
+            print(str(error))
+        except requests.RequestException as error:
+            print("An error occurred making the internet request.")
+            print(str(error))
     
 
 ''' Discord custom help command, formatted different from the defaul help command
