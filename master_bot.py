@@ -168,15 +168,21 @@ async def sub_and_assign_roles(email, author, is_beta):
 # ------------------------------------------------------------- #
 @client.event
 async def on_member_remove(member):
-    for role in member.roles:
-        if "Member" in role.name:
-            result = subscriptions.update_one({
-                "discord_id": member.id
-            }, {
-                "$set": {
-                    "status": "disabled"
-                }
-            }, upsert=False)
+    data = subscriptions.find_one({"discord_id": f"{member.id}"})
+    status = data["status"]
+    
+    if status == "canceled":
+        pass
+    else:
+        for role in member.roles:
+            if "Member" or "Monitor" in role.name:
+                result = subscriptions.update_one({
+                    "discord_id": member.id
+                }, {
+                    "$set": {
+                        "status": "disabled"
+                    }
+                }, upsert=False)
     
     
 @client.event
