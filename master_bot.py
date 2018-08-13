@@ -226,45 +226,46 @@ async def resub(ctx, *args):
     discord_server = client.get_server("355178719809372173")
     member = discord_server.get_member(author.id)
     
-    if "Admin" in [role.name for role in member.roles]:
-        if len(args) < 2:
-            await client.send_message(author, "Command is missing an argument. Make sure you provide the shopify email and the role to be given")
-        elif len(args) > 2:
-            await client.send_message(author, "Command has extra argument(s). Make sure you provide the shopify email and the role to be given only.")
-        else:
-            email = args[0]
-            sub = args[1]
-            
-            data = subscriptions.find_one({"email": f"{email}"})
-            if data == None:
-                await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
+    if isinstance(ctx.message.channel, discord.PrivateChannel):
+        if "Admin" in [role.name for role in member.roles]:
+            if len(args) < 2:
+                await client.send_message(author, "Command is missing an argument. Make sure you provide the shopify email and the role to be given")
+            elif len(args) > 2:
+                await client.send_message(author, "Command has extra argument(s). Make sure you provide the shopify email and the role to be given only.")
             else:
-                if sub.lower() == "beta" or sub.lower() == "monitors":
-                    if sub.lower() == "beta":
-                        subscriptions.update_one({
-                            "email": email
-                        }, {
-                            "$set": {
-                                "status": "disabled",
-                                "beta": "True"
-                            }
-                        }, upsert=False)
-                    else:
-                        subscriptions.update_one({
-                            "email": email
-                        }, {
-                            "$set": {
-                                "status": "disabled",
-                                "monitors": "True"
-                            }
-                        }, upsert=False)
+                email = args[0]
+                sub = args[1]
                 
-                    await client.send_message(author, "User has been given permission to reactivate their account!")
+                data = subscriptions.find_one({"email": f"{email}"})
+                if data == None:
+                    await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
                 else:
-                    await client.send_message(author, "Provided subscription isn't valid. Please make sure it is either **beta** or **monitors**")
-                
-    else:
-        await client.send_message(author, "This command is for admins only")
+                    if sub.lower() == "beta" or sub.lower() == "monitors":
+                        if sub.lower() == "beta":
+                            subscriptions.update_one({
+                                "email": email
+                            }, {
+                                "$set": {
+                                    "status": "disabled",
+                                    "beta": "True"
+                                }
+                            }, upsert=False)
+                        else:
+                            subscriptions.update_one({
+                                "email": email
+                            }, {
+                                "$set": {
+                                    "status": "disabled",
+                                    "monitors": "True"
+                                }
+                            }, upsert=False)
+                    
+                        await client.send_message(author, "User has been given permission to reactivate their account!")
+                    else:
+                        await client.send_message(author, "Provided subscription isn't valid. Please make sure it is either **beta** or **monitors**")
+                    
+        else:
+            await client.send_message(author, "This command is for admins only")
         
 
 
@@ -276,30 +277,31 @@ async def cancel(ctx, email):
     author = ctx.message.author 
     member = discord_server.get_member(author.id)
     
-    if "Admin" in [role.name for role in member.roles]:
-        data = subscriptions.find_one({"email": f"{email}"})
-        if data == None:
-            await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
+    if isinstance(ctx.message.channel, discord.PrivateChannel):
+        if "Admin" in [role.name for role in member.roles]:
+            data = subscriptions.find_one({"email": f"{email}"})
+            if data == None:
+                await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
+            else:
+                subscriptions.update_one({
+                    "email": email
+                }, {
+                    "$set": {
+                        "status": "canceled",
+                        "beta": "False",
+                        "monitors": "False"
+                    }
+                })
+                    
+                user_id = data["discord_id"]
+                user = discord_server.get_member(user_id)
+                monitor_role = get(discord_server.roles, name='Monitor')
+                member_role = get(discord_server.roles, name='Member')
+                await client.remove_roles(user, monitor_role)
+                await client.remove_roles(user, member_role)
+                await client.send_message(author, "User subscription successfully canceled")
         else:
-            subscriptions.update_one({
-                "email": email
-            }, {
-                "$set": {
-                    "status": "canceled",
-                    "beta": "False",
-                    "monitors": "False"
-                }
-            })
-                
-            user_id = data["discord_id"]
-            user = discord_server.get_member(user_id)
-            monitor_role = get(discord_server.roles, name='Monitor')
-            member_role = get(discord_server.roles, name='Member')
-            await client.remove_roles(user, monitor_role)
-            await client.remove_roles(user, member_role)
-            await client.send_message(author, "User subscription successfully canceled")
-    else:
-        await client.send_message(author, "This command is for admins only")        
+            await client.send_message(author, "This command is for admins only")        
 
 
 @client.command(name='activate',
