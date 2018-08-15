@@ -192,13 +192,16 @@ async def on_message(message):
         return 
       
     if not message.content.startswith('!') and not message.content.startswith('?'):
-         if re.search('nike element react|element react|react 87|react|nike element', message.content, re.IGNORECASE):
+         if re.search('nike element react|element react|react 87|react|nike element|', message.content, re.IGNORECASE):
              if re.search('sitelist', message.content, re.IGNORECASE):
                 await client.send_message(message.channel, 'Nike Element React sitelist URL: <https://goo.gl/b7m6hi>')
              elif re.search('keyword|kw|kws|keywords', message.content, re.IGNORECASE):
                 await client.send_message(message.channel, 'Nike Element React keywords: +react, +element, +87')
              elif re.search('raffle|raffles', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
+         elif re.search('pharrell afro pack|pharrell afro|afro pack|pharrell afro hu|afro hu|pharrell hu', messa.content, re.IGNORECASE):
+             if re.search('raffle|raffles', message.content, re.IGNORECASE):
+                 await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>') 
          elif re.search('slots', message.content, re.IGNORECASE):
              if re.search('guide|how\s+do|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'You can find a detailed explanation on how slots work in <#471003962854604810> or in the FOMO Guide: <https://goo.gl/MQUnG7>')
