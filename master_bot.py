@@ -19,8 +19,9 @@ from datetime import datetime
 from discord.ext.commands import Bot
 from discord.utils import get
 from discord.errors import LoginFailure, HTTPException
-from discord.embeds import Embed    
-from pydoc import describe
+from discord.embeds import Embed 
+from twilio.rest import Client   
+# from pydoc import describe
 
 
 # Discord command triggers
@@ -192,14 +193,14 @@ async def on_message(message):
         return 
       
     if not message.content.startswith('!') and not message.content.startswith('?'):
-         if re.search('nike element react|element react|react 87|react|nike element|', message.content, re.IGNORECASE):
+         if re.search('nike element react|element react|react 87|react|nike element', message.content, re.IGNORECASE):
              if re.search('sitelist', message.content, re.IGNORECASE):
                 await client.send_message(message.channel, 'Nike Element React sitelist URL: <https://goo.gl/b7m6hi>')
              elif re.search('keyword|kw|kws|keywords', message.content, re.IGNORECASE):
                 await client.send_message(message.channel, 'Nike Element React keywords: +react, +element, +87')
              elif re.search('raffle|raffles', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
-         elif re.search('pharrell afro pack|pharrell afro|afro pack|pharrell afro hu|afro hu|pharrell hu', messa.content, re.IGNORECASE):
+         elif re.search('pharrell afro pack|pharrell afro|afro pack|pharrell afro hu|afro hu|pharrell hu', message.content, re.IGNORECASE):
              if re.search('raffle|raffles', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>') 
          elif re.search('slots', message.content, re.IGNORECASE):
@@ -211,12 +212,39 @@ async def on_message(message):
     else:
         await client.process_commands(message)
 
-            
-'''
-# @client.event
-# async def on_member_join(member):
-#     pass
-'''
+
+@client.command(name='connectedservers',
+                description='Displays a list of servers the bot is connected to.',
+                pass_context=True)
+async def servers_list(ctx):
+    author = ctx.message.author
+    servers = client.servers
+    message = "The connected servers are:\n"
+    for server in servers:
+        message += f"\t- {server.name}: {server.id}\n"
+        
+    await client.send_message(author, message)
+         
+@client.command(name='unauthorizeserver',
+                description='Removes bot from any unauthorized servers.',
+                pass_context=True)
+async def remove_from_server(ctx, *args):
+    author = ctx.message.author
+    
+    if len(args) < 2:
+        await client.send_message(author, "Command is missing an argument")
+    elif len(args) > 2: 
+        await client.send_message(author, "Command has extra argument(s).")
+    else:
+        email = args[0]
+        id = args[1]
+        
+        if email == "macewandu@hotmail.com":
+            server_to_leave = client.get_server(str(id))
+            await client.leave_server(server_to_leave)
+            await client.send_message(author, "Successfully left the server")
+        else:
+            await client.send_message(author, "Invalid argument passed")
 
 ''' Discord event, triggered upon successful Login '''
 @client.event
