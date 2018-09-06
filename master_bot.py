@@ -114,7 +114,7 @@ async def sub_and_assign_roles(email, author, free, member, monitors):
         })
         
         if member:
-            role = get(discord_server.roles, name="Member")
+            role = get(discord_server.roles, name="Premium")
             user = discord_server.get_member(author.id)
             await client.add_roles(user, role)
         elif monitors:
@@ -154,7 +154,7 @@ async def sub_and_assign_roles(email, author, free, member, monitors):
                         "monitors": "False"
                     })
                     
-                    role = get(discord_server.roles, name="Member")
+                    role = get(discord_server.roles, name="Premium")
                     user = discord_server.get_member(author.id)
                     await client.add_roles(user, role)
                 elif monitors == "True":
@@ -205,7 +205,7 @@ async def on_member_remove(member):
         pass
     else:
         for role in member.roles:
-            if "Member" or "Monitor" or "Free" in role.name:
+            if "Premium" or "Monitor" or "Free" in role.name:
                 result = subscriptions.update_one({
                     "discord_id": member.id
                 }, {
@@ -372,7 +372,7 @@ async def cancel(ctx, email):
                 user_id = data["discord_id"]
                 user = discord_server.get_member(user_id)
                 monitor_role = get(discord_server.roles, name='Monitor')
-                member_role = get(discord_server.roles, name='Member')
+                member_role = get(discord_server.roles, name='Premium')
                 free_role = get(discord_server.roles, name="Free")
                 await client.remove_roles(user, monitor_role)
                 await client.remove_roles(user, member_role)
