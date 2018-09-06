@@ -482,13 +482,14 @@ async def custom_help(ctx, *command):
             description = BOT_DESCRIPTION
         )
         
-        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate**'
+        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!free** \n**!premium**'
         keyword_descriptions = 'Jig your home address; type input between **" "**\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
         keyword_descriptions += 'Checks if a website is Shopify\n'
         keyword_descriptions += 'Calculates seller profit after fees for a given sale price\n'
-        keyword_descriptions += 'Authenticates you in database and assigns correct role'
+        keyword_descriptions += 'Authenticates Free Members and assigns correct role\n'
+        keyword_descriptions += 'Authenticates Premium Members and assigns correct role\n'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
@@ -537,16 +538,25 @@ async def custom_help(ctx, *command):
         
         embed.add_field(name='Aliases', value='[ fee ]', inline=False)
         await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'activate')):
-        desc = "Authenticates new members of the group in the database "
+    elif (len(command) > 0 and (command[0] == 'free')):
+        desc = "Authenticates new Free Members of the group in the database "
         desc += "and assigns correct role(s) so they can have access to all the correct content. "
-        desc += "Parameters for this command are the email used (either on FOMO website or PayPal) and the service "
-        desc += "used (Shopify for Free Members or PayPal for paying members)."
+        desc += "The parameter for this command is the email used on the FOMO website."
         embed = Embed(
             color = 0xffffff,
             description = desc
         )
-        embed.add_field(name='Aliases', value='[ activate ]', inline=False)
+        embed.add_field(name='Aliases', value='[ free ]', inline=False)
+        await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'premium')):
+        desc = "Authenticates new Premium Members of the group in the database "
+        desc += "and assigns correct role(s) so they can have access to all the correct content. "
+        desc += "The parameter for this command is the email used to make your PayPal payments."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        embed.add_field(name='Aliases', value='[ premium ]', inline=False)
         await client.send_message(author, embed=embed)
         
         
