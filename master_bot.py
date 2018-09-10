@@ -23,7 +23,7 @@ from discord.ext.commands import Bot
 from discord.utils import get
 from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed 
-from twilio.rest import Client   
+from twilio.rest import Client  
 
 # Discord command triggers
 BOT_PREFIX = ("?", "!")
@@ -285,6 +285,9 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    
+    paypal = PayPal()
+    await paypal.paypal_observer()
 
 
 @client.command(name='resub',
@@ -1026,6 +1029,8 @@ class PayPal(object):
         self.expiration_date = None
         self.access_token = None
         self.page_count = None
+        self.discord_server = client.get_server("355178719809372173")
+        
     
     def calculateDates(self): 
         END = datetime.datetime.utcnow().replace(tzinfo=pytz.utc).strftime('%Y-%m-%dT%H:%M:%S%z')
@@ -1034,6 +1039,8 @@ class PayPal(object):
         return (START, END)
     
     def generate_token(self):
+        
+        
         token_url = 'https://api.paypal.com/v1/oauth2/token'
         data = {'grant_type': 'client_credentials'}
         access_token_resp = requests.post(token_url, data, verify=True, auth=(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET))
@@ -1052,8 +1059,12 @@ class PayPal(object):
         print(self.expiration_date)
         
     
-    async def check_membership(self, ctx, email, page=None):
-        author = ctx.message.author
+    async def check_membership(self, ctx, email, page=None, observer=False):
+        if observer:
+            pass
+        else: 
+            author = ctx.message.author
+        
         access_token = self.access_token
         now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc).strftime('%Y-%m-%dT%H:%M:%S%z')
         
@@ -1093,8 +1104,11 @@ class PayPal(object):
         transactions = requests.get(transactions_base_url, headers=api_call_headers, verify=True, params=params)
         
         if transactions.status_code != 200:
-            await client.send_message(author, "An error has occurred completing your request")
-            return
+            if observer:
+                await client.send_message(self.discord_server.get_member("460997994121134082"), "An error has occurred with the PayPal observer")
+            else:
+                await client.send_message(author, "An error has occurred completing your request")
+                return
         else:
             transactions_json = json.loads(transactions.text)
 #             print(transactions_json)
@@ -1108,22 +1122,59 @@ class PayPal(object):
                     if trans_email == email:
                         if trans_status == 'S':
                             if transaction['transaction_info']['transaction_amount']['value'] == '20.00':
-                                await sub_and_assign_roles(email, author, False, True, False)
-                                return
+                                if observer:
+                                    return True
+                                else:
+                                    await sub_and_assign_roles(email, author, False, True, False)
+                                    return
                             if transaction['transaction_info']['transaction_amount']['value'] == '15.00':
-                                await sub_and_assign_roles(email, author, False, False, True)
-                                return 
+                                if observer:
+                                    return True
+                                else:
+                                    await sub_and_assign_roles(email, author, False, False, True)
+                                    return 
                         else:
-                            await client.send_message(author, "There was a problem with your transaction or it hasn't been fully processed by PayPal." 
-                            + " Please allow PayPal some time to process your payment and try again. If the problem persists, contact one of the admins.")
-                            return
+                            if observer:
+                                return False
+                            else:
+                                await client.send_message(author, "There was a problem with your transaction or it hasn't been fully processed by PayPal." 
+                                + " Please allow PayPal some time to process your payment and try again. If the problem persists, contact one of the admins.")
+                                return
             
             if count < self.page_count:
                 self.check_membership(ctx, email, count+1)
             else:
-                await client.send_message(author, "This email is invalid. Make sure you use the email for the account you used to make your PayPal payment.")
-                return 
-
+                if observer:
+                    return False
+                else:
+                    await client.send_message(author, "This email is invalid. Make sure you use the email for the account you used to make your PayPal payment.")
+                    return 
+            
+    async def paypal_observer(self):
+        expired_subs= "Subscriptions for the following emails have either expired or there have been problems with their transaction. Please check PayPal to confirm before handling their subscription.\n"
+        list = ""
+        emails = subscriptions.distinct("email")
+        for email in emails:
+            data = subscriptions.find_one({"email": f"{email}"})
+            if data != None:
+                member = data["member"]
+                monitors = data["monitors"]
+                if member or monitors == "True":
+                    status = await self.check_membership(None, email, None, True)
+                    if status == False:
+                        list += f"\t- {email}\n"
+                    else:
+                        continue
+        
+        if list == "":
+            pass
+        else:
+            expired_subs += list
+            await client.send_message(self.discord_server.get_member("460997994121134082"), expired_subs)
+        
+        # Sleep for 24 hours before running again 
+        time.sleep(86400)
+        await self.paypal_observer()
             
 if __name__ == "__main__":           
     ''' Initialize Discord bot by making the first call to it '''
@@ -1132,8 +1183,6 @@ if __name__ == "__main__":
         db = db_client.get_default_database()
         subscriptions = db['subscriptions']
         subscriptions.create_index('email')
-        
-        paypal = PayPal()
 
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
