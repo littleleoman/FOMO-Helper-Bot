@@ -971,7 +971,7 @@ class Shopify(object):
         
         thumbnail_url = self.get_thumbnail_image(page)
         embed = Embed(title=page.title.string, url=url, description=self.atc_links, color=0x00f900)
-        embed.set_footer(text=str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        embed.set_footer(text=str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         if thumbnail_url == None:
             pass
         else:
