@@ -248,9 +248,16 @@ async def on_message(message):
 
 
 @client.command(name='expired',
-                description='See all the premium members whose PayPal subscription has expired')
-async def expired_subs():
-    await paypal.paypal_observer()
+                description='See all the premium members whose PayPal subscription has expired',
+                pass_context=True)
+async def expired_subs(ctx):
+    author = ctx.message.author
+    discord_server = client.get_server("355178719809372173")
+    member = discord_server.get_member(author.id)
+    if "Admin" in [role.name for role in member.roles]:
+        await paypal.paypal_observer(author)
+    else:
+        await client.send_message(author, "This command is for Admins only")
 
 @client.command(name='connectedservers',
                 description='Displays a list of servers the bot is connected to.',
@@ -1154,10 +1161,10 @@ class PayPal(object):
                     await client.send_message(author, "This email is invalid. Make sure you use the email for the account you used to make your PayPal payment.")
                     return 
             
-    async def paypal_observer(self):
+    async def paypal_observer(self, author):
         discord_server = client.get_server("355178719809372173")
         
-        await client.send_message(discord_server.get_member("460997994121134082"), ':hourglass: Checking PayPal. Please wait...')
+        await client.send_message(author, ':hourglass: Checking PayPal. Please wait...')
     
         expired_subs= "Subscriptions for the following emails have either expired or there have been problems with their transaction. Please check PayPal to confirm before handling their subscription.\n"
         list = ""
@@ -1175,10 +1182,10 @@ class PayPal(object):
                         continue
             
         if list == "":
-            await client.send_message(discord_server.get_member("460997994121134082"), "No subscriptions have expired")
+            await client.send_message(author, "No subscriptions have expired")
         else:
             expired_subs += list
-            await client.send_message(discord_server.get_member("460997994121134082"), expired_subs)
+            await client.send_message(author, expired_subs)
             
         
             
