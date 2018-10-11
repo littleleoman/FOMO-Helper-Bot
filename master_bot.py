@@ -598,7 +598,7 @@ async def fee_calculator(ctx, sale_price):
         #    - site title
         #    - fee percentage
         #    - fixed fee (0 if none)
-        ebay = ('eBay', 0.09, 0.00)
+        ebay = ('eBay', 0.129, 0.00)
         grailed = ('Grailed', 0.089, 0.30)
         paypal = ('PayPal', 0.029, 0.30)
         goat = ('Goat', 0.095, 5.00)
@@ -678,7 +678,44 @@ async def add_to_cart(ctx, url):
     await client.send_message(ctx.message.channel, ':hourglass: Retrieving sizes. Please wait...')
     await shopify.run(str(url), ctx)
 
+''' Discord command for eBay views: limited to 20 views one command 
 
+    @param url: URL for eBay listing '''
+@client.command(name='ebayview', 
+                description='Automatic eBay viewer for any listing. Views the given URL 20 times',
+                pass_context=True)
+async def ebay_view(ctx, url):
+    await client.send_message(ctx.message.channel, ':hourglass: Starting bot. Please wait...')
+    proxy_list = open('proxies.txt', 'r')
+    proxysplit = proxy_list.read().splitlines()
+    i = 0
+    product_url = url
+    while i < 20:
+        session = requests.Session()
+        headers = {
+            'Host': 'www.ebay.com',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
+            'DNT': '1',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
+            }
+        proxypuller = random.choice(proxysplit)
+        proxy = {
+            'https' : proxypuller
+            }
+        try:
+            print('view #' + str(i) + ' with ' + str(proxy))
+            a = session.get(str(product_url), headers=headers, proxies=proxy)
+            i = i+1
+        except:
+            print('error')
+            pass
+            i = i+1
+    await client.send_message(ctx.message.channel, 'Link' + str(ctx) + 'viewed 20 times')
+     
 # ------------------------------------------------------------- #
 #                                                               #
 # Individual classes to represent the different functionalities #
