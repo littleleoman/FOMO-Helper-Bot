@@ -714,7 +714,7 @@ async def ebay_view(ctx, url):
             print('error')
             pass
             i = i+1
-    await client.send_message(ctx.message.channel, 'Link' + str(ctx) + 'viewed 20 times')
+    await client.send_message(ctx.message.channel, 'Link ' + str(product_url) + ' viewed 20 times')
      
 # ------------------------------------------------------------- #
 #                                                               #
