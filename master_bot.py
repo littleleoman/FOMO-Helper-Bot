@@ -43,7 +43,7 @@ Example:
 
 '''
 
-# Token for Discord Bot, retrieved 
+# Token for Discord Bot 
 TOKEN = os.environ["FOMO_HELPER_BOT_TOKEN"]
 # Variables to make calls to Shopify (Subscription related data)
 SHOPIFY_USER = os.environ["FOMO_HELPER_SHOPIFY_USER"]
@@ -84,8 +84,7 @@ headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleW
     
     @param url: URL to be shortened
     @param ctx: Discord information
-    @return: The shortened url
-'''
+    @return: The shortened url '''
 def tiny(url, ctx):
     URL = "https://tinyurl.com/create.php?source=indexpage&url=" + url + "&submit=Make+TinyURL%21&alias="
     raw_HTML = requests.get(URL, headers=headers, timeout=10)
@@ -103,9 +102,13 @@ def tiny(url, ctx):
     @param email: The email to be added to the database
     @param author: User responsible for sending authentication message '''
 async def sub_and_assign_roles(email, author, free, member, monitors):
+    # Search for email in database
     data = subscriptions.find_one({"email": f"{email}"})
+    # Reference to the FOMO discord server
     discord_server = client.get_server("355178719809372173")
+    # If the email doesn't exist in the database
     if data == None:
+        # Insert new user data in the database
         subscriptions.insert({
             "email": email,
             "status": "active",
@@ -115,6 +118,7 @@ async def sub_and_assign_roles(email, author, free, member, monitors):
             "monitors": monitors
         })
         
+        # Assign correct role to user
         if member:
             role = get(discord_server.roles, name="Premium")
             user = discord_server.get_member(author.id)
@@ -128,14 +132,19 @@ async def sub_and_assign_roles(email, author, free, member, monitors):
             user = discord_server.get_member(author.id)
             await client.add_roles(user, role)
         
+        # Send message on Discord
         await client.send_message(author, "Your subscription has been successfully activated!")
         return True
     else:
+        # If an entry exists in the database for the email
         status = data['status']
+        # Determine how to proceed based on current status of subscription
         if status == "active":
             await client.send_message(author, "You have already activated your subscription. If you believe this to be a mistake, please contact an admin.")
             return False
         else:
+            # If subscription was canceled and user wants to reactivate it, he needs an admins approval
+            # see the !resub command
             if status == "canceled":
                 await client.send_message(author, "Your subscription was previously canceled by one of our admins. Please contact one of them to reactivate it.")
                 return False
@@ -198,12 +207,18 @@ async def sub_and_assign_roles(email, author, free, member, monitors):
 #                 All the Discord Bot methods                   #
 #                                                               #   
 # ------------------------------------------------------------- #
+''' Method triggered by server event when a member leaves the Discord group 
+
+    @param member: User leaving the server. '''
 @client.event
 async def on_member_remove(member):
+    # Search for user data in database
     data = subscriptions.find_one({"discord_id": f"{member.id}"})
+    # Take no actions if no data found in database
     if data == None:
         pass
     else:
+        # Switch user's subscription status
         status = data["status"]
         
         if status == "canceled":
@@ -219,14 +234,18 @@ async def on_member_remove(member):
                         }
                     }, upsert=False)
     
+''' Method triggered by server event when a member sends a message in the Discord group
     
+    @param message: Message sent by the user in the server '''
 @client.event
 async def on_message(message):
     # Don't want the bot to reply to itself
     if message.author == client.user:
         return 
-      
+    
+    # Make sure the message sent is not a command
     if not message.content.startswith('!') and not message.content.startswith('?'):
+        # Automate responses by displaying specific output based on user message if necessary
          if re.search('nike element react|element react|react 87|react|nike element', message.content, re.IGNORECASE):
              if re.search('sitelist', message.content, re.IGNORECASE):
                 await client.send_message(message.channel, 'Nike Element React sitelist URL: <https://goo.gl/b7m6hi>')
@@ -244,21 +263,32 @@ async def on_message(message):
              if re.search('guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
                  await client.send_message(message.channel, "FOMO Guide: <https://goo.gl/MQUnG7>")
     else:
+        # If it's a command that was sent, process the command normally
         await client.process_commands(message)
 
+''' Admin only function to display all expired premium accounts 
 
+    @param ctx: Discord information '''
 @client.command(name='expired',
                 description='See all the premium members whose PayPal subscription has expired',
                 pass_context=True)
 async def expired_subs(ctx):
+    # User using the command
     author = ctx.message.author
+    # FOMO Discord server reference
     discord_server = client.get_server("355178719809372173")
+    # Author and Member are considered different things on Discord
     member = discord_server.get_member(author.id)
+    # If admin role exists for the member, run correct process
     if "Admin" in [role.name for role in member.roles]:
         await paypal.paypal_observer(author)
     else:
         await client.send_message(author, "This command is for Admins only")
 
+''' Function for personal use; check if any other Discord server got access to FOMO Helper,
+    and prevent them from freely using our bot 
+    
+    @param ctx: Discord information '''
 @client.command(name='connectedservers',
                 description='Displays a list of servers the bot is connected to.',
                 pass_context=True)
@@ -270,7 +300,12 @@ async def servers_list(ctx):
         message += f"\t- {server.name}: {server.id}\n"
         
     await client.send_message(author, message)
-         
+
+''' Complement to connectedservers command. Removes FOMO Helper from any unauthorized servers
+    using the bot. 
+    
+    @param ctx: Discord information
+    @param *args: Developer email and unauthorized server id to remove bot service from  '''
 @client.command(name='unauthorizeserver',
                 description='Removes bot from any unauthorized servers.',
                 pass_context=True)
@@ -300,25 +335,39 @@ async def on_ready():
     print(client.user.id)
     print('------')
     
-
+''' Command used by admins to grant user's permission to resubscribe to the Discord group
+    if their subscription was previously cancelled (NOTE - cancelled subscription is different,
+    from a disabled subscription.) 
+    
+    @param ctx: Discord information 
+    @param *args: Email and subscription type passed by user '''
 @client.command(name='resub',
                 description='Gives a member back his subscription if they had their subscription canceled',
                 pass_context=True)
 async def resub(ctx, *args):
+    # Message author
     author = ctx.message.author 
+    # FOMO Discord server reference
     discord_server = client.get_server("355178719809372173")
+    # Member reference for user 
     member = discord_server.get_member(author.id)
     
+    # Make sure message is a private message to FOMO Helper
     if isinstance(ctx.message.channel, discord.PrivateChannel):
+        # Make sure an admin is using the command
         if "Admin" in [role.name for role in member.roles]:
+            # Check for correct number of parameters passed
             if len(args) < 2:
                 await client.send_message(author, "Command is missing an argument. Make sure you provide the shopify email and the role to be given")
             elif len(args) > 2:
                 await client.send_message(author, "Command has extra argument(s). Make sure you provide the shopify email and the role to be given only.")
             else:
+                # Email passed as a parameter
                 email = args[0]
+                # Subscription type passed as a parameter 
                 sub = args[1]
                 
+                # Find user information on database if it exists
                 data = subscriptions.find_one({"email": f"{email}"})
                 if data == None:
                     await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
@@ -360,16 +409,24 @@ async def resub(ctx, *args):
             await client.send_message(author, "This command is for admins only")
         
 
+''' Method for admin use only. Cancels a user's subscription and updates the database 
 
+    @param ctx: Discord information
+    @param email: Email associated to acount to cancel subscription for'''
 @client.command(name='cancel',
                 description='Cancel a user\'s subscription',
                 pass_context=True)
 async def cancel(ctx, email):
+    # FOMO Discord server reference
     discord_server = client.get_server("355178719809372173")
+    # Message author
     author = ctx.message.author 
+    # Discord member reference based on user id
     member = discord_server.get_member(author.id)
     
+    # If message is a private message 
     if isinstance(ctx.message.channel, discord.PrivateChannel):
+        # Check if member is an admin
         if "Admin" in [role.name for role in member.roles]:
             data = subscriptions.find_one({"email": f"{email}"})
             if data == None:
@@ -398,16 +455,27 @@ async def cancel(ctx, email):
         else:
             await client.send_message(author, "This command is for admins only")        
 
+
+''' Command responsible for authenticating a users free subscription on Discord and assigning
+    appropriate role 
+    
+    @param ctx: Discord information
+    @param email: email associated to account to activate subscription for '''
 @client.command(name='free',
                 description='Activate your free subscription to be assigned the appropriate roles',
                 pass_context=True)
 async def activate_free(ctx, email):
+    # Discord message author
     author = ctx.message.author
+    # FOMO Discord server reference
     discord_server = client.get_server("355178719809372173")
     
+    # If message is a private message
     if isinstance(ctx.message.channel, discord.PrivateChannel):
         try:
+            # Make a request to shopify api to conduct search for the passed email
             customers_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/customers/search.json?query=email:{email}', timeout=10)
+            
             if customers_req.status_code != 200:
                 await client.send_message(author, "An error has occurred completing your request")
                 return
@@ -462,13 +530,18 @@ async def activate_free(ctx, email):
             print("An error occurred making the internet request.")
             print(str(error))
 
+''' Command responsible for authenticating users premium subscription on Discord and 
+    assigning correct role '''
 @client.command(name='premium',
                 description='Activate your premium subscription to be assigned the appropriate roles',
                 pass_context=True)
-async def activate_premium(ctx, email):  
-    author = ctx.message.author 
+async def activate_premium(ctx, email):
+    # Discord message author  
+    author = ctx.message.author
+    # FOMO Discord server reference 
     discord_server = client.get_server("355178719809372173")
       
+    # Check if message is a private message
     if isinstance(ctx.message.channel, discord.PrivateChannel):
         try:
             await paypal.check_membership(ctx, email)
@@ -483,10 +556,10 @@ async def activate_premium(ctx, email):
             print("An error occurred making the internet request.")
             print(str(error))
         
-''' Discord custom help command, formatted different from the defaul help command
+''' Discord custom help command, formatted differently from the default help command
 
     @param ctx: Discord information
-    @param *command: List of arguements passed with the command '''  
+    @param *command: List of arguments passed with the command '''  
 @client.command(name='help',
                 description='Help message to guide the user through using the bot.',
                 pass_context=True)
@@ -585,9 +658,12 @@ async def custom_help(ctx, *command):
                 description='Calculates the seller fees applied by different websites',
                 pass_context=True)
 async def fee_calculator(ctx, sale_price):
+    # List of websites 
     sites = []
+    # Discord channel on which command was called
     channel = ctx.message.channel
     
+    # Simple check for a monetary value
     if re.match('^\d+(\.\d*)*$', sale_price) == None:
         await client.send_message(channel, 'The value given is not a proper monetary value')
     else:
@@ -614,6 +690,7 @@ async def fee_calculator(ctx, sale_price):
         websites = ''
         fees = ''
         profits = ''
+        # For each site, format information for display on Discord
         for i in sites:
             websites += i[0] + '\n'
             fee = round(price * Decimal(i[1]), 2)
@@ -724,7 +801,6 @@ async def ebay_view(ctx, url):
 # ------------------------------------------------------------- #
 class GmailJig(object):
     emails = ''
-    emails_2 = ''
     
     ''' Kickstarts the Gmail Jigging Process.
         
@@ -741,12 +817,16 @@ class GmailJig(object):
         @param email: Email to be checked
         @param ctx: Discord information '''
     async def email_check(self, email, ctx):
+        # Make sure gmail address was passed
         verified = re.search('(@gmail.+)', email)
         if verified == None:
             await client.send_message(ctx.message.author,"Invalid email address. Please use a @gmail address")
         else:
+            # Store email provider/second part of email address -> @gmail...
             email_suffix = verified.group()
+            # Store first part of email
             prefix = email.replace(email_suffix, '')
+            # Make sure first part of email is of a reasonable length for jigging
             if len(prefix) > 2:
                 await self.jig_email(prefix, email_suffix, ctx)
             else:
@@ -758,8 +838,11 @@ class GmailJig(object):
         @param email_suffix: Everything after the @ sign, @ sign included
         @param ctx: Discord information '''   
     async def jig_email(self, email_prefix, email_suffix, ctx):
+        # Keeps track of indices where period was applied
         used_indeces = []
+        # Keeps track of indices neighboring an existing period + periods location
         email_dot_indeces = []
+        # length of email prefix
         last_index = len(email_prefix) - 1
         limit = 6    
         stop = 0
@@ -783,6 +866,7 @@ class GmailJig(object):
         # Randomly get an integer to serve as index to insert a dot    
         for i in range(1,stop):
             r = random.randint(1, last_index)
+            # Make sure index is not already used
             if r not in used_indeces and r not in email_dot_indeces:
                 used_indeces.append(r)
             else:
@@ -822,7 +906,9 @@ class GmailJig(object):
 class AddressJig(object):
     addresses = ''
     
-    ''' Generates the 4 character code to be added to beginning of address. '''
+    ''' Generates the 4 character code to be added to beginning of address. 
+    
+        @return: 4 Character code to be added to beginning of address '''
     def generate_code(self):
         code = ''
         for i in range(0,4):
@@ -880,9 +966,11 @@ class Shopify(object):
             if raw_HTML.status_code != 200:
                 await client.send_message(channel, "An error has occurred completing your request.")
             else:
+                # Search for a specific script that exists in all shopify websites
                 page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
                 script = page.find_all('script')
                 for i in script:
+                    # If script is found, we know it's a Shopify website
                     if 'shopify' in str(i).lower():
                         await client.send_message(channel, "It IS a Shopify website!")
                         return
@@ -929,7 +1017,8 @@ class Shopify(object):
             
     ''' Retrieves only the absolute URL from passed in URL.
     
-        @param url: The address passed in by the user '''
+        @param url: The address passed in by the user
+        @return: absolute url retrieved from given url '''
     def get_absolute_url(self, url):
         absolute_url = re.match('https://', url)
         if absolute_url == None:
@@ -945,7 +1034,8 @@ class Shopify(object):
         
     ''' Retrieves the thumbnail image for the item requested.
     
-        @param page: HTML containing information to be scraped for image URL '''
+        @param page: HTML containing information to be scraped for image URL
+        @return: url for thumbnail image to be displayed on Discord or None if not found'''
     def get_thumbnail_image(self, page):
         correct_image = None
         img = page.find_all('img')
@@ -1072,22 +1162,25 @@ class Shopify(object):
                 return number
                 break
             
+            
 class PayPal(object):
     def __init__(self):
         self.expiration_date = None
         self.access_token = None
         self.page_count = None
         
-    
+    ''' Calculates dates to see if it has been more than a month since user's last payment.
+        If it has, it means user's subscription has expired 
+        
+        @return: Both current date, and date information for around 1 month before current time '''
     def calculateDates(self): 
         END = datetime.datetime.utcnow().replace(tzinfo=pytz.utc).strftime('%Y-%m-%dT%H:%M:%S%z')
         start = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) + datetime.timedelta(-30)
         START = start.strftime('%Y-%m-%dT%H:%M:%S%z')
         return (START, END)
     
+    ''' Generates access token for PayPal calls if required and stores it along with the expiration date '''
     def generate_token(self):
-        
-        
         token_url = 'https://api.paypal.com/v1/oauth2/token'
         data = {'grant_type': 'client_credentials'}
         access_token_resp = requests.post(token_url, data, verify=True, auth=(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET))
@@ -1105,24 +1198,34 @@ class PayPal(object):
         self.expiration_date = exp_date.strftime('%Y-%m-%dT%H:%M:%S%z')
         print(self.expiration_date)
         
+    ''' Checks to see if user has purchased a Premium membership 
     
+        @param ctx: Discord information
+        @param email: Email associated to Discord user to check membership for
+        @param param: Index of page currently being looked at for information (pagination)
+        @param param: Indicates whether or not it's the observer method that made the call -> SEE paypal_observer()'''
     async def check_membership(self, ctx, email, page=None, observer=False):
+        author = ''
         discord_server = client.get_server("355178719809372173")
-        if observer:
+        
+        if observer == True:
             pass
         else: 
             author = ctx.message.author
         
+        
         access_token = self.access_token
         now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc).strftime('%Y-%m-%dT%H:%M:%S%z')
         
+        # Regenerate access token if necessary
         if self.expiration_date == None:
             self.generate_token()
             access_token = self.access_token
         if self.expiration_date < now:
             self.generate_token()
             access_token = self.access_token
-            
+        
+        # Calculate dates to check for expiration
         dates = self.calculateDates()
         
         params = {}
@@ -1197,7 +1300,9 @@ class PayPal(object):
                 else:
                     await client.send_message(author, "This email is invalid. Make sure you use the email for the account you used to make your PayPal payment.")
                     return 
-            
+    ''' Observer to check for expired memberships on PayPal 
+    
+        @param author: User responsible for calling method to check for expired membership ''' 
     async def paypal_observer(self, author):
         discord_server = client.get_server("355178719809372173")
         
