@@ -765,11 +765,11 @@ async def ebay_view(ctx, url, views):
     try:
         if int(views) < 101:
             await eBay().ebayview(str(url), int(views))
-            await client.send_message(message.channel, 'Link viewed %s times. Please wait for the views to be applied' % (views))
+            await client.send_message(ctx.message.channel, 'Link viewed %s times. Please wait for the views to be applied' % (views))
         else:
-            await client.send_message(message.channel, 'The maximum number of views allowed in one request is 100. Please try again')
+            await client.send_message(ctx.message.channel, 'The maximum number of views allowed in one request is 100. Please try again')
     except:
-        await client.send_message(message.channel, 'Error. Please contact your server admin.')
+        await client.send_message(ctx.message.channel, 'Error. Please contact your server admin.')
      
 # ------------------------------------------------------------- #
 #                                                               #
