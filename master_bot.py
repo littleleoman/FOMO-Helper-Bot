@@ -26,6 +26,7 @@ from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed 
 from threading import Thread
 from twilio.rest import Client
+from bs4 import BeautifulSoup
 
 # Discord command triggers
 BOT_PREFIX = ("?", "!")
@@ -755,9 +756,11 @@ async def add_to_cart(ctx, url):
     await client.send_message(ctx.message.channel, ':hourglass: Retrieving sizes. Please wait...')
     await shopify.run(str(url), ctx)
 
-''' Discord command for eBay views: limited to 20 views one command 
+''' Discord command for eBay views: limited to 100 views one command 
 
-    @param url: URL for eBay listing '''
+    @param ctx: Discord information
+    @param url: URL for eBay listing 
+    @param views: Number of views '''
 @client.command(name='ebayview', 
                 description='Automatic eBay viewer for any listing. Views the given URL 20 times',
                 pass_context=True)
@@ -770,7 +773,25 @@ async def ebay_view(ctx, url, views):
             await client.send_message(ctx.message.channel, 'The maximum number of views allowed in one request is 100. Please try again')
     except:
         await client.send_message(ctx.message.channel, 'Error. Please contact your server admin.')
-     
+
+''' Discord command for eBay watches: limited to 20 views one command 
+
+    @param ctx: Discord information
+    @param url: URL for eBay listing
+    @param watches: Number of watches '''
+@client.command(name='ebayview', 
+                description='Automatic eBay viewer for any listing. Views the given URL 20 times',
+                pass_context=True)
+async def ebay_watch(ctx, url, watches):
+    try: 
+        if int(watches) < 21:
+            await eBay().ebaywatch(str(url), int(watches))
+            await client.send_message(ctx.message.channel, 'Link watched %s times. Please wait for the watches to be applied' % (watches))
+        else:
+            await client.send_message(ctx.message.channel, 'The maximum number of watches allowed in one request is 20. Please try again')
+    except:
+        await client.send_message(ctx.message.channel, 'Error. Please contact your server admin.')
+        
 # ------------------------------------------------------------- #
 #                                                               #
 # Individual classes to represent the different functionalities #
@@ -1323,6 +1344,67 @@ class eBay(object):
                 i = i+1
             except:
                 print('error')
+    async def ebaywatch(self, ebaylink, watches)
+        account_list = open('accounts.txt', 'r')
+        accountsplit = account_list.read().splitlines()
+        for x in range (0, watches):
+            accountpuller = accountsplit[x]
+            s = requests.Session()
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'en-US,en;q=0.9'
+            }
+            r = s.get('https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&ru=https%3A%2F%2Fwww.ebay.com%2F', headers=headers).content
+            soup = BeautifulSoup(r, 'lxml')
+
+            f = soup.find('input', attrs={'id': 'rqid', 'name': 'rqid'})
+            rqid = f['value']
+
+            f = soup.find('script', attrs={'type': 'text/javascript', 'id': 'dfpDetails'})
+            js = f.find(text=True)
+            jsonValue = '{%s}' % (js.partition('{')[2].rpartition('}')[0],)
+            value = json.loads(jsonValue)
+            mid = value['mid']
+
+            f = soup.find('input', attrs={'type': 'hidden', 'name': 'srt'})
+            srt = f['value']
+        
+            payload = {
+                'AppName': '',
+                'errmsg': '', 
+                'fypReset': '', 
+                'htmid': '',
+                'i1': '', 
+                'ICurl': '', 
+                'keepMeSignInOption2': 'on', 
+                'lkdhjebhsjdhejdshdjchquwekguid': rqid,
+                'mid':  mid,
+                'pageType': '-1',
+                'pass': 'sonarbot1',
+                'returnUrl': 'https://www.ebay.com/',
+                'rqid': rqid,
+                'rtmData': '',
+                'src': '',
+                'srcAppId': '',
+                'srt': srt,
+                'tagInfo': '',
+                'userid': accountpuller,
+                'usid': rqid
+                }
+
+            r = s.post('https://www.ebay.com/signin/s', headers=headers, data=payload).content
+   
+            r = s.get('https://www.ebay.com/', headers=headers)
+            r = s.get(str(ebaylink), headers=headers).content
+
+            soup = BeautifulSoup(r, 'lxml')
+            f = soup.find('a', attrs={'i': '-99', 'n': 'Watch list'})
+            link = f['href']
+    
+            r = s.get(link, headers=headers)
+            print(watched)
             
 if __name__ == "__main__":           
     ''' Initialize Discord bot by making the first call to it '''
