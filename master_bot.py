@@ -1400,11 +1400,12 @@ class eBay(object):
             r = s.get(str(ebaylink), headers=headers).content
 
             soup = BeautifulSoup(r, 'lxml')
-            f = soup.find('a', attrs={'i': '-99', 'n': 'Watch list'})
+            f = soup.find('a', attrs={'id': 'watchLink', 'rel': 'nofollow'})
             link = f['href']
+            print(link)
     
             r = s.get(link, headers=headers)
-            print(watched)
+            print('watched')
             
 if __name__ == "__main__":           
     ''' Initialize Discord bot by making the first call to it '''
