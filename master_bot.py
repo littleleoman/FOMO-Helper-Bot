@@ -779,8 +779,8 @@ async def ebay_view(ctx, url, views):
     @param ctx: Discord information
     @param url: URL for eBay listing
     @param watches: Number of watches '''
-@client.command(name='ebayview', 
-                description='Automatic eBay viewer for any listing. Watches the given URL 20 times',
+@client.command(name='ebaywatch', 
+                description='Automatic eBay watcher for any listing. Watches the given URL 20 times',
                 pass_context=True)
 async def ebay_watch(ctx, url, watches):
     try: 
