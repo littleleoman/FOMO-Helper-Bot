@@ -765,8 +765,6 @@ async def ebay_view(ctx, url, views):
     if message.content.startswith('!ebayview'):
         try:
             if int(views) < 101:
-                await client.send_message(message.channel, ':hourglass: Starting bot. Please wait...')
-                args = message.content.split(' ')
                 await eBay().ebayview(str(url), int(views))
                 await client.send_message(message.channel, 'Link viewed %s times. Please wait for the views to be applied' % (views))
             else:
