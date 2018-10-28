@@ -17,6 +17,7 @@ import re
 import requests
 import string
 import time
+import _thread
 
 
 from decimal import Decimal
@@ -767,7 +768,8 @@ async def add_to_cart(ctx, url):
 async def ebay_view(ctx, url, views):
     try:
         if int(views) < 101:
-            await eBay().ebayview(str(url), int(views))
+            ebay = eBay()
+            _thread.start_new_thread(ebay.ebayview, (str(url), int(views),))
             await client.send_message(ctx.message.channel, 'Link viewed %s times. Please wait for the views to be applied' % (views))
         else:
             await client.send_message(ctx.message.channel, 'The maximum number of views allowed in one request is 100. Please try again')
@@ -785,7 +787,8 @@ async def ebay_view(ctx, url, views):
 async def ebay_watch(ctx, url, watches):
     try: 
         if int(watches) < 21:
-            await eBay().ebaywatch(str(url), int(watches))
+            ebay = eBay()
+            _thread.start_new_thread(ebay.ebaywatch, (str(url), int(watches),))
             await client.send_message(ctx.message.channel, 'Link watched %s times. Please wait for the watches to be applied' % (watches))
         else:
             await client.send_message(ctx.message.channel, 'The maximum number of watches allowed in one request is 20. Please try again')
@@ -1329,7 +1332,7 @@ class PayPal(object):
             await client.send_message(author, expired_subs)
             
 class eBay(object):
-    async def ebayview(self, product_url, entries):
+    def ebayview(self, product_url, entries):
         entries = int(entries)
         i = 1
         while i < entries + 1:
@@ -1339,12 +1342,9 @@ class eBay(object):
                 'Accept-Encoding': 'gzip, deflate, br',
                 'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
                 }
-            try:
-                a = requests.get(str(product_url), headers=headers)
-                i = i+1
-            except:
-                print('error')
-    async def ebaywatch(self, ebaylink, watches):
+            a = requests.get(str(product_url), headers=headers)
+            i = i+1
+    def ebaywatch(self, ebaylink, watches):
         account_list = open('accounts.txt', 'r')
         accountsplit = account_list.read().splitlines()
         for x in range (0, watches):
