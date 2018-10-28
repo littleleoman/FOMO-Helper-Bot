@@ -762,7 +762,7 @@ async def add_to_cart(ctx, url):
     @param url: URL for eBay listing 
     @param views: Number of views '''
 @client.command(name='ebayview', 
-                description='Automatic eBay viewer for any listing. Views the given URL 20 times',
+                description='Automatic eBay viewer for any listing. Views the given URL up to 200 times',
                 pass_context=True)
 async def ebay_view(ctx, url, views):
     try:
@@ -780,7 +780,7 @@ async def ebay_view(ctx, url, views):
     @param url: URL for eBay listing
     @param watches: Number of watches '''
 @client.command(name='ebayview', 
-                description='Automatic eBay viewer for any listing. Views the given URL 20 times',
+                description='Automatic eBay viewer for any listing. Watches the given URL 20 times',
                 pass_context=True)
 async def ebay_watch(ctx, url, watches):
     try: 
@@ -1344,7 +1344,7 @@ class eBay(object):
                 i = i+1
             except:
                 print('error')
-    async def ebaywatch(self, ebaylink, watches)
+    async def ebaywatch(self, ebaylink, watches):
         account_list = open('accounts.txt', 'r')
         accountsplit = account_list.read().splitlines()
         for x in range (0, watches):
