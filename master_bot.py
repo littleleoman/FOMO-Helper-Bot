@@ -762,15 +762,14 @@ async def add_to_cart(ctx, url):
                 description='Automatic eBay viewer for any listing. Views the given URL 20 times',
                 pass_context=True)
 async def ebay_view(ctx, url, views):
-    if message.content.startswith('!ebayview'):
-        try:
-            if int(views) < 101:
-                await eBay().ebayview(str(url), int(views))
-                await client.send_message(message.channel, 'Link viewed %s times. Please wait for the views to be applied' % (views))
-            else:
-                await client.send_message(message.channel, 'The maximum number of views allowed in one request is 100. Please try again')
-        except:
-            await client.send_message(message.channel, 'Error. Please contact your server admin.')
+    try:
+        if int(views) < 101:
+            await eBay().ebayview(str(url), int(views))
+            await client.send_message(message.channel, 'Link viewed %s times. Please wait for the views to be applied' % (views))
+        else:
+            await client.send_message(message.channel, 'The maximum number of views allowed in one request is 100. Please try again')
+    except:
+        await client.send_message(message.channel, 'Error. Please contact your server admin.')
      
 # ------------------------------------------------------------- #
 #                                                               #
