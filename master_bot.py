@@ -67,6 +67,8 @@ subscriptions = None
 # Reference to paypal class object
 paypal = None
 
+ebay_used_urls = []
+
 # Logger for tracking errors.
 logger = logging.getLogger('discord')
 logger.setLevel(logging.ERROR)
@@ -757,24 +759,33 @@ async def add_to_cart(ctx, url):
     await client.send_message(ctx.message.channel, ':hourglass: Retrieving sizes. Please wait...')
     await shopify.run(str(url), ctx)
 
-''' Discord command for eBay views: limited to 100 views one command 
+''' Discord command for eBay views: limited to 200 views one command 
 
     @param ctx: Discord information
-    @param url: URL for eBay listing 
-    @param views: Number of views '''
+    @param rul: Url for item to be viewed '''
 @client.command(name='ebayview', 
                 description='Automatic eBay viewer for any listing. Views the given URL up to 200 times',
                 pass_context=True)
-async def ebay_view(ctx, url, views):
-    try:
-        if int(views) < 101:
-            ebay = eBay()
-            _thread.start_new_thread(ebay.ebayview, (str(url), int(views),))
-            await client.send_message(ctx.message.channel, 'Link viewed %s times. Please wait for the views to be applied' % (views))
+async def ebay_view(ctx, url):
+    if ebay_used_urls[0] != datetime.date.today():
+        ebay_used_urls.clear()
+        ebay_used_urls.append(datetime.date.today())
+    
+    if url in ebay_used_urls:
+        await client.send_message(ctx.message.author, "You have already viewed this item today.")
+    else:
+        if not 'ebay.' in url:
+            await client.send_message(ctx.message.author, "First parameter is not an ebay url.")
         else:
-            await client.send_message(ctx.message.channel, 'The maximum number of views allowed in one request is 100. Please try again')
-    except:
-        await client.send_message(ctx.message.channel, 'Error. Please contact your server admin.')
+            try:
+                ebay = eBay()
+                _thread.start_new_thread(ebay.ebayview, (ctx, str(url),))
+                embed = discord.Embed(title="", color=0xF5AF02)
+                embed.add_field(name=":eyes:  Viewer started. Your views should be applied shortly. :hourglass:", value="~~~~~ Powered by FOMO ~~~~~", inline=True)      
+                ebay_used_urls.append(url)
+                await client.send_message(ctx.message.author, embed=embed)
+            except Exception as e:
+                await client.send_message(ctx.message.author, f"An error occurred trying to view the item. If it persists, please contact an admin")
 
 ''' Discord command for eBay watches: limited to 20 views one command 
 
@@ -1331,19 +1342,29 @@ class PayPal(object):
             expired_subs += list
             await client.send_message(author, expired_subs)
             
+
+            
 class eBay(object):
-    def ebayview(self, product_url, entries):
-        entries = int(entries)
-        i = 1
-        while i < entries + 1:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
-                }
-            a = requests.get(str(product_url), headers=headers)
-            i = i+1
+    def ebayview(self, ctx, url):
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
+        }
+        
+        count = 0
+        try:
+            for i in range(200):
+                print(f"------- {i} -------")
+                req = requests.get(url, headers=headers, verify=True, timeout=10)
+                if req.status_code == 200:
+                    count += 1
+        except Exception as e:
+            print(f"EXCEPTION ON EBAYVIEW: {e}")
+    
+            
+            
     def ebaywatch(self, ebaylink, watches):
         account_list = open('accounts.txt', 'r')
         accountsplit = account_list.read().splitlines()
@@ -1415,7 +1436,7 @@ if __name__ == "__main__":
         subscriptions = db['subscriptions']
         subscriptions.create_index('email')
         paypal = PayPal()
-
+        ebay_used_urls.append(datetime.date.today())
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
