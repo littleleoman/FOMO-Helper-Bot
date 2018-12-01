@@ -18,6 +18,7 @@ import requests
 import string
 import time
 import _thread
+import stripe
 
 
 from decimal import Decimal
@@ -53,9 +54,8 @@ SHOPIFY_PASS = os.environ["FOMO_HELPER_SHOPIFY_PASS"]
 # URI for Mongo/Heroku Database
 MONGODB_URI = os.environ["FOMO_HELPER_MONGODB_URI"]
 
-PAYPAL_CLIENT_ID = os.environ["FOMO_HELPER_PAYPAL_CLIENT_ID"]
-PAYPAL_CLIENT_SECRET = os.environ["FOMO_HELPER_PAYPAL_CLIENT_SECRET"]
-
+''' Initiliaze Stripe api with correct credential '''
+stripe.api_key = "sk_live_L9N3yTtjVRnyySzf0nSn6BRD"
 # Create Discord Bot instance with the given command triggers
 client = Bot(command_prefix=BOT_PREFIX)#, description=BOT_DESCRIPTION#)
 # Remove the default Discord help command
@@ -64,8 +64,6 @@ client.remove_command('help')
 db = None
 # Reference to subscriptions collection
 subscriptions = None
-# Reference to paypal class object
-paypal = None
 
 ebay_used_urls = []
 
@@ -105,107 +103,18 @@ def tiny(url, ctx):
 
     @param email: The email to be added to the database
     @param author: User responsible for sending authentication message '''
-async def sub_and_assign_roles(email, author, free, member, monitors):
-    # Search for email in database
-    data = subscriptions.find_one({"email": f"{email}"})
+async def sub_and_assign_roles(email, author):
     # Reference to the FOMO discord server
     discord_server = client.get_server("355178719809372173")
-    # If the email doesn't exist in the database
-    if data == None:
-        # Insert new user data in the database
-        subscriptions.insert({
-            "email": email,
-            "status": "active",
-            "discord_id": author.id,
-            "free": free,
-            "member": member,
-            "monitors": monitors
-        })
-        
-        # Assign correct role to user
-        if member:
-            role = get(discord_server.roles, name="Premium")
-            user = discord_server.get_member(author.id)
-            await client.add_roles(user, role)
-        elif monitors:
-            role = get(discord_server.roles, name="Monitor")
-            user = discord_server.get_member(author.id)
-            await client.add_roles(user, role)
-        elif free:
-            role = get(discord_server.roles, name="Free")
-            user = discord_server.get_member(author.id)
-            await client.add_roles(user, role)
-        
-        # Send message on Discord
-        await client.send_message(author, "Your subscription has been successfully activated!")
-        return True
-    else:
-        # If an entry exists in the database for the email
-        status = data['status']
-        # Determine how to proceed based on current status of subscription
-        if status == "active":
-            await client.send_message(author, "You have already activated your subscription. If you believe this to be a mistake, please contact an admin.")
-            return False
-        else:
-            # If subscription was canceled and user wants to reactivate it, he needs an admins approval
-            # see the !resub command
-            if status == "canceled":
-                await client.send_message(author, "Your subscription was previously canceled by one of our admins. Please contact one of them to reactivate it.")
-                return False
-            else:
-                member = str(data["member"])
-                monitors = str(data["monitors"])
-                free = str(data["free"])
-                
-                if member == "True":
-                    subscriptions.replace_one({
-                        "email": email
-                    }, {
-                        "email": email,
-                        "status": "active",
-                        "discord_id": author.id,
-                        "member": "True",
-                        "free": "False",
-                        "monitors": "False"
-                    })
-                    
-                    role = get(discord_server.roles, name="Premium")
-                    user = discord_server.get_member(author.id)
-                    await client.add_roles(user, role)
-                elif monitors == "True":
-                    subscriptions.replace_one({
-                        "email": email
-                    }, {
-                        "email": email,
-                        "status": "active",
-                        "discord_id": author.id,
-                        "member": "False",
-                        "free": "False",
-                        "monitors": "True"
-                    })
-                    
-                    role = get(discord_server.roles, name="Monitor")
-                    user = discord_server.get_member(author.id)
-                    await client.add_roles(user, role)
-                else:
-                    subscriptions.replace_one({
-                        "email": email
-                    }, {
-                        "email": email,
-                        "status": "active",
-                        "discord_id": author.id,
-                        "member": "False",
-                        "free": "True",
-                        "monitors": "False"
-                    })
-                    
-                    role = get(discord_server.roles, name="Free")
-                    user = discord_server.get_member(author.id)
-                    await client.add_roles(user, role)
-                    
-                    
-                await client.send_message(author, "Your subscription has been reactivated!")
-                return True
+
+    role = get(discord_server.roles, name="Member")
+    user = discord_server.get_member(author.id)
+    await client.add_roles(user, role)
+
+    # Send message on Discord
+    await client.send_message(author, "Your subscription has been successfully activated!")
+    return True
+
 # ------------------------------------------------------------- #
 #                                                               #
 #                 All the Discord Bot methods                   #
@@ -229,7 +138,7 @@ async def on_member_remove(member):
             pass
         else:
             for role in member.roles:
-                if "Premium" or "Monitor" or "Free" in role.name:
+                if "Member" in role.name:
                     result = subscriptions.update_one({
                         "discord_id": member.id
                     }, {
@@ -246,6 +155,9 @@ async def on_message(message):
     # Don't want the bot to reply to itself
     if message.author == client.user:
         return 
+    
+    if message.channel.name == "subs":
+        process_payment(message)
     
     # Make sure the message sent is not a command
     if not message.content.startswith('!') and not message.content.startswith('?'):
@@ -270,24 +182,37 @@ async def on_message(message):
         # If it's a command that was sent, process the command normally
         await client.process_commands(message)
 
-''' Admin only function to display all expired premium accounts 
 
-    @param ctx: Discord information '''
-@client.command(name='expired',
-                description='See all the premium members whose PayPal subscription has expired',
-                pass_context=True)
-async def expired_subs(ctx):
-    # User using the command
-    author = ctx.message.author
-    # FOMO Discord server reference
-    discord_server = client.get_server("355178719809372173")
-    # Author and Member are considered different things on Discord
-    member = discord_server.get_member(author.id)
-    # If admin role exists for the member, run correct process
-    if "Admin" in [role.name for role in member.roles]:
-        await paypal.paypal_observer(author)
-    else:
-        await client.send_message(author, "This command is for Admins only")
+def process_payment(message):
+    msg_data = message.content.split()
+    token = msg_data[0]
+    email = msg_data[1].lower()
+    
+    # Create a customer
+    customer = stripe.Customer.create(
+        source=token,
+        email=email
+    )
+     
+    # Charge the Customer instead of the card
+    stripe.Charge.create(
+        amount=2000,
+        currency='usd',
+        customer=customer.id
+    )
+    
+    # Search for email in database
+    data = subscriptions.find_one({"email": f"{email}"})
+    # If the email doesn't exist in the database
+    if data == None:
+        # Insert new user data in the database
+        subscriptions.insert({
+            "email": email,
+            "customer_id": customer.id,
+            "status": "pending",
+        })
+    
+
 
 ''' Function for personal use; check if any other Discord server got access to FOMO Helper,
     and prevent them from freely using our bot 
@@ -460,86 +385,13 @@ async def cancel(ctx, email):
             await client.send_message(author, "This command is for admins only")        
 
 
-''' Command responsible for authenticating a users free subscription on Discord and assigning
-    appropriate role 
-    
-    @param ctx: Discord information
-    @param email: email associated to account to activate subscription for '''
-@client.command(name='free',
-                description='Activate your free subscription to be assigned the appropriate roles',
-                pass_context=True)
-async def activate_free(ctx, email):
-    # Discord message author
-    author = ctx.message.author
-    # FOMO Discord server reference
-    discord_server = client.get_server("355178719809372173")
-    
-    # If message is a private message
-    if isinstance(ctx.message.channel, discord.PrivateChannel):
-        try:
-            # Make a request to shopify api to conduct search for the passed email
-            customers_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/customers/search.json?query=email:{email}', timeout=10)
-            
-            if customers_req.status_code != 200:
-                await client.send_message(author, "An error has occurred completing your request")
-                return
-            else:
-                customers_resp = customers_req.json()
-#                 print(customers_resp)
-                valid_email = len(customers_resp['customers'])
-#                 print("VALID EMAIL: " + str(valid_email))
-                if valid_email == 0:
-                    await client.send_message(author, "This email is invalid. Make sure you use the email you used to create an account on our FOMO website.")
-                    return
-                else:
-                    customer = customers_resp['customers'][0]
-                    if customer.get("orders_count") <= 0:
-                        pass
-                    else:
-                        customer_id = str(customer.get("id"))
-                        customer_last_order_id = str(customer.get("last_order_id"))
-                         
-                        last_order_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/orders/{customer_last_order_id}.json', timeout=10)
-                        if last_order_req.status_code != 200:
-                            await client.send_message(author, "An error has occurred")
-                            return
-                        else:
-                            order_resp = last_order_req.json()
-#                             print(order_resp)
-                            is_free = re.search("line_items':.*title':\s'(discord beta limited access \(free\).*)',\s'quantity", str(order_resp).lower())
-                            if is_free == None:
-                                orders_req = requests.get(f'https://{SHOPIFY_USER}:{SHOPIFY_PASS}@fomosuptest.myshopify.com/admin/customers/{customer_id}/orders.json', timeout=10)
-                                if orders_req.status_code != 200:
-                                    await client.send_message(author, "An error has occurred")
-                                    return
-                                else:
-                                    orders_resp = orders_req.json()
-                                    is_free = re.search("line_items':.*title':\s'(discord beta limited access \(free\).*)',\s'quantity", str(orders_resp).lower())
-                                    if is_free == None:
-                                        await client.send_message(author, "You do not have a subscription. If you believe this to be a mistake, please contact an admin.")
-                                        return
-                                    else:
-                                        await sub_and_assign_roles(email, author, True, False, False)
-                                        return
-                            else:
-                                await sub_and_assign_roles(email, author, True, False, False)
-                                return 
-        except requests.Timeout as error:
-            print("There was a timeout error")
-            print(str(error))
-        except requests.ConnectionError as error:
-            print("A connection error has occurred. The details are below.\n")
-            print(str(error))
-        except requests.RequestException as error:
-            print("An error occurred making the internet request.")
-            print(str(error))
 
 ''' Command responsible for authenticating users premium subscription on Discord and 
     assigning correct role '''
-@client.command(name='premium',
-                description='Activate your premium subscription to be assigned the appropriate roles',
+@client.command(name='activate',
+                description='Activate your subscription to be assigned the appropriate roles',
                 pass_context=True)
-async def activate_premium(ctx, email):
+async def activate(ctx, email):
     # Discord message author  
     author = ctx.message.author
     # FOMO Discord server reference 
@@ -548,8 +400,7 @@ async def activate_premium(ctx, email):
     # Check if message is a private message
     if isinstance(ctx.message.channel, discord.PrivateChannel):
         try:
-            await paypal.check_membership(ctx, email)
-
+            await check_membership(ctx, email.lower())
         except requests.Timeout as error:
             print("There was a timeout error")
             print(str(error))
@@ -632,26 +483,8 @@ async def custom_help(ctx, *command):
         
         embed.add_field(name='Aliases', value='[ fee ]', inline=False)
         await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'free')):
-        desc = "Authenticates new Free Members of the group in the database "
-        desc += "and assigns correct role(s) so they can have access to all the correct content. "
-        desc += "The parameter for this command is the email used on the FOMO website."
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        embed.add_field(name='Aliases', value='[ free ]', inline=False)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'premium')):
-        desc = "Authenticates new Premium Members of the group in the database "
-        desc += "and assigns correct role(s) so they can have access to all the correct content. "
-        desc += "The parameter for this command is the email used to make your PayPal payments."
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        embed.add_field(name='Aliases', value='[ premium ]', inline=False)
-        await client.send_message(author, embed=embed)
+    
+    
         
         
 ''' Discord command to calculate the fees that are applied to sale products on multiple websites.
@@ -805,7 +638,26 @@ async def ebay_watch(ctx, url, watches):
             await client.send_message(ctx.message.channel, 'The maximum number of watches allowed in one request is 20. Please try again')
     except:
         await client.send_message(ctx.message.channel, 'Error. Please contact your server admin.')
+
+
+async def check_membership(ctx, email):
+    # Search for email in database
+    data = subscriptions.find_one({"email": f"{email}"})
+    # If the email doesn't exist in the database
+    if data == None:
+        # Insert new user data in the database
+        await client.send_message(ctx.message.author, 'No subscription data was found under that email. If you believe this to be a mistake, please contact an admin.')
+    else:
+        subscriptions.update_one({
+            "email": email
+        }, {
+            "$set": {
+                "discord_id": ctx.message.author.id,
+                "status": "active"
+            }
+        }, upsert=False)
         
+        await sub_and_assign_roles(email, ctx.message.author)
 # ------------------------------------------------------------- #
 #                                                               #
 # Individual classes to represent the different functionalities #
@@ -1176,172 +1028,7 @@ class Shopify(object):
                 break
             
             
-class PayPal(object):
-    def __init__(self):
-        self.expiration_date = None
-        self.access_token = None
-        self.page_count = None
-        
-    ''' Calculates dates to see if it has been more than a month since user's last payment.
-        If it has, it means user's subscription has expired 
-        
-        @return: Both current date, and date information for around 1 month before current time '''
-    def calculateDates(self): 
-        END = datetime.datetime.utcnow().replace(tzinfo=pytz.utc).strftime('%Y-%m-%dT%H:%M:%S%z')
-        start = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) + datetime.timedelta(-30)
-        START = start.strftime('%Y-%m-%dT%H:%M:%S%z')
-        return (START, END)
-    
-    ''' Generates access token for PayPal calls if required and stores it along with the expiration date '''
-    def generate_token(self):
-        token_url = 'https://api.paypal.com/v1/oauth2/token'
-        data = {'grant_type': 'client_credentials'}
-        access_token_resp = requests.post(token_url, data, verify=True, auth=(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET))
-
-        print("Access Token: ")
-        print(access_token_resp.headers)
-        print("Body: " + access_token_resp.text)
-           
-        json_data = json.loads(access_token_resp.text)
-        ''' Access token for PayPal '''
-        self.access_token = json_data['access_token']
-        ''' Number of seconds until token expires '''
-        expires_in = json_data['expires_in']
-        exp_date = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) + datetime.timedelta(seconds=expires_in)
-        self.expiration_date = exp_date.strftime('%Y-%m-%dT%H:%M:%S%z')
-        print(self.expiration_date)
-        
-    ''' Checks to see if user has purchased a Premium membership 
-    
-        @param ctx: Discord information
-        @param email: Email associated to Discord user to check membership for
-        @param param: Index of page currently being looked at for information (pagination)
-        @param param: Indicates whether or not it's the observer method that made the call -> SEE paypal_observer()'''
-    async def check_membership(self, ctx, email, page=None, observer=False):
-        author = ''
-        discord_server = client.get_server("355178719809372173")
-        
-        if observer == True:
-            pass
-        else: 
-            author = ctx.message.author
-        
-        
-        access_token = self.access_token
-        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc).strftime('%Y-%m-%dT%H:%M:%S%z')
-        
-        # Regenerate access token if necessary
-        if self.expiration_date == None:
-            self.generate_token()
-            access_token = self.access_token
-        if self.expiration_date < now:
-            self.generate_token()
-            access_token = self.access_token
-        
-        # Calculate dates to check for expiration
-        dates = self.calculateDates()
-        
-        params = {}
-        count = None
-        
-        if page == None:
-            count = 1
-            params = {
-                'start_date':dates[0],
-                'end_date':dates[1],
-                'fields':'all',
-                'page_size':100,
-                'page':1
-            }
-        else:
-            count = page
-            params = {
-                'start_date':dates[0],
-                'end_date':dates[1],
-                'fields':'all',
-                'page_size':100,
-                'page':page
-            }
-            
-        transactions_base_url = 'https://api.paypal.com/v1/reporting/transactions'
-        api_call_headers = {'Authorization': 'Bearer ' + access_token }
-        transactions = requests.get(transactions_base_url, headers=api_call_headers, verify=True, params=params)
-        
-        if transactions.status_code != 200:
-            if observer:
-                await client.send_message(discord_server.get_member("460997994121134082"), "An error has occurred with the PayPal observer")
-            else:
-                await client.send_message(author, "An error has occurred completing your request")
-                return
-        else:
-            transactions_json = json.loads(transactions.text)
-#             print(transactions_json)
-            self.page_count = transactions_json['total_pages']
-#             print(self.page_count)
-            for transaction in transactions_json['transaction_details']:
-                if 'email_address' in transaction['payer_info']:
-                    trans_email = transaction['payer_info']['email_address']
-                    trans_status = transaction['transaction_info']['transaction_status']
-                    
-                    if trans_email == email:
-                        if trans_status == 'S':
-                            if transaction['transaction_info']['transaction_amount']['value'] == '20.00':
-                                if observer:
-                                    return True
-                                else:
-                                    await sub_and_assign_roles(email, author, False, True, False)
-                                    return
-                            if transaction['transaction_info']['transaction_amount']['value'] == '15.00':
-                                if observer:
-                                    return True
-                                else:
-                                    await sub_and_assign_roles(email, author, False, False, True)
-                                    return 
-                        else:
-                            if observer:
-                                return False
-                            else:
-                                await client.send_message(author, "There was a problem with your transaction or it hasn't been fully processed by PayPal." 
-                                + " Please allow PayPal some time to process your payment and try again. If the problem persists, contact one of the admins.")
-                                return
-            
-            if count < self.page_count:
-                self.check_membership(ctx, email, count+1)
-            else:
-                if observer:
-                    return False
-                else:
-                    await client.send_message(author, "This email is invalid. Make sure you use the email for the account you used to make your PayPal payment.")
-                    return 
-    ''' Observer to check for expired memberships on PayPal 
-    
-        @param author: User responsible for calling method to check for expired membership ''' 
-    async def paypal_observer(self, author):
-        discord_server = client.get_server("355178719809372173")
-        
-        await client.send_message(author, ':hourglass: Checking PayPal. Please wait...')
-    
-        expired_subs= "Subscriptions for the following emails have either expired or there have been problems with their transaction. Please check PayPal to confirm before handling their subscription.\n"
-        list = ""
-        emails = subscriptions.distinct("email")
-        for email in emails:
-            data = subscriptions.find_one({"email": f"{email}"})
-            if data != None:
-                member = data["member"]
-                monitors = data["monitors"]
-                if member or monitors == "True":
-                    status = await self.check_membership(None, email, None, True)
-                    if status == False:
-                        list += f"\t- {email}\n"
-                    else:
-                        continue
-            
-        if list == "":
-            await client.send_message(author, "No subscriptions have expired")
-        else:
-            expired_subs += list
-            await client.send_message(author, expired_subs)
-            
+          
 
             
 class eBay(object):
@@ -1435,7 +1122,6 @@ if __name__ == "__main__":
         db = db_client.get_default_database()
         subscriptions = db['subscriptions']
         subscriptions.create_index('email')
-        paypal = PayPal()
         ebay_used_urls.append(datetime.date.today())
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
