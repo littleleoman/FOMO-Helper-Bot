@@ -3,5 +3,4 @@ requests==2.19.1
 discord.py==0.16.12
 lxml==4.2.3
 pymongo==3.7.1
-twilio==6.16.1
 stripe==2.15.0

@@ -20,7 +20,7 @@ import time
 import _thread
 import stripe
 
-
+from datetime import datetime
 from decimal import Decimal
 from discord.ext.commands import Bot
 from discord.utils import get
@@ -66,6 +66,8 @@ db = None
 subscriptions = None
 
 ebay_used_urls = []
+# Stripe class reference
+STRIPE = None
 
 # Logger for tracking errors.
 logger = logging.getLogger('discord')
@@ -134,7 +136,7 @@ async def on_member_remove(member):
         # Switch user's subscription status
         status = data["status"]
         
-        if status == "canceled":
+        if status == "disabled":
             pass
         else:
             for role in member.roles:
@@ -157,7 +159,7 @@ async def on_message(message):
         return 
     
     if message.channel.name == "subs":
-        process_payment(message)
+        await STRIPE.process_payment(message)
     
     # Make sure the message sent is not a command
     if not message.content.startswith('!') and not message.content.startswith('?'):
@@ -181,37 +183,6 @@ async def on_message(message):
     else:
         # If it's a command that was sent, process the command normally
         await client.process_commands(message)
-
-
-def process_payment(message):
-    msg_data = message.content.split()
-    token = msg_data[0]
-    email = msg_data[1].lower()
-    
-    # Create a customer
-    customer = stripe.Customer.create(
-        source=token,
-        email=email
-    )
-     
-    # Charge the Customer instead of the card
-    stripe.Charge.create(
-        amount=2000,
-        currency='usd',
-        customer=customer.id
-    )
-    
-    # Search for email in database
-    data = subscriptions.find_one({"email": f"{email}"})
-    # If the email doesn't exist in the database
-    if data == None:
-        # Insert new user data in the database
-        subscriptions.insert({
-            "email": email,
-            "customer_id": customer.id,
-            "status": "pending",
-        })
-    
 
 
 ''' Function for personal use; check if any other Discord server got access to FOMO Helper,
@@ -286,54 +257,28 @@ async def resub(ctx, *args):
         # Make sure an admin is using the command
         if "Admin" in [role.name for role in member.roles]:
             # Check for correct number of parameters passed
-            if len(args) < 2:
-                await client.send_message(author, "Command is missing an argument. Make sure you provide the shopify email and the role to be given")
-            elif len(args) > 2:
-                await client.send_message(author, "Command has extra argument(s). Make sure you provide the shopify email and the role to be given only.")
+            if len(args) < 1:
+                await client.send_message(author, "Command is missing an argument. Make sure you provide the purchase email")
+            elif len(args) > 1:
+                await client.send_message(author, "Command has extra argument(s). Make sure you provide the purchase email only.")
             else:
                 # Email passed as a parameter
                 email = args[0]
-                # Subscription type passed as a parameter 
-                sub = args[1]
                 
                 # Find user information on database if it exists
                 data = subscriptions.find_one({"email": f"{email}"})
                 if data == None:
                     await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
                 else:
-                    if sub.lower() == "member" or sub.lower() == "free" or sub.lower() == "monitors":
-                        if sub.lower() == "member":
-                            subscriptions.update_one({
-                                "email": email
-                            }, {
-                                "$set": {
-                                    "status": "disabled",
-                                    "member": "True"
-                                }
-                            }, upsert=False)
-                        elif sub.lower() == "free":
-                            subscriptions.update_one({
-                                "email": email
-                            }, {
-                                "$set": {
-                                    "status": "disabled",
-                                    "free": "True"
-                                }
-                            }, upsert=False)
-                        else:
-                            subscriptions.update_one({
-                                "email": email
-                            }, {
-                                "$set": {
-                                    "status": "disabled",
-                                    "monitors": "True"
-                                }
-                            }, upsert=False)
-                    
-                        await client.send_message(author, "User has been given permission to reactivate their account!")
-                    else:
-                        await client.send_message(author, "Provided subscription isn't valid. Please make sure it is either **member**, **free** or **monitors**")
-                    
+                    subscriptions.update_one({
+                        "email": email
+                    }, {
+                        "$set": {
+                            "status": "pending"
+                        }
+                    }, upsert=False)
+
+                    await client.send_message(author, "User has been given permission to reactivate their account. Get in touch with them and let them know!")
         else:
             await client.send_message(author, "This command is for admins only")
         
@@ -365,21 +310,14 @@ async def cancel(ctx, email):
                     "email": email
                 }, {
                     "$set": {
-                        "status": "canceled",
-                        "member": "False",
-                        "free": "False",
-                        "monitors": "False"
+                        "status": "disabled"
                     }
                 })
                     
                 user_id = data["discord_id"]
                 user = discord_server.get_member(user_id)
-                monitor_role = get(discord_server.roles, name='Monitor')
-                member_role = get(discord_server.roles, name='Premium')
-                free_role = get(discord_server.roles, name="Free")
-                await client.remove_roles(user, monitor_role)
+                member_role = get(discord_server.roles, name='Member')
                 await client.remove_roles(user, member_role)
-                await client.remove_roles(user, free_role)
                 await client.send_message(author, "User subscription successfully canceled")
         else:
             await client.send_message(author, "This command is for admins only")        
@@ -400,7 +338,7 @@ async def activate(ctx, email):
     # Check if message is a private message
     if isinstance(ctx.message.channel, discord.PrivateChannel):
         try:
-            await check_membership(ctx, email.lower())
+            await STRIPE.check_membership(ctx, email.lower())
         except requests.Timeout as error:
             print("There was a timeout error")
             print(str(error))
@@ -640,30 +578,142 @@ async def ebay_watch(ctx, url, watches):
         await client.send_message(ctx.message.channel, 'Error. Please contact your server admin.')
 
 
-async def check_membership(ctx, email):
-    # Search for email in database
-    data = subscriptions.find_one({"email": f"{email}"})
-    # If the email doesn't exist in the database
-    if data == None:
-        # Insert new user data in the database
-        await client.send_message(ctx.message.author, 'No subscription data was found under that email. If you believe this to be a mistake, please contact an admin.')
-    else:
-        subscriptions.update_one({
-            "email": email
-        }, {
-            "$set": {
-                "discord_id": ctx.message.author.id,
-                "status": "active"
-            }
-        }, upsert=False)
-        
-        await sub_and_assign_roles(email, ctx.message.author)
+
 # ------------------------------------------------------------- #
 #                                                               #
 # Individual classes to represent the different functionalities #
 #             that the Discord bot will have                    #
 #                                                               #   
 # ------------------------------------------------------------- #
+class Stripe(object):
+    async def process_payment(self, message):
+        messiah = get(client.get_all_members(), id="460997994121134082")
+        msg_data = message.content.split()
+        token = msg_data[0]
+        email = msg_data[1].lower()
+        
+        # Create a customer
+        customer = stripe.Customer.create(
+            source=token,
+            email=email
+        )
+         
+        try:
+            # Charge the Customer instead of the card
+            stripe.Charge.create(
+                amount=2000,
+                currency='usd',
+                customer=customer.id
+            )
+            
+            now = datetime.now().date()
+            # Search for email in database
+            data = subscriptions.find_one({"email": f"{email}"})
+            # If the email doesn't exist in the database
+            if data == None:
+                # Insert new user data in the database
+                subscriptions.insert({
+                    "email": email,
+                    "customer_id": customer.id,
+                    "status": "pending",
+                    "sub_date": str(now),
+                    "pay_date": str(now)
+                })
+        except stripe.error.CardError as e:
+            body = e.json_body
+            err = body.get('error', {})
+            
+            await client.send_message(messiah, f"There was an error processing the payment for email {email}")
+            await client.send_message(messiah, f"Status is: {e.http_status}")
+            await client.send_message(messiah, f"Type is: {err.get('type')}")
+            await client.send_message(messiah, f"Code is: {err.get('code')}")
+        except stripe.error.RateLimitError as e:
+            await client.send_message(messiah, f"Rate limit error: {e}")
+        except stripe.error.AuthenticationError as e:
+            await client.send_message(messiah, f"Authentication error: {e}")
+        except stripe.error.APIConnectionError as e:
+            await client.send_message(messiah, f"Stripe error: {e}")
+        except stripe.error.StripeError as e:
+            await client.send_message(messiah, f"Stripe error: {e}")
+        except Exception as e:
+            await client.send_message(messiah, f"Exception occurred during process_payment: {e}")
+    
+    
+    async def check_membership(self, ctx, email):
+        # Search for email in database
+        data = subscriptions.find_one({"email": f"{email}"})
+        # If the email doesn't exist in the database
+        if data == None:
+            # No subscription was purchased under the given email
+            await client.send_message(ctx.message.author, 'No subscription data was found under that email. If you believe this to be a mistake, please contact an admin.')
+        else:
+            if data['status'] == "active":
+                await client.send_message(ctx.message.author, "This subscription has already been activated. If you believe this to be a mistake, please contact an admin.")
+            elif data['status'] == "disabled":
+                await client.send_message(ctx.message.author, "This subscription was previously disabled. To reactivate it, please contact an admin.")
+            else:
+                subscriptions.update_one({
+                    "email": email
+                }, {
+                    "$set": {
+                        "discord_id": ctx.message.author.id,
+                        "status": "active"
+                    }
+                }, upsert=False)
+                
+                await sub_and_assign_roles(email, ctx.message.author)
+            
+    async def recurring_charges(self):
+        now = datetime.now().date()
+        cursor = subscriptions.find({})
+        
+        for index,document in enumerate(cursor):
+            email = document['email']
+            old_date = document['pay_date']
+            old_date = datetime.strptime(old_date, "%Y-%m-%d").date()
+                 
+            delta = now - old_date
+            if delta.days >= 30 and (document['status'] == 'active' or document['status'] == 'pending'):
+                customer_id = document['customer_id']
+                try:       
+                    charge = stripe.Charge.create(
+                        amount=2000,
+                        currency='usd',
+                        customer=customer_id
+                    )
+                    
+                    subscriptions.update_one({
+                        "email": email 
+                    }, {
+                        "$set": {
+                            "pay_date": str(now)
+                        }
+                    })
+                except stripe.error.CardError as e:
+                    body = e.json_body
+                    err = body.get('error', {})
+    
+                    await client.send_message(messiah, f"There was an error processing the payment for email {email}")
+                    await client.send_message(messiah, f"Status is: {e.http_status}")
+                    await client.send_message(messiah, f"Type is: {err.get('type')}")
+                    await client.send_message(messiah, f"Code is: {err.get('code')}")
+                except stripe.error.RateLimitError as e:
+                    await client.send_message(messiah, f"Rate limit error: {e}")
+                    break
+                except stripe.error.AuthenticationError as e:
+                    await client.send_message(messiah, f"Authentication error: {e}")
+                    break
+                except stripe.error.APIConnectionError as e:
+                    await client.send_message(messiah, f"Stripe error: {e}")
+                    break
+                except stripe.error.StripeError as e:
+                    await client.send_message(messiah, f"Stripe error: {e}")
+                    break
+                except Exception as e:
+                    await client.send_message(messiah, f"Exception occurred during recurring_charge: {e}")
+                    break
+            
+
 class GmailJig(object):
     emails = ''
     
@@ -1123,6 +1173,7 @@ if __name__ == "__main__":
         subscriptions = db['subscriptions']
         subscriptions.create_index('email')
         ebay_used_urls.append(datetime.date.today())
+        STRIPE = Stripe()
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
