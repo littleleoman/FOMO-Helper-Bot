@@ -27,7 +27,6 @@ from discord.utils import get
 from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed 
 from threading import Thread
-from twilio.rest import Client
 from bs4 import BeautifulSoup
 
 # Discord command triggers
