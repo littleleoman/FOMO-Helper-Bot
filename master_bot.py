@@ -20,7 +20,7 @@ import time
 import _thread
 import stripe
 
-from datetime import datetime
+# from datetime import datetime
 from decimal import Decimal
 from discord.ext.commands import Bot
 from discord.utils import get
@@ -605,7 +605,7 @@ class Stripe(object):
                 customer=customer.id
             )
             
-            now = datetime.now().date()
+            now = datetime.datetime.now().date()
             # Search for email in database
             data = subscriptions.find_one({"email": f"{email}"})
             # If the email doesn't exist in the database
@@ -663,13 +663,13 @@ class Stripe(object):
                 await sub_and_assign_roles(email, ctx.message.author)
             
     async def recurring_charges(self):
-        now = datetime.now().date()
+        now = datetime.datetime.now().date()
         cursor = subscriptions.find({})
         
         for index,document in enumerate(cursor):
             email = document['email']
             old_date = document['pay_date']
-            old_date = datetime.strptime(old_date, "%Y-%m-%d").date()
+            old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
                  
             delta = now - old_date
             if delta.days >= 30 and (document['status'] == 'active' or document['status'] == 'pending'):
