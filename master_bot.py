@@ -364,18 +364,18 @@ async def custom_help(ctx, *command):
             description = BOT_DESCRIPTION
         )
         
-        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!free** \n**!premium**'
+        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate**'
         keyword_descriptions = 'Jig your home address; type input between **" "**\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
         keyword_descriptions += 'Checks if a website is Shopify\n'
         keyword_descriptions += 'Calculates seller profit after fees for a given sale price\n'
-        keyword_descriptions += 'Authenticates Free Members and assigns correct role\n'
-        keyword_descriptions += 'Authenticates Premium Members and assigns correct role\n'
+        keyword_descriptions += 'Authenticates members and assigns correct role\n'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
         embed.add_field(name='More Info', value="For more information on a keyword, type **!help keyword**", inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)    
     elif (len(command) > 0 and (command[0] == 'gmail' or command[0] == 'mail' or command[0] == 'email')):
         desc =  'This command manipulates any gmail address passed to it as a parameter.'
@@ -384,6 +384,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ gmail | mail | email ]', inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'address' or command[0] == 'adr' or command[0] == 'addr')):
         desc = 'This command manipulates any residential address passed to it as a parameter.'
@@ -392,6 +393,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ address | addr | adr ]', inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'atc')):
         desc = 'Add To Cart command for any Shopify website. Generates a link leading the user '
@@ -401,6 +403,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ atc ]', inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'isshopify')):
         desc = 'This command uses a given URL in order to determine whether '
@@ -410,6 +413,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ isshopify ]', inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'fee')):
         desc = "Calculates the seller fees applied by different websites."
@@ -419,6 +423,7 @@ async def custom_help(ctx, *command):
         )
         
         embed.add_field(name='Aliases', value='[ fee ]', inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
     
     
