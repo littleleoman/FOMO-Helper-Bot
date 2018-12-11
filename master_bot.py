@@ -425,6 +425,16 @@ async def custom_help(ctx, *command):
         embed.add_field(name='Aliases', value='[ fee ]', inline=False)
         embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'activate')):
+        desc = "Activate your subscription in our server and get access to all our content."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ activate ]', inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        await client.send_message(author, embed=embed)
     
     
         
