@@ -300,7 +300,7 @@ async def cancel(ctx, email):
     # If message is a private message 
     if isinstance(ctx.message.channel, discord.PrivateChannel):
         # Check if member is an admin
-        if "Admin" in [role.name for role in member.roles]:
+        if "Admin" or "Dev" in [role.name for role in member.roles]:
             data = subscriptions.find_one({"email": f"{email}"})
             if data == None:
                 await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
