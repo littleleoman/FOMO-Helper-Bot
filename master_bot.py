@@ -233,6 +233,8 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+#     await STRIPE.recurring_charges()    
+    
     
 ''' Command used by admins to grant user's permission to resubscribe to the Discord group
     if their subscription was previously cancelled (NOTE - cancelled subscription is different,
@@ -254,7 +256,7 @@ async def resub(ctx, *args):
     # Make sure message is a private message to FOMO Helper
     if isinstance(ctx.message.channel, discord.PrivateChannel):
         # Make sure an admin is using the command
-        if "Admin" in [role.name for role in member.roles]:
+        if "Admin" or "Dev" in [role.name for role in member.roles]:
             # Check for correct number of parameters passed
             if len(args) < 1:
                 await client.send_message(author, "Command is missing an argument. Make sure you provide the purchase email")
@@ -273,7 +275,8 @@ async def resub(ctx, *args):
                         "email": email
                     }, {
                         "$set": {
-                            "status": "pending"
+                            "status": "pending",
+                            "error_count": 0
                         }
                     }, upsert=False)
 
@@ -300,26 +303,26 @@ async def cancel(ctx, email):
     # If message is a private message 
     if isinstance(ctx.message.channel, discord.PrivateChannel):
         # Check if member is an admin
-        if "Admin" in [role.name for role in member.roles]:
-            data = subscriptions.find_one({"email": f"{email}"})
-            if data == None:
-                await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
-            else:
-                subscriptions.update_one({
-                    "email": email
-                }, {
-                    "$set": {
-                        "status": "disabled"
-                    }
-                })
-                    
-                user_id = data["discord_id"]
-                user = discord_server.get_member(user_id)
-                member_role = get(discord_server.roles, name='Member')
-                await client.remove_roles(user, member_role)
-                await client.send_message(author, "User subscription successfully canceled")
+#         if "Admin" or "Dev" in [role.name for role in member.roles]:
+        data = subscriptions.find_one({"email": f"{email}"})
+        if data == None:
+            await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
         else:
-            await client.send_message(author, "This command is for admins only")        
+            subscriptions.update_one({
+                "email": email
+            }, {
+                "$set": {
+                    "status": "disabled"
+                }
+            })
+                    
+            user_id = data["discord_id"]
+            user = discord_server.get_member(user_id)
+            member_role = get(discord_server.roles, name='Member')
+            await client.remove_roles(user, member_role)
+            await client.send_message(author, "User subscription successfully canceled")
+#         else:
+#             await client.send_message(author, "This command is for admins only")        
 
 
 
@@ -364,13 +367,14 @@ async def custom_help(ctx, *command):
             description = BOT_DESCRIPTION
         )
         
-        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate**'
+        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate** \n**!cancel**'
         keyword_descriptions = 'Jig your home address; type input between **" "**\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
         keyword_descriptions += 'Checks if a website is Shopify\n'
         keyword_descriptions += 'Calculates seller profit after fees for a given sale price\n'
         keyword_descriptions += 'Authenticates members and assigns correct role\n'
+        keyword_descriptions += 'Cancel your current subscription\n'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
@@ -433,6 +437,16 @@ async def custom_help(ctx, *command):
         )
         
         embed.add_field(name='Aliases', value='[ activate ]', inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'cancel')):
+        desc = "Cancel your subscription in our server by passing the email used to subscribe as a parameter."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ cancel ]', inline=False)
         embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
     
@@ -630,6 +644,7 @@ class Stripe(object):
                     "email": email,
                     "customer_id": customer.id,
                     "status": "pending",
+                    "error_count": 0,
                     "sub_date": str(now),
                     "pay_date": str(now)
                 })
@@ -678,55 +693,83 @@ class Stripe(object):
                 await sub_and_assign_roles(email, ctx.message.author)
             
     async def recurring_charges(self):
+        messiah = get(client.get_all_members(), id="460997994121134082")
         now = datetime.datetime.now().date()
         cursor = subscriptions.find({})
         
-        for index,document in enumerate(cursor):
-            email = document['email']
-            old_date = document['pay_date']
-            old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
-                 
-            delta = now - old_date
-            if delta.days >= 30 and (document['status'] == 'active' or document['status'] == 'pending'):
-                customer_id = document['customer_id']
-                try:       
-                    charge = stripe.Charge.create(
-                        amount=2000,
-                        currency='usd',
-                        customer=customer_id
-                    )
-                    
-                    subscriptions.update_one({
-                        "email": email 
-                    }, {
-                        "$set": {
-                            "pay_date": str(now)
-                        }
-                    })
-                except stripe.error.CardError as e:
-                    body = e.json_body
-                    err = body.get('error', {})
-    
-                    await client.send_message(messiah, f"There was an error processing the payment for email {email}")
-                    await client.send_message(messiah, f"Status is: {e.http_status}")
-                    await client.send_message(messiah, f"Type is: {err.get('type')}")
-                    await client.send_message(messiah, f"Code is: {err.get('code')}")
-                except stripe.error.RateLimitError as e:
-                    await client.send_message(messiah, f"Rate limit error: {e}")
-                    break
-                except stripe.error.AuthenticationError as e:
-                    await client.send_message(messiah, f"Authentication error: {e}")
-                    break
-                except stripe.error.APIConnectionError as e:
-                    await client.send_message(messiah, f"Stripe error: {e}")
-                    break
-                except stripe.error.StripeError as e:
-                    await client.send_message(messiah, f"Stripe error: {e}")
-                    break
-                except Exception as e:
-                    await client.send_message(messiah, f"Exception occurred during recurring_charge: {e}")
-                    break
+        while True:
+            await client.send_message(messiah, f"{now} checking for trigger every minute")
             
+            for index,document in enumerate(cursor):
+                email = document['email']
+                discord_id = document['discord_id']
+                user = get(client.get_all_members(), id=discord_id)
+                error_count = document['error_count']
+                error_count += 1
+                old_date = document['pay_date']
+                old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
+                       
+                delta = now - old_date
+                if delta.days >= 30 and (document['status'] == 'active' or document['status'] == 'pending'):
+                    customer_id = document['customer_id']
+                    try:       
+                        charge = stripe.Charge.create(
+                            amount=2000,
+                            currency='usd',
+                            customer=customer_id
+                        )
+                          
+                        subscriptions.update_one({
+                            "email": email 
+                        }, {
+                            "$set": {
+                                "pay_date": str(now),
+                                "error_count": 0
+                            }
+                        })
+                    except stripe.error.CardError as e:
+                        body = e.json_body
+                        err = body.get('error', {})
+                        
+                        subscriptions.update_one({
+                            "email": email 
+                        }, {
+                            "$set": {
+                                "error_count": error_count
+                            }
+                        })
+                        
+                        await client.send_message(messiah, f"There was an error processing the payment for email {email}")
+                        await client.send_message(messiah, f"Status is: {e.http_status}")
+                        await client.send_message(messiah, f"Type is: {err.get('type')}")
+                        await client.send_message(messiah, f"Code is: {err.get('code')}")
+                        
+                        if error_count == 1:
+                            await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
+                                                      + "We will try two more times before cancelling your subscription. Please contact an admin as soon as possible.")
+                        elif error_count == 2:
+                            await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
+                                                      + "We will try one more time before cancelling your subscription. Please contact an admin as soon as possible.")
+                        else:
+                            await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
+                            await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
+                                                      + "We will now be cancelling your subscription.")
+                    except stripe.error.RateLimitError as e:
+                        await client.send_message(messiah, f"Rate limit error: {e}")
+                        break
+                    except stripe.error.AuthenticationError as e:
+                        await client.send_message(messiah, f"Authentication error: {e}")
+                        break
+                    except stripe.error.APIConnectionError as e:
+                        await client.send_message(messiah, f"Stripe error: {e}")
+                        break
+                    except stripe.error.StripeError as e:
+                        await client.send_message(messiah, f"Stripe error: {e}")
+                        break
+                    except Exception as e:
+                        await client.send_message(messiah, f"Exception occurred during recurring_charge: {e}")
+                        break
+            await asyncio.sleep(86400)
 
 class GmailJig(object):
     emails = ''
