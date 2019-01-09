@@ -706,6 +706,7 @@ class Stripe(object):
                 discord_id = document['discord_id']
                 user = get(client.get_all_members(), id=discord_id)
                 error_count = document['error_count']
+                error_count = int(error_count)
                 error_count += 1
                 old_date = document['pay_date']
                 old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
