@@ -233,7 +233,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-#     await STRIPE.recurring_charges()    
+    await STRIPE.recurring_charges()    
     
     
 ''' Command used by admins to grant user's permission to resubscribe to the Discord group
@@ -618,6 +618,7 @@ class Stripe(object):
         msg_data = message.content.split()
         token = msg_data[0]
         email = msg_data[1].lower()
+        web_source = msg_data[2].lower()
         
         # Create a customer
         customer = stripe.Customer.create(
@@ -645,7 +646,8 @@ class Stripe(object):
                     "status": "pending",
                     "error_count": 0,
                     "sub_date": str(now),
-                    "pay_date": str(now)
+                    "pay_date": str(now),
+                    "web_source": web_source
                 })
         except stripe.error.CardError as e:
             body = e.json_body
@@ -697,7 +699,7 @@ class Stripe(object):
         cursor = subscriptions.find({})
         
         while True:
-            await client.send_message(messiah, f"{now} checking for trigger every minute")
+            await client.send_message(messiah, f"{now} - checking for recurring payments now!")
             
             for index,document in enumerate(cursor):
                 email = document['email']
