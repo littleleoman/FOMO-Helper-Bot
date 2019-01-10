@@ -703,8 +703,6 @@ class Stripe(object):
             
             for index,document in enumerate(cursor):
                 email = document['email']
-                discord_id = document['discord_id']
-                user = get(client.get_all_members(), id=discord_id)
                 error_count = document['error_count']
                 error_count = int(error_count)
                 error_count += 1
@@ -712,7 +710,10 @@ class Stripe(object):
                 old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
                        
                 delta = now - old_date
-                if delta.days >= 30 and (document['status'] == 'active' or document['status'] == 'pending'):
+                if delta.days >= 30 and (document['status'] == 'active'):
+                    discord_id = document['discord_id']
+                    user = get(client.get_all_members(), id=discord_id)
+                    
                     customer_id = document['customer_id']
                     try:       
                         charge = stripe.Charge.create(
