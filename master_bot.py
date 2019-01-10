@@ -233,7 +233,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    await STRIPE.recurring_charges()    
+#     await STRIPE.recurring_charges()    
     
     
 ''' Command used by admins to grant user's permission to resubscribe to the Discord group
@@ -314,14 +314,8 @@ async def cancel(ctx, email):
                     "status": "disabled"
                 }
             })
-                    
-            user_id = data["discord_id"]
-            user = discord_server.get_member(user_id)
-            member_role = get(discord_server.roles, name='Member')
-            await client.remove_roles(user, member_role)
-            await client.send_message(author, "User subscription successfully canceled")
-#         else:
-#             await client.send_message(author, "This command is for admins only")        
+                
+            await client.send_message(author, "User subscription successfully canceled") 
 
 
 
@@ -710,7 +704,12 @@ class Stripe(object):
                 old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
                        
                 delta = now - old_date
-                if delta.days >= 30 and (document['status'] == 'active'):
+                if delta.days > 30 and (document['status'] == 'disabled'):
+                    discord_id = data["discord_id"]
+                    user = discord_server.get_member(discord_id)
+                    member_role = get(discord_server.roles, name='Member')
+                    await client.remove_roles(user, member_role)
+                if delta.days > 30 and (document['status'] == 'active'):
                     discord_id = document['discord_id']
                     user = get(client.get_all_members(), id=discord_id)
                     
@@ -757,6 +756,10 @@ class Stripe(object):
                             await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
                             await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
                                                       + "We will now be cancelling your subscription.")
+                            
+                            discord_user = discord_server.get_member(discord_id)
+                            member_role = get(discord_server.roles, name='Member')
+                            await client.remove_roles(discord_user, member_role)
                     except stripe.error.RateLimitError as e:
                         await client.send_message(messiah, f"Rate limit error: {e}")
                         break
