@@ -54,7 +54,10 @@ SHOPIFY_PASS = os.environ["FOMO_HELPER_SHOPIFY_PASS"]
 MONGODB_URI = os.environ["FOMO_HELPER_MONGODB_URI"]
 
 ''' Initiliaze Stripe api with correct credential '''
-stripe.api_key = "sk_live_L9N3yTtjVRnyySzf0nSn6BRD"
+FOMO_STRIPE_KEY = "sk_live_L9N3yTtjVRnyySzf0nSn6BRD"
+MOREHYPED_STRIPE_KEY = "sk_live_22BhRSioB4lt4EgGxPZEM9Wr"
+
+# stripe.api_key = "sk_live_L9N3yTtjVRnyySzf0nSn6BRD"
 # Create Discord Bot instance with the given command triggers
 client = Bot(command_prefix=BOT_PREFIX)#, description=BOT_DESCRIPTION#)
 # Remove the default Discord help command
@@ -615,18 +618,35 @@ class Stripe(object):
         web_source = msg_data[2].lower()
         
         # Create a customer
-        customer = stripe.Customer.create(
-            source=token,
-            email=email
-        )
+        if web_source == "FOMO":
+            customer = stripe.Customer.create(
+                api_key=FOMO_STRIPE_KEY,
+                source=token,
+                email=email
+            )
+        else:
+            customer = stripe.Customer.create(
+                api_key=MOREHYPED_STRIPE_KEY,
+                source=token,
+                email=email
+            )
          
         try:
             # Charge the Customer instead of the card
-            stripe.Charge.create(
-                amount=2000,
-                currency='usd',
-                customer=customer.id
-            )
+            if web_source == "FOMO":
+                stripe.Charge.create(
+                    api_key=FOMO_STRIPE_KEY,
+                    amount=2000,
+                    currency='usd',
+                    customer=customer.id
+                )
+            else:
+                stripe.Charge.create(
+                    api_key=MOREHYPED_STRIPE_KEY,
+                    amount=2000,
+                    currency='usd',
+                    customer=customer.id
+                )
             
             now = datetime.datetime.now().date()
             # Search for email in database
@@ -698,28 +718,38 @@ class Stripe(object):
             for index,document in enumerate(cursor):
                 email = document['email']
                 error_count = document['error_count']
-                error_count = int(error_count)
+                error_count = error_count
                 error_count += 1
                 old_date = document['pay_date']
+                web_source = document['web_source']
                 old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
                        
                 delta = now - old_date
-                if delta.days > 30 and (document['status'] == 'disabled'):
-                    discord_id = data["discord_id"]
-                    user = discord_server.get_member(discord_id)
-                    member_role = get(discord_server.roles, name='Member')
-                    await client.remove_roles(user, member_role)
+#                 if delta.days > 30 and (document['status'] == 'disabled'):
+#                     discord_id = data["discord_id"]
+#                     user = discord_server.get_member(discord_id)
+#                     member_role = get(discord_server.roles, name='Member')
+#                     await client.remove_roles(user, member_role)
                 if delta.days > 30 and (document['status'] == 'active'):
                     discord_id = document['discord_id']
                     user = get(client.get_all_members(), id=discord_id)
                     
                     customer_id = document['customer_id']
-                    try:       
-                        charge = stripe.Charge.create(
-                            amount=2000,
-                            currency='usd',
-                            customer=customer_id
-                        )
+                    try: 
+                        if web_source == "FOMO":      
+                            charge = stripe.Charge.create(
+                                api_key=FOMO_STRIPE_KEY,
+                                amount=2000,
+                                currency='usd',
+                                customer=customer_id
+                            )
+                        else:
+                            charge = stripe.Charge.create(
+                                api_key=MOREHYPED_STRIPE_KEY,
+                                amount=2000,
+                                currency='usd',
+                                customer=customer_id
+                            )
                           
                         subscriptions.update_one({
                             "email": email 
