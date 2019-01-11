@@ -615,7 +615,7 @@ class Stripe(object):
         msg_data = message.content.split()
         token = msg_data[0]
         email = msg_data[1].lower()
-        web_source = msg_data[2].lower()
+        web_source = msg_data[2]
         
         # Create a customer
         if web_source == "FOMO":
