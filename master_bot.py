@@ -54,8 +54,9 @@ SHOPIFY_PASS = os.environ["FOMO_HELPER_SHOPIFY_PASS"]
 MONGODB_URI = os.environ["FOMO_HELPER_MONGODB_URI"]
 
 ''' Initiliaze Stripe api with correct credential '''
+stripe.api_version = "2018-11-08"
 FOMO_STRIPE_KEY = "sk_live_L9N3yTtjVRnyySzf0nSn6BRD"
-MOREHYPED_STRIPE_KEY = "sk_live_22BhRSioB4lt4EgGxPZEM9Wr"
+MOREHYPED_STRIPE_KEY = "sk_live_22BhRSioB4It4EgGxPZEM9Wr"
 
 # stripe.api_key = "sk_live_L9N3yTtjVRnyySzf0nSn6BRD"
 # Create Discord Bot instance with the given command triggers
@@ -236,7 +237,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    await STRIPE.recurring_charges()    
+#     await STRIPE.recurring_charges()    
     
     
 ''' Command used by admins to grant user's permission to resubscribe to the Discord group
