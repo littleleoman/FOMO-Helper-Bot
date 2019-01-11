@@ -718,7 +718,7 @@ class Stripe(object):
             for index,document in enumerate(cursor):
                 email = document['email']
                 error_count = document['error_count']
-                error_count = error_count
+                error_count = int(error_count)
                 error_count += 1
                 old_date = document['pay_date']
                 web_source = document['web_source']
