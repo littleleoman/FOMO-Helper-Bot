@@ -236,7 +236,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-#     await STRIPE.recurring_charges()    
+    await STRIPE.recurring_charges()    
     
     
 ''' Command used by admins to grant user's permission to resubscribe to the Discord group
