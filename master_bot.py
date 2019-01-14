@@ -179,10 +179,20 @@ async def on_message(message):
                  await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>') 
          elif re.search('slots', message.content, re.IGNORECASE):
              if re.search('guide|how\s+do|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
-                 await client.send_message(message.channel, 'You can find a detailed explanation on how slots work in <#471003962854604810> or in the FOMO Guide: <https://goo.gl/MQUnG7>')
+                 embed=discord.Embed(title="SLOTS", 
+                                     description="You can find a detailed explanation on how slots work in <#471003962854604810> or in the [FOMO Guide](https://docs.google.com/document/d/1tRL6EHtK1_7QH1zwNvPTK4-ewCaMVhOtLbTvBmXYB-w/edit?usp=sharing)",
+                                     colour=discord.Colour(0xffffff))
+                 embed.set_thumbnail(url="https://i.imgur.com/dzn0XF3.jpg")
+                 embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                 await client.send_message(message.channel, embed=embed)
          elif re.search('fomo', message.content, re.IGNORECASE):
              if re.search('guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
-                 await client.send_message(message.channel, "FOMO Guide: <https://goo.gl/MQUnG7>")
+                 embed=discord.Embed(title="FOMO GUIDE", 
+                                     description="[CLICK HERE](https://docs.google.com/document/d/1tRL6EHtK1_7QH1zwNvPTK4-ewCaMVhOtLbTvBmXYB-w/edit?usp=sharing)",
+                                     colour=discord.Colour(0xffffff))
+                 embed.set_thumbnail(url="https://i.imgur.com/dzn0XF3.jpg")
+                 embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                 await client.send_message(message.channel, embed=embed)
     else:
         # If it's a command that was sent, process the command normally
         await client.process_commands(message)
