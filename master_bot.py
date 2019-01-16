@@ -19,6 +19,7 @@ import string
 import time
 import _thread
 import stripe
+import names
 
 # from datetime import datetime
 from decimal import Decimal
@@ -71,6 +72,8 @@ subscriptions = None
 ebay_used_urls = []
 # Stripe class reference
 STRIPE = None
+# Krispy Kreme class reference
+KRISPYKREME = None
 
 # Logger for tracking errors.
 logger = logging.getLogger('discord')
@@ -248,6 +251,35 @@ async def on_ready():
     print(client.user.id)
     print('------')
 #     await STRIPE.recurring_charges()    
+
+
+@client.command(name='donutuk', 
+                pass_context=True)
+async def donut_message(ctx, gmail):
+    author = ctx.message.author
+    server = client.get_server("355178719809372173")
+    user = server.get_member(author.id)
+    await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
+    
+    kk_acc = KRISPYKREME.krispykreme_uk(gmail) 
+    kk_acc = str(kk_acc) 
+    acc_email = kk_acc.replace("('", "")
+    acc_email = kk_acc.replace("')", "")
+    acc_pw = 'MyPassword123'
+    
+    embed = Embed(title='YOUR KRISPY KREME ACCOUNT', 
+                  description="LOGIN TO THIS ACCOUNT VIA THE KRISPY KREME APP", 
+                  color=0xffffff)
+    embed.set_thumbnail(url="http://pngimg.com/uploads/donut/donut_PNG98.png")
+    embed.add_field(name="EMAIL:", value=acc_email, inline=True)
+    embed.add_field(name="PASSWORD:", value=acc_pw, inline=True)
+    embed.add_field(name="APP DOWNLOAD LINK:", 
+                    value=" [APP STORE](https://itunes.apple.com/us/app/krispy-kreme/id482752836?mt=8)\n[GOOGLE PLAY](https://play.google.com/store/apps/details?id=com.krispykreme.HotLights&hl=en)", 
+                    inline=False)
+    embed.add_field(name="HOW TO REDEEM:",
+                    value="Download the **Krispy Kreme App** on your device. Login with the above credentials and show the cashier the barcode found in the app and she will hand you a free doughnut!",
+                    inline=False)
+    await client.send_message(author, embed=embed)
     
     
 ''' Command used by admins to grant user's permission to resubscribe to the Discord group
@@ -374,7 +406,7 @@ async def custom_help(ctx, *command):
             description = BOT_DESCRIPTION
         )
         
-        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate** \n**!cancel**'
+        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate** \n**!cancel** \n**sms!help** \n**!accounthelp** \n**!donutuk**'
         keyword_descriptions = 'Jig your home address; type input between **" "**\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
@@ -382,6 +414,9 @@ async def custom_help(ctx, *command):
         keyword_descriptions += 'Calculates seller profit after fees for a given sale price\n'
         keyword_descriptions += 'Authenticates members and assigns correct role\n'
         keyword_descriptions += 'Cancel your current subscription\n'
+        keyword_descriptions += 'Signup, change, or remove your number from SMS alerts\n'
+        keyword_descriptions += 'Quickly generate accounts for various websites (DM only)\n'
+        keyword_descriptions += 'Get your free Kispy Kreme doughnut!'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
@@ -454,6 +489,16 @@ async def custom_help(ctx, *command):
         )
         
         embed.add_field(name='Aliases', value='[ cancel ]', inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'donutuk')):
+        desc = "Get yourself a free Krispy Kreme doughnut by passing your email prefix as a parameter."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ donutuk ]', inline=False)
         embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
     
@@ -620,6 +665,116 @@ async def ebay_watch(ctx, url, watches):
 #             that the Discord bot will have                    #
 #                                                               #   
 # ------------------------------------------------------------- #
+class Krispy_Kreme(object):
+    
+    def __init__(self, ):
+        self.headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
+        self.uk_signup = 'https://friends.krispykremerewards.co.uk/Friends/SignUp/SignUp.aspx?ChannelSource=Website&InputSource=Direct'
+        self.password = 'MyPassword123'
+        
+    def plus_jig(self, gmail):
+        num1 = int(random.randrange(0,10))
+        num2 = int(random.randrange(0,10))
+        num3 = int(random.randrange(0,10))
+        num4 = int(random.randrange(0,10))
+        num5 = int(random.randrange(0,10))
+        num6 = int(random.randrange(0,10))
+        plusjig = str(num1) + str(num2) + str(num3) + str(num4) + str(num5) + str(num6)
+        return gmail + '+' + plusjig + '@gmail.com'
+    
+    def krispykreme_uk(self, email):
+        gmail = self.plus_jig(email) 
+        session = requests.session()
+        tokens = requests.get(self.uk_signup, headers=self.headers) 
+        soup = BeautifulSoup(tokens.text, 'html.parser')
+        
+        viewstate = str(soup.find("input", {"type":"hidden", "name":"__VIEWSTATE"}, tokens.text))
+        viewstate = viewstate.replace('<input id="__VIEWSTATE" name="__VIEWSTATE" type="hidden" value="','')
+        viewstate = viewstate.replace('"/>','')
+        
+        viewstategenerator = str(soup.find("input",{"type":"hidden","name":"__VIEWSTATEGENERATOR"}, tokens.text))
+        viewstategenerator = viewstategenerator.replace('<input id="__VIEWSTATEGENERATOR" name="__VIEWSTATEGENERATOR" type="hidden" value="','')
+        viewstategenerator = viewstategenerator.replace('"/>','')
+        
+        eventvalidation = str(soup.find("input",{"type":"hidden","name":"__EVENTVALIDATION"}, tokens.text))
+        eventvalidation = eventvalidation.replace('<input id="__EVENTVALIDATION" name="__EVENTVALIDATION" type="hidden" value="','')
+        eventvalidation = eventvalidation.replace('"/>','')
+    
+        formdata1 = {
+            "__EVENTTARGET": "",
+            "__EVENTARGUMENT": "",
+            "__VIEWSTATE": viewstate,
+            "__VIEWSTATEGENERATOR": viewstategenerator,
+            "__EVENTVALIDATION": eventvalidation,
+            "ctl00$ContentPlaceHolder1$wucSignInStep1$txtFName": names.get_first_name(),
+            "ctl00$ContentPlaceHolder1$wucSignInStep1$txtLName": names.get_last_name(),
+            "ctl00$ContentPlaceHolder1$wucSignInStep1$txtCorreo": gmail,
+            "ctl00$ContentPlaceHolder1$wucSignInStep1$ChkConsentKK": "on",
+            "ctl00$ContentPlaceHolder1$wucSignInStep1$cboDondeCompra": "1",
+            "ctl00$ContentPlaceHolder1$wucSignInStep1$ChkAcceptEmail": "on",
+            "ctl00$ContentPlaceHolder1$btnPaso1Next": "NEXT",
+            "ctl00$ContentPlaceHolder1$HiddenField1": "False",
+            "ctl00$ContentPlaceHolder1$hidSocioID": "",
+            "ctl00$ContentPlaceHolder1$hidUsuarioIDFb": "",
+            "ctl00$ContentPlaceHolder1$txtPreferencias": ""
+        }
+    
+        submit1 = session.post(self.uk_signup, headers=self.headers, data=formdata1)
+        soup = BeautifulSoup(submit1.text, 'html.parser')
+        
+        viewstate = str(soup.find("input",{"type":"hidden","name":"__VIEWSTATE"}, tokens.text))
+        viewstate = viewstate.replace('<input id="__VIEWSTATE" name="__VIEWSTATE" type="hidden" value="','')
+        viewstate = viewstate.replace('"/>','')
+    
+        viewstategenerator = str(soup.find("input",{"type":"hidden","name":"__VIEWSTATEGENERATOR"}, tokens.text))
+        viewstategenerator = viewstategenerator.replace('<input id="__VIEWSTATEGENERATOR" name="__VIEWSTATEGENERATOR" type="hidden" value="','')
+        viewstategenerator = viewstategenerator.replace('"/>','')
+        
+        eventvalidation = str(soup.find("input",{"type":"hidden","name":"__EVENTVALIDATION"}, tokens.text))
+        eventvalidation = eventvalidation.replace('<input id="__EVENTVALIDATION" name="__EVENTVALIDATION" type="hidden" value="','')
+        eventvalidation = eventvalidation.replace('"/>','')
+    
+        socioid = str(soup.find("input",{"type":"hidden","name":"ctl00$ContentPlaceHolder1$hidSocioID"}, submit1.text))
+        socioid = socioid.replace('<input id="ContentPlaceHolder1_hidSocioID" name="ctl00$ContentPlaceHolder1$hidSocioID" type="hidden" value="','')
+        socioid = socioid.replace('"/>','')
+    
+        formdata2 = {
+            "__EVENTTARGET": "",
+            "__EVENTARGUMENT": "",
+            "__VIEWSTATE": viewstate,
+            "__VIEWSTATEGENERATOR": viewstategenerator,
+            "__EVENTVALIDATION": eventvalidation,
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$fechaNacimiento$ddlDia": "7",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$fechaNacimiento$ddlMes": "7",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$fechaNacimiento$ddlAnio": "1998",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$wucCP$txtCP": "G41 4PY",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$wucCP$txtContry": "City of Glasgow",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$wucCP$txtCityTwon": "Glasgow",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$wucCP$hidPaginaPadre": "SignUp.aspx",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$ctl00$cboListaDatos": "2",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$wucGpoDondeCompra$ChkPreferencia_10": "on",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$ctl01$cboListaDatos": "-""1",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$txtNumeroTjta": "",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$txtRegCode": "",
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$txtPass": self.password,
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$txtConfirmPass": self.password,
+            "ctl00$ContentPlaceHolder1$wucSignInStep2$chkTC": "on",
+            "ctl00$ContentPlaceHolder1$btnConfirm": "CONFIRM",
+            "ctl00$ContentPlaceHolder1$HiddenField1": "False",
+            "ctl00$ContentPlaceHolder1$hidSocioID": socioid,
+            "ctl00$ContentPlaceHolder1$hidUsuarioIDFb": "",
+            "ctl00$ContentPlaceHolder1$txtPreferencias": ",10_ChkPreferencia,null"
+        }
+    
+        submit2 = session.post(self.uk_signup, headers=self.headers, data=formdata2)
+        if submit2.status_code == 200:
+            session.close()
+            return gmail
+        if submit2.status_code != 200:
+            session.close()
+            return("Request Failed")
+
+
 class Stripe(object):
     async def process_payment(self, message):
         messiah = get(client.get_all_members(), id="460997994121134082")
@@ -1278,6 +1433,7 @@ if __name__ == "__main__":
         subscriptions.create_index('email')
         ebay_used_urls.append(datetime.date.today())
         STRIPE = Stripe()
+        KRISPYKREME = Krispy_Kreme()
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
