@@ -282,53 +282,53 @@ async def donut_message(ctx, gmail):
     await client.send_message(author, embed=embed)
     
     
-''' Command used by admins to grant user's permission to resubscribe to the Discord group
-    if their subscription was previously cancelled (NOTE - cancelled subscription is different,
-    from a disabled subscription.) 
-    
-    @param ctx: Discord information 
-    @param *args: Email and subscription type passed by user '''
-@client.command(name='resub',
-                description='Gives a member back his subscription if they had their subscription canceled',
-                pass_context=True)
-async def resub(ctx, *args):
-    # Message author
-    author = ctx.message.author 
-    # FOMO Discord server reference
-    discord_server = client.get_server("355178719809372173")
-    # Member reference for user 
-    member = discord_server.get_member(author.id)
-    
-    # Make sure message is a private message to FOMO Helper
-    if isinstance(ctx.message.channel, discord.PrivateChannel):
-        # Make sure an admin is using the command
-        if "Admin" or "Dev" in [role.name for role in member.roles]:
-            # Check for correct number of parameters passed
-            if len(args) < 1:
-                await client.send_message(author, "Command is missing an argument. Make sure you provide the purchase email")
-            elif len(args) > 1:
-                await client.send_message(author, "Command has extra argument(s). Make sure you provide the purchase email only.")
-            else:
-                # Email passed as a parameter
-                email = args[0]
-                
-                # Find user information on database if it exists
-                data = subscriptions.find_one({"email": f"{email}"})
-                if data == None:
-                    await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
-                else:
-                    subscriptions.update_one({
-                        "email": email
-                    }, {
-                        "$set": {
-                            "status": "pending",
-                            "error_count": 0
-                        }
-                    }, upsert=False)
-
-                    await client.send_message(author, "User has been given permission to reactivate their account. Get in touch with them and let them know!")
-        else:
-            await client.send_message(author, "This command is for admins only")
+# ''' Command used by admins to grant user's permission to resubscribe to the Discord group
+#     if their subscription was previously cancelled (NOTE - cancelled subscription is different,
+#     from a disabled subscription.) 
+#     
+#     @param ctx: Discord information 
+#     @param *args: Email and subscription type passed by user '''
+# @client.command(name='resub',
+#                 description='Gives a member back his subscription if they had their subscription canceled',
+#                 pass_context=True)
+# async def resub(ctx, *args):
+#     # Message author
+#     author = ctx.message.author 
+#     # FOMO Discord server reference
+#     discord_server = client.get_server("355178719809372173")
+#     # Member reference for user 
+#     member = discord_server.get_member(author.id)
+#     
+#     # Make sure message is a private message to FOMO Helper
+#     if isinstance(ctx.message.channel, discord.PrivateChannel):
+#         # Make sure an admin is using the command
+#         if "Admin" or "Dev" in [role.name for role in member.roles]:
+#             # Check for correct number of parameters passed
+#             if len(args) < 1:
+#                 await client.send_message(author, "Command is missing an argument. Make sure you provide the purchase email")
+#             elif len(args) > 1:
+#                 await client.send_message(author, "Command has extra argument(s). Make sure you provide the purchase email only.")
+#             else:
+#                 # Email passed as a parameter
+#                 email = args[0]
+#                 
+#                 # Find user information on database if it exists
+#                 data = subscriptions.find_one({"email": f"{email}"})
+#                 if data == None:
+#                     await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
+#                 else:
+#                     subscriptions.update_one({
+#                         "email": email
+#                     }, {
+#                         "$set": {
+#                             "status": "pending",
+#                             "error_count": 0
+#                         }
+#                     }, upsert=False)
+# 
+#                     await client.send_message(author, "User has been given permission to reactivate their account. Get in touch with them and let them know!")
+#         else:
+#             await client.send_message(author, "This command is for admins only")
         
 
 ''' Method for admin use only. Cancels a user's subscription and updates the database 
@@ -860,7 +860,7 @@ class Stripe(object):
             if data['status'] == "active":
                 await client.send_message(ctx.message.author, "This subscription has already been activated. If you believe this to be a mistake, please contact an admin.")
             elif data['status'] == "disabled":
-                await client.send_message(ctx.message.author, "This subscription was previously disabled. To reactivate it, please contact an admin.")
+                await client.send_message(ctx.message.author, "This subscription was previously disabled. To reactivate it, please contact the developer Messiah.")
             else:
                 subscriptions.update_one({
                     "email": email
@@ -891,11 +891,13 @@ class Stripe(object):
                 old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
                        
                 delta = now - old_date
-#                 if delta.days > 30 and (document['status'] == 'disabled'):
-#                     discord_id = data["discord_id"]
-#                     user = discord_server.get_member(discord_id)
-#                     member_role = get(discord_server.roles, name='Member')
-#                     await client.remove_roles(user, member_role)
+                if delta.days > 30 and (document['status'] == 'disabled'):
+                    discord_id = data["discord_id"]
+                    user = discord_server.get_member(discord_id)
+                    
+                    if "Member" in [role.name for role in member.roles]:
+                        member_role = get(discord_server.roles, name='Member')
+                        await client.remove_roles(user, member_role)
                 if delta.days > 30 and (document['status'] == 'active'):
                     discord_id = document['discord_id']
                     user = get(client.get_all_members(), id=discord_id)
