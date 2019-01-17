@@ -874,6 +874,7 @@ class Stripe(object):
                 await sub_and_assign_roles(email, ctx.message.author)
             
     async def recurring_charges(self):
+        discord_server = client.get_server("355178719809372173")
         messiah = get(client.get_all_members(), id="460997994121134082")
         now = datetime.datetime.now().date()
         cursor = subscriptions.find({})
