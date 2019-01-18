@@ -829,6 +829,18 @@ class Stripe(object):
                     "pay_date": str(now),
                     "web_source": web_source
                 })
+            else:
+                # Update an existing subscription with new information
+                subscriptions.update_one({
+                    "email": email
+                }, {
+                    "$set": {
+                        "customer_id": customer.id,
+                        "status": "active",
+                        "error_count": 0,
+                        "pay_date": str(now)
+                    }
+                }, upsert=False)
         except stripe.error.CardError as e:
             body = e.json_body
             err = body.get('error', {})
