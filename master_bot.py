@@ -168,8 +168,6 @@ async def on_member_remove(member):
     @param message: Message sent by the user in the server '''
 @client.event
 async def on_message(message):
-    print(message.channel)
-    
     # Don't want the bot to reply to itself
     if message.author == client.user:
         return 
