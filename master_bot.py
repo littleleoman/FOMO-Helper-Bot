@@ -821,7 +821,7 @@ class SuccessPoster(object):
         this.fomo_consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
         this.fomo_access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
         this.fomo_access_token_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
-        self.fomo_twitter_api = Twitter(auth=OAuth(access_token_key=self.fomo_access_token,
+        self.fomo_twitter_api = Twitter(auth=OAuth(self.fomo_access_token,
                                               self.fomo_access_token_secret,
                                               self.fomo_consumer_key,
                                               self.fomo_consumer_secret))
