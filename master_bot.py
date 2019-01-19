@@ -817,10 +817,10 @@ class SuccessPoster(object):
                                               access_token_secret=self.trivia_access_token_secret)
         
         self.fomo_channel = client.get_channel('470260744751939594')
-        this.fomo_consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
-        this.fomo_consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
-        this.fomo_access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
-        this.fomo_access_token_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
+        self.fomo_consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
+        self.fomo_consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
+        self.fomo_access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
+        self.fomo_access_token_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
         self.fomo_twitter_api = twitter.Api(consumer_key=self.fomo_consumer_key,
                                             consumer_secret=self.fomo_consumer_secret,
                                             access_token_key=self.fomo_access_token,
