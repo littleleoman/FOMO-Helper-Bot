@@ -252,7 +252,7 @@ async def custom_help(ctx, *command):
         keyword_descriptions += 'Cancel your current subscription\n'
         keyword_descriptions += 'Signup, change, or remove your number from SMS alerts\n'
         keyword_descriptions += 'Quickly generate accounts for various websites (DM only)\n'
-        keyword_descriptions += 'Get your free Kispy Kreme doughnut!'
+        keyword_descriptions += 'Get your free Krispy Kreme doughnut!'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
