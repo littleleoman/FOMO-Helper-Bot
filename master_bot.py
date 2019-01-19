@@ -20,7 +20,7 @@ import time
 import _thread
 import stripe
 import names
-from twitter import *
+import twitter
 
 # from datetime import datetime
 from decimal import Decimal
@@ -168,6 +168,8 @@ async def on_member_remove(member):
     @param message: Message sent by the user in the server '''
 @client.event
 async def on_message(message):
+    print(message.channel)
+    
     # Don't want the bot to reply to itself
     if message.author == client.user:
         return 
@@ -175,22 +177,14 @@ async def on_message(message):
     if message.channel.name == "subs":
         await STRIPE.process_payment(message)
     
-    if message.channel == SUCCESS_POSTER.trivia_channel:
+    if message.channel.name == "success":
         author = str(message.author) 
         author = author[:-5]
         attachment_count = len(message.attachments)
         if attachment_count > 0:
             for attachment in message.attachments:
                 image = attachment["url"]
-                SUCCESS_POSTER.success_poster("TRIVIA", author, image)
-    elif message.channel == SUCCESS_POSTER.fomo_channel:
-        author = str(message.author) 
-        author = author[:-5]
-        attachment_count = len(message.attachments)
-        if attachment_count > 0:
-            for attachment in message.attachments:
-                image = attachment["url"]
-                SUCCESS_POSTER.success_poster("FOMO", author, image)
+                SUCCESS_POSTER.success_poster(author, image)
     
     # Make sure the message sent is not a command
     if not message.content.startswith('!') and not message.content.startswith('?'):
@@ -806,33 +800,18 @@ class KrispyKreme(object):
 class SuccessPoster(object): 
     
     def __init__(self):
-        self.trivia_channel = client.get_channel('498173549077463051')
-        self.trivia_consumer_key = 'RWnjIm9mdX0jBK1aaGVqIbgxd'
-        self.trivia_consumer_secret = '619c6Cjf6lTxi94CsQkRnQ8cDOFKFFmlFOpSkvUHGNzNebk7Sw'
-        self.trivia_access_token = '1085007085056806912-macfCp1cikE5fLEjDBijYiZM4SrQ6E'
-        self.trivia_access_token_secret = 'yHRP6GGS0vHBmcp4gXshNQkJvGWKHSwa0sGSAN0gmDM0Y'
-        self.trivia_twitter_api = Twitter(auth=OAuth(self.trivia_access_token,
-                                              self.trivia_access_token_secret,
-                                              self.trivia_consumer_key,
-                                              self.trivia_consumer_secret))
-                                              
+        self.consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
+        self.consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
+        self.access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
+        self.access_token_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
+        self.twitter_api = twitter.Api(consumer_key=self.consumer_key,
+                                       consumer_secret=self.consumer_secret,
+                                       access_token_key=self.access_token,
+                                       access_token_secret=self.access_token_secret)
         
-        self.fomo_channel = client.get_channel('470260744751939594')
-        self.fomo_consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
-        self.fomo_consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
-        self.fomo_access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
-        self.fomo_access_token_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
-        self.fomo_twitter_api = Twitter(auth=OAuth(self.fomo_access_token,
-                                            self.fomo_access_token_secret,
-                                            self.fomo_consumer_key,
-                                            self.fomo_consumer_secret))
+    def success_poster(self, author, image_url):
+        status = self.twitter_api.PostUpdate(f'Success by {author}', media=image_url)
         
-    def success_poster(self, poster, author, image_url):
-        if poster == "FOMO":
-            status = self.fomo_twitter_api.PostUpdate(f'Success by {author}', media=image_url)
-        elif poster == "TRIVIA":
-            stuats = self.trivia_twitter_api.PostUpdate(f'Success by {author}', media=image_url)
-
 
 class Stripe(object):
     async def process_payment(self, message):
