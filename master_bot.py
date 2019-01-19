@@ -20,6 +20,7 @@ import time
 import _thread
 import stripe
 import names
+import twitter
 
 # from datetime import datetime
 from decimal import Decimal
@@ -48,9 +49,6 @@ Example:
 
 # Token for Discord Bot 
 TOKEN = os.environ["FOMO_HELPER_BOT_TOKEN"]
-# Variables to make calls to Shopify (Subscription related data)
-SHOPIFY_USER = os.environ["FOMO_HELPER_SHOPIFY_USER"]
-SHOPIFY_PASS = os.environ["FOMO_HELPER_SHOPIFY_PASS"]
 # URI for Mongo/Heroku Database
 MONGODB_URI = os.environ["FOMO_HELPER_MONGODB_URI"]
 
@@ -74,6 +72,7 @@ ebay_used_urls = []
 STRIPE = None
 # Krispy Kreme class reference
 KRISPYKREME = None
+SUCCESS_POSTER = None
 
 # Logger for tracking errors.
 logger = logging.getLogger('discord')
@@ -175,6 +174,23 @@ async def on_message(message):
     
     if message.channel.name == "subs":
         await STRIPE.process_payment(message)
+    
+    if message.channel == SUCCESS_POSTER.trivia_channel:
+        author = str(message.author) 
+        author = author[:-5]
+        attachment_count = len(message.attachments)
+        if attachment_count > 0:
+            for attachment in message.attachments:
+                image = attachment["url"]
+                SUCCESS_POSTER.success_poster("TRIVIA", author, image)
+    elif message.channel == SUCCESS_POSTER.fomo_channel:
+        author = str(message.author) 
+        author = author[:-5]
+        attachment_count = len(message.attachments)
+        if attachment_count > 0:
+            for attachment in message.attachments:
+                image = attachment["url"]
+                SUCCESS_POSTER.success_poster("FOMO", author, image)
     
     # Make sure the message sent is not a command
     if not message.content.startswith('!') and not message.content.startswith('?'):
@@ -677,7 +693,7 @@ async def ebay_watch(ctx, url, watches):
 #             that the Discord bot will have                    #
 #                                                               #   
 # ------------------------------------------------------------- #
-class Krispy_Kreme(object):
+class KrispyKreme(object):
     
     def __init__(self, ):
         self.headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
@@ -785,6 +801,36 @@ class Krispy_Kreme(object):
         if submit2.status_code != 200:
             session.close()
             return("Request Failed")
+
+
+class SuccessPoster(object): 
+    
+    def __init__(self):
+        self.trivia_channel = client.get_channel('498173549077463051')
+        self.trivia_consumer_key = 'RWnjIm9mdX0jBK1aaGVqIbgxd'
+        self.trivia_consumer_secret = '619c6Cjf6lTxi94CsQkRnQ8cDOFKFFmlFOpSkvUHGNzNebk7Sw'
+        self.trivia_access_token = '1085007085056806912-macfCp1cikE5fLEjDBijYiZM4SrQ6E'
+        self.trivia_access_token_secret = 'yHRP6GGS0vHBmcp4gXshNQkJvGWKHSwa0sGSAN0gmDM0Y'
+        self.trivia_twitter_api = twitter.Api(consumer_key=self.trivia_consumer_key,
+                                              consumer_secret=self.trivia_consumer_secret,
+                                              access_token_key=self.trivia_access_token,
+                                              access_token_secret=self.trivia_access_token_secret)
+        
+        self.fomo_channel = client.get_channel('470260744751939594')
+        this.fomo_consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
+        this.fomo_consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
+        this.fomo_access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
+        this.fomo_access_token_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
+        self.fomo_twitter_api = twitter.Api(consumer_key=self.fomo_consumer_key,
+                                              consumer_secret=self.fomo_consumer_secret,
+                                              access_token_key=self.fomo_access_token,
+                                              access_token_secret=self.fomo_access_token_secret)
+        
+    def success_poster(self, poster, author, image_url):
+        if poster == "FOMO":
+            status = self.fomo_twitter_api.PostUpdate(f'Success by {author}', media=image_url)
+        elif poster == "TRIVIA":
+            stuats = self.trivia_twitter_api.PostUpdate(f'Success by {author}', media=image_url)
 
 
 class Stripe(object):
@@ -1459,7 +1505,8 @@ if __name__ == "__main__":
         subscriptions.create_index('email')
         ebay_used_urls.append(datetime.date.today())
         STRIPE = Stripe()
-        KRISPYKREME = Krispy_Kreme()
+        KRISPYKREME = KrispyKreme()
+        SUCCESS_POSTER = SuccessPoster()
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
