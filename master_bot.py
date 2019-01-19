@@ -811,20 +811,21 @@ class SuccessPoster(object):
         self.trivia_consumer_secret = '619c6Cjf6lTxi94CsQkRnQ8cDOFKFFmlFOpSkvUHGNzNebk7Sw'
         self.trivia_access_token = '1085007085056806912-macfCp1cikE5fLEjDBijYiZM4SrQ6E'
         self.trivia_access_token_secret = 'yHRP6GGS0vHBmcp4gXshNQkJvGWKHSwa0sGSAN0gmDM0Y'
-        self.trivia_twitter_api = twitter.Api(consumer_key=self.trivia_consumer_key,
-                                              consumer_secret=self.trivia_consumer_secret,
-                                              access_token_key=self.trivia_access_token,
-                                              access_token_secret=self.trivia_access_token_secret)
+        self.trivia_twitter_api = twitter.Twitter(auth=OAuth(self.trivia_access_token,
+                                              self.trivia_access_token_secret,
+                                              self.trivia_consumer_key,
+                                              self.trivia_consumer_secret))
+                                              
         
         self.fomo_channel = client.get_channel('470260744751939594')
         self.fomo_consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
         self.fomo_consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
         self.fomo_access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
         self.fomo_access_token_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
-        self.fomo_twitter_api = twitter.Api(consumer_key=self.fomo_consumer_key,
-                                            consumer_secret=self.fomo_consumer_secret,
-                                            access_token_key=self.fomo_access_token,
-                                            access_token_secret=self.fomo_access_token_secret)
+        self.fomo_twitter_api = twitter.Twitter(auth=OAuth(self.fomo_access_token,
+                                            self.fomo_access_token_secret,
+                                            self.fomo_consumer_key,
+                                            self.fomo_consumer_secret))
         
     def success_poster(self, poster, author, image_url):
         if poster == "FOMO":
