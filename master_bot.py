@@ -128,6 +128,15 @@ async def sub_and_assign_roles(email, author):
 #                 All the Discord Bot methods                   #
 #                                                               #   
 # ------------------------------------------------------------- #
+''' Discord event, triggered upon successful Login '''
+@client.event
+async def on_ready():
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
+    
+    
 ''' Method triggered by server event when a member leaves the Discord group 
 
     @param member: User leaving the server. '''
@@ -201,195 +210,6 @@ async def on_message(message):
         await client.process_commands(message)
 
 
-''' Function for personal use; check if any other Discord server got access to FOMO Helper,
-    and prevent them from freely using our bot 
-    
-    @param ctx: Discord information '''
-@client.command(name='connectedservers',
-                description='Displays a list of servers the bot is connected to.',
-                pass_context=True)
-async def servers_list(ctx):
-    author = ctx.message.author
-    servers = client.servers
-    message = "The connected servers are:\n"
-    for server in servers:
-        message += f"\t- {server.name}: {server.id}\n"
-        
-    await client.send_message(author, message)
-
-''' Complement to connectedservers command. Removes FOMO Helper from any unauthorized servers
-    using the bot. 
-    
-    @param ctx: Discord information
-    @param *args: Developer email and unauthorized server id to remove bot service from  '''
-@client.command(name='unauthorizeserver',
-                description='Removes bot from any unauthorized servers.',
-                pass_context=True)
-async def remove_from_server(ctx, *args):
-    author = ctx.message.author
-    
-    if len(args) < 2:
-        await client.send_message(author, "Command is missing an argument")
-    elif len(args) > 2: 
-        await client.send_message(author, "Command has extra argument(s).")
-    else:
-        email = args[0]
-        id = args[1]
-        
-        if email == "macewandu@hotmail.com":
-            server_to_leave = client.get_server(str(id))
-            await client.leave_server(server_to_leave)
-            await client.send_message(author, "Successfully left the server")
-        else:
-            await client.send_message(author, "Invalid argument passed")
-
-''' Discord event, triggered upon successful Login '''
-@client.event
-async def on_ready():
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
-    print('------')
-    await STRIPE.recurring_charges()    
-
-
-@client.command(name='donutuk', 
-                pass_context=True)
-async def donut_message(ctx, gmail):
-    author = ctx.message.author
-    server = client.get_server("355178719809372173")
-    user = server.get_member(author.id)
-    await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
-    
-    kk_acc = KRISPYKREME.krispykreme_uk(gmail) 
-    kk_acc = str(kk_acc) 
-    acc_email = kk_acc.replace("('", "")
-    acc_email = kk_acc.replace("')", "")
-    acc_pw = 'MyPassword123'
-    
-    embed = Embed(title='YOUR KRISPY KREME ACCOUNT', 
-                  description="LOGIN TO THIS ACCOUNT VIA THE KRISPY KREME APP", 
-                  color=0xffffff)
-    embed.set_thumbnail(url="http://pngimg.com/uploads/donut/donut_PNG98.png")
-    embed.add_field(name="EMAIL:", value=acc_email, inline=True)
-    embed.add_field(name="PASSWORD:", value=acc_pw, inline=True)
-    embed.add_field(name="APP DOWNLOAD LINK:", 
-                    value=" [APP STORE](https://itunes.apple.com/us/app/krispy-kreme/id482752836?mt=8)\n[GOOGLE PLAY](https://play.google.com/store/apps/details?id=com.krispykreme.HotLights&hl=en)", 
-                    inline=False)
-    embed.add_field(name="HOW TO REDEEM:",
-                    value="Download the **Krispy Kreme App** on your device. Login with the above credentials and show the cashier the barcode found in the app and she will hand you a free doughnut!",
-                    inline=False)
-    await client.send_message(author, embed=embed)
-    
-    
-# ''' Command used by admins to grant user's permission to resubscribe to the Discord group
-#     if their subscription was previously cancelled (NOTE - cancelled subscription is different,
-#     from a disabled subscription.) 
-#     
-#     @param ctx: Discord information 
-#     @param *args: Email and subscription type passed by user '''
-# @client.command(name='resub',
-#                 description='Gives a member back his subscription if they had their subscription canceled',
-#                 pass_context=True)
-# async def resub(ctx, *args):
-#     # Message author
-#     author = ctx.message.author 
-#     # FOMO Discord server reference
-#     discord_server = client.get_server("355178719809372173")
-#     # Member reference for user 
-#     member = discord_server.get_member(author.id)
-#     
-#     # Make sure message is a private message to FOMO Helper
-#     if isinstance(ctx.message.channel, discord.PrivateChannel):
-#         # Make sure an admin is using the command
-#         if "Admin" or "Dev" in [role.name for role in member.roles]:
-#             # Check for correct number of parameters passed
-#             if len(args) < 1:
-#                 await client.send_message(author, "Command is missing an argument. Make sure you provide the purchase email")
-#             elif len(args) > 1:
-#                 await client.send_message(author, "Command has extra argument(s). Make sure you provide the purchase email only.")
-#             else:
-#                 # Email passed as a parameter
-#                 email = args[0]
-#                 
-#                 # Find user information on database if it exists
-#                 data = subscriptions.find_one({"email": f"{email}"})
-#                 if data == None:
-#                     await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
-#                 else:
-#                     subscriptions.update_one({
-#                         "email": email
-#                     }, {
-#                         "$set": {
-#                             "status": "pending",
-#                             "error_count": 0
-#                         }
-#                     }, upsert=False)
-# 
-#                     await client.send_message(author, "User has been given permission to reactivate their account. Get in touch with them and let them know!")
-#         else:
-#             await client.send_message(author, "This command is for admins only")
-        
-
-''' Method for admin use only. Cancels a user's subscription and updates the database 
-
-    @param ctx: Discord information
-    @param email: Email associated to acount to cancel subscription for'''
-@client.command(name='cancel',
-                description='Cancel a user\'s subscription',
-                pass_context=True)
-async def cancel(ctx, email):
-    # FOMO Discord server reference
-    discord_server = client.get_server("355178719809372173")
-    # Message author
-    author = ctx.message.author 
-    # Discord member reference based on user id
-    member = discord_server.get_member(author.id)
-    
-    # If message is a private message 
-    if isinstance(ctx.message.channel, discord.PrivateChannel):
-        # Check if member is an admin
-        data = subscriptions.find_one({"email": f"{email}"})
-        if data == None:
-                await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
-        else:
-            subscriptions.update_one({
-                "email": email
-            }, {
-                "$set": {
-                    "status": "disabled"
-                }
-            })
-                
-            await client.send_message(author, "User subscription successfully canceled") 
-
-
-
-''' Command responsible for authenticating users premium subscription on Discord and 
-    assigning correct role '''
-@client.command(name='activate',
-                description='Activate your subscription to be assigned the appropriate roles',
-                pass_context=True)
-async def activate(ctx, email):
-    # Discord message author  
-    author = ctx.message.author
-    # FOMO Discord server reference 
-    discord_server = client.get_server("355178719809372173")
-      
-    # Check if message is a private message
-    if isinstance(ctx.message.channel, discord.PrivateChannel):
-        try:
-            await STRIPE.check_membership(ctx, email.lower())
-        except requests.Timeout as error:
-            print("There was a timeout error")
-            print(str(error))
-        except requests.ConnectionError as error:
-            print("A connection error has occurred. The details are below.\n")
-            print(str(error))
-        except requests.RequestException as error:
-            print("An error occurred making the internet request.")
-            print(str(error))
-        
 ''' Discord custom help command, formatted differently from the default help command
 
     @param ctx: Discord information
@@ -501,8 +321,195 @@ async def custom_help(ctx, *command):
         embed.add_field(name='Aliases', value='[ donutuk ]', inline=False)
         embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
         await client.send_message(author, embed=embed)
+
+
+@client.command(name='chargedaily',
+                pass_context=True)
+async def charge_daily(ctx):
+    await STRIPE.recurring_charges()    
+
+
+''' Function for personal use; check if any other Discord server got access to FOMO Helper,
+    and prevent them from freely using our bot 
+    
+    @param ctx: Discord information '''
+@client.command(name='connectedservers',
+                description='Displays a list of servers the bot is connected to.',
+                pass_context=True)
+async def servers_list(ctx):
+    author = ctx.message.author
+    servers = client.servers
+    message = "The connected servers are:\n"
+    for server in servers:
+        message += f"\t- {server.name}: {server.id}\n"
+        
+    await client.send_message(author, message)
+
+''' Complement to connectedservers command. Removes FOMO Helper from any unauthorized servers
+    using the bot. 
+    
+    @param ctx: Discord information
+    @param *args: Developer email and unauthorized server id to remove bot service from  '''
+@client.command(name='unauthorizeserver',
+                description='Removes bot from any unauthorized servers.',
+                pass_context=True)
+async def remove_from_server(ctx, *args):
+    author = ctx.message.author
+    
+    if len(args) < 2:
+        await client.send_message(author, "Command is missing an argument")
+    elif len(args) > 2: 
+        await client.send_message(author, "Command has extra argument(s).")
+    else:
+        email = args[0]
+        id = args[1]
+        
+        if email == "macewandu@hotmail.com":
+            server_to_leave = client.get_server(str(id))
+            await client.leave_server(server_to_leave)
+            await client.send_message(author, "Successfully left the server")
+        else:
+            await client.send_message(author, "Invalid argument passed")
+
+
+
+@client.command(name='donutuk', 
+                pass_context=True)
+async def donut_message(ctx, gmail):
+    author = ctx.message.author
+    server = client.get_server("355178719809372173")
+    user = server.get_member(author.id)
+    await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
+    
+    kk_acc = KRISPYKREME.krispykreme_uk(gmail) 
+    kk_acc = str(kk_acc) 
+    acc_email = kk_acc.replace("('", "")
+    acc_email = kk_acc.replace("')", "")
+    acc_pw = 'MyPassword123'
+    
+    embed = Embed(title='YOUR KRISPY KREME ACCOUNT', 
+                  description="LOGIN TO THIS ACCOUNT VIA THE KRISPY KREME APP", 
+                  color=0xffffff)
+    embed.set_thumbnail(url="http://pngimg.com/uploads/donut/donut_PNG98.png")
+    embed.add_field(name="EMAIL:", value=acc_email, inline=True)
+    embed.add_field(name="PASSWORD:", value=acc_pw, inline=True)
+    embed.add_field(name="APP DOWNLOAD LINK:", 
+                    value=" [APP STORE](https://itunes.apple.com/us/app/krispy-kreme/id482752836?mt=8)\n[GOOGLE PLAY](https://play.google.com/store/apps/details?id=com.krispykreme.HotLights&hl=en)", 
+                    inline=False)
+    embed.add_field(name="HOW TO REDEEM:",
+                    value="Download the **Krispy Kreme App** on your device. Login with the above credentials and show the cashier the barcode found in the app and she will hand you a free doughnut!",
+                    inline=False)
+    await client.send_message(author, embed=embed)
     
     
+# ''' Command used by admins to grant user's permission to resubscribe to the Discord group
+#     if their subscription was previously cancelled (NOTE - cancelled subscription is different,
+#     from a disabled subscription.) 
+#     
+#     @param ctx: Discord information 
+#     @param *args: Email and subscription type passed by user '''
+# @client.command(name='resub',
+#                 description='Gives a member back his subscription if they had their subscription canceled',
+#                 pass_context=True)
+# async def resub(ctx, *args):
+#     # Message author
+#     author = ctx.message.author 
+#     # FOMO Discord server reference
+#     discord_server = client.get_server("355178719809372173")
+#     # Member reference for user 
+#     member = discord_server.get_member(author.id)
+#     
+#     # Make sure message is a private message to FOMO Helper
+#     if isinstance(ctx.message.channel, discord.PrivateChannel):
+#         # Make sure an admin is using the command
+#         if "Admin" or "Dev" in [role.name for role in member.roles]:
+#             # Check for correct number of parameters passed
+#             if len(args) < 1:
+#                 await client.send_message(author, "Command is missing an argument. Make sure you provide the purchase email")
+#             elif len(args) > 1:
+#                 await client.send_message(author, "Command has extra argument(s). Make sure you provide the purchase email only.")
+#             else:
+#                 # Email passed as a parameter
+#                 email = args[0]
+#                 
+#                 # Find user information on database if it exists
+#                 data = subscriptions.find_one({"email": f"{email}"})
+#                 if data == None:
+#                     await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
+#                 else:
+#                     subscriptions.update_one({
+#                         "email": email
+#                     }, {
+#                         "$set": {
+#                             "status": "pending",
+#                             "error_count": 0
+#                         }
+#                     }, upsert=False)
+# 
+#                     await client.send_message(author, "User has been given permission to reactivate their account. Get in touch with them and let them know!")
+#         else:
+#             await client.send_message(author, "This command is for admins only")
+        
+
+''' Cancels a user's subscription and updates the database 
+
+    @param ctx: Discord information
+    @param email: Email associated to acount to cancel subscription for'''
+@client.command(name='cancel',
+                description='Cancel a user\'s subscription',
+                pass_context=True)
+async def cancel(ctx, email):
+    # FOMO Discord server reference
+    discord_server = client.get_server("355178719809372173")
+    # Message author
+    author = ctx.message.author 
+    # Discord member reference based on user id
+    member = discord_server.get_member(author.id)
+    
+    # If message is a private message 
+    if isinstance(ctx.message.channel, discord.PrivateChannel):
+        # Check if member is an admin
+        data = subscriptions.find_one({"email": f"{email}"})
+        if data == None:
+                await client.send_message(author, "Could not find the provided email. Please check that it is correct and try again.")
+        else:
+            subscriptions.update_one({
+                "email": email
+            }, {
+                "$set": {
+                    "status": "disabled"
+                }
+            })
+                
+            await client.send_message(author, "User subscription successfully canceled") 
+
+
+
+''' Command responsible for authenticating users premium subscription on Discord and 
+    assigning correct role '''
+@client.command(name='activate',
+                description='Activate your subscription to be assigned the appropriate roles',
+                pass_context=True)
+async def activate(ctx, email):
+    # Discord message author  
+    author = ctx.message.author
+    # FOMO Discord server reference 
+    discord_server = client.get_server("355178719809372173")
+      
+    # Check if message is a private message
+    if isinstance(ctx.message.channel, discord.PrivateChannel):
+        try:
+            await STRIPE.check_membership(ctx, email.lower())
+        except requests.Timeout as error:
+            print("There was a timeout error")
+            print(str(error))
+        except requests.ConnectionError as error:
+            print("A connection error has occurred. The details are below.\n")
+            print(str(error))
+        except requests.RequestException as error:
+            print("An error occurred making the internet request.")
+            print(str(error))
+        
         
         
 ''' Discord command to calculate the fees that are applied to sale products on multiple websites.
@@ -571,6 +578,7 @@ async def fee_calculator(ctx, sale_price):
 async def shopify_check(ctx, url):
     shopify = Shopify()
     await shopify.check_if_shopify(ctx, url)
+    
 
 ''' Discord command to Jig a specific gmail address.
 
@@ -596,6 +604,7 @@ async def gmail_jig(ctx, email):
 async def address_jig(ctx, adr):
     address = AddressJig()
     await address.generate_address_two(str(adr), ctx)
+
 
 ''' Discord command to generate Add to Cart links for Shopify Websites.
 
@@ -637,6 +646,7 @@ async def ebay_view(ctx, url):
                 await client.send_message(ctx.message.author, embed=embed)
             except Exception as e:
                 await client.send_message(ctx.message.author, f"An error occurred trying to view the item. If it persists, please contact an admin")
+
 
 ''' Discord command for eBay watches: limited to 20 views one command 
 
@@ -891,102 +901,101 @@ class Stripe(object):
         now = datetime.datetime.now().date()
         cursor = subscriptions.find({})
         
-        while True:
-            await client.send_message(messiah, f"{now} - checking for recurring payments now!")
+        await client.send_message(messiah, f"{now} - checking for recurring payments now!")
             
-            for index,document in enumerate(cursor):
-                email = document['email']
-                error_count = document['error_count']
-                error_count = int(error_count)
-                error_count += 1
-                old_date = document['pay_date']
-                web_source = document['web_source']
-                old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
+        for index,document in enumerate(cursor):
+            email = document['email']
+            error_count = document['error_count']
+            error_count = int(error_count)
+            error_count += 1
+            old_date = document['pay_date']
+            web_source = document['web_source']
+            old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
                        
-                delta = now - old_date
-                if delta.days > 30 and (document['status'] == 'disabled'):
-                    discord_id = data["discord_id"]
-                    user = discord_server.get_member(discord_id)
+            delta = now - old_date
+            if delta.days > 30 and (document['status'] == 'disabled'):
+                discord_id = data["discord_id"]
+                user = discord_server.get_member(discord_id)
                     
-                    if "Member" in [role.name for role in member.roles]:
-                        member_role = get(discord_server.roles, name='Member')
-                        await client.remove_roles(user, member_role)
-                if delta.days > 30 and (document['status'] == 'active'):
-                    discord_id = document['discord_id']
-                    user = get(client.get_all_members(), id=discord_id)
+                if "Member" in [role.name for role in member.roles]:
+                    member_role = get(discord_server.roles, name='Member')
+                    await client.remove_roles(user, member_role)
+            if delta.days > 30 and (document['status'] == 'active'):
+                discord_id = document['discord_id']
+                user = get(client.get_all_members(), id=discord_id)
                     
-                    customer_id = document['customer_id']
-                    try: 
-                        if web_source == "FOMO":      
-                            charge = stripe.Charge.create(
-                                api_key=FOMO_STRIPE_KEY,
-                                amount=2000,
-                                currency='usd',
-                                customer=customer_id
-                            )
-                        else:
-                            charge = stripe.Charge.create(
-                                api_key=MOREHYPED_STRIPE_KEY,
-                                amount=2000,
-                                currency='usd',
-                                customer=customer_id
-                            )
+                customer_id = document['customer_id']
+                try: 
+                    if web_source == "FOMO":      
+                        charge = stripe.Charge.create(
+                            api_key=FOMO_STRIPE_KEY,
+                            amount=2000,
+                            currency='usd',
+                            customer=customer_id
+                        )
+                    else:
+                        charge = stripe.Charge.create(
+                            api_key=MOREHYPED_STRIPE_KEY,
+                            amount=2000,
+                            currency='usd',
+                            customer=customer_id
+                        )
                           
-                        subscriptions.update_one({
-                            "email": email 
-                        }, {
-                            "$set": {
-                                "pay_date": str(now),
-                                "error_count": 0
-                            }
-                        })
-                    except stripe.error.CardError as e:
-                        body = e.json_body
-                        err = body.get('error', {})
+                    subscriptions.update_one({
+                        "email": email 
+                    }, {
+                        "$set": {
+                            "pay_date": str(now),
+                            "error_count": 0
+                        }
+                    })
+                except stripe.error.CardError as e:
+                    body = e.json_body
+                    err = body.get('error', {})
                         
-                        subscriptions.update_one({
-                            "email": email 
-                        }, {
-                            "$set": {
-                                "error_count": error_count
-                            }
-                        })
+                    subscriptions.update_one({
+                        "email": email 
+                    }, {
+                        "$set": {
+                            "error_count": error_count
+                        }
+                    })
                         
-                        await client.send_message(messiah, f"There was an error processing the payment for email {email}")
-                        await client.send_message(messiah, f"Status is: {e.http_status}")
-                        await client.send_message(messiah, f"Type is: {err.get('type')}")
-                        await client.send_message(messiah, f"Code is: {err.get('code')}")
+                    await client.send_message(messiah, f"There was an error processing the payment for email {email}")
+                    await client.send_message(messiah, f"Status is: {e.http_status}")
+                    await client.send_message(messiah, f"Type is: {err.get('type')}")
+                    await client.send_message(messiah, f"Code is: {err.get('code')}")
                         
-                        if error_count == 1:
-                            await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
+                    if error_count == 1:
+                        await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
                                                       + "We will try two more times before cancelling your subscription. Please contact an admin as soon as possible.")
-                        elif error_count == 2:
-                            await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
+                    elif error_count == 2:
+                        await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
                                                       + "We will try one more time before cancelling your subscription. Please contact an admin as soon as possible.")
-                        else:
-                            await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
-                            await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
+                    else:
+                        await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
+                        await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
                                                       + "We will now be cancelling your subscription.")
                             
-                            discord_user = discord_server.get_member(discord_id)
-                            member_role = get(discord_server.roles, name='Member')
-                            await client.remove_roles(discord_user, member_role)
-                    except stripe.error.RateLimitError as e:
-                        await client.send_message(messiah, f"Rate limit error: {e}")
-                        break
-                    except stripe.error.AuthenticationError as e:
-                        await client.send_message(messiah, f"Authentication error: {e}")
-                        break
-                    except stripe.error.APIConnectionError as e:
-                        await client.send_message(messiah, f"Stripe error: {e}")
-                        break
-                    except stripe.error.StripeError as e:
-                        await client.send_message(messiah, f"Stripe error: {e}")
-                        break
-                    except Exception as e:
-                        await client.send_message(messiah, f"Exception occurred during recurring_charge: {e}")
-                        break
-            await asyncio.sleep(86400)
+                        discord_user = discord_server.get_member(discord_id)
+                        member_role = get(discord_server.roles, name='Member')
+                        await client.remove_roles(discord_user, member_role)
+                except stripe.error.RateLimitError as e:
+                    await client.send_message(messiah, f"Rate limit error: {e}")
+                    break
+                except stripe.error.AuthenticationError as e:
+                    await client.send_message(messiah, f"Authentication error: {e}")
+                    break
+                except stripe.error.APIConnectionError as e:
+                    await client.send_message(messiah, f"Stripe error: {e}")
+                    break
+                except stripe.error.StripeError as e:
+                    await client.send_message(messiah, f"Stripe error: {e}")
+                    break
+                except Exception as e:
+                    await client.send_message(messiah, f"Exception occurred during recurring_charge: {e}")
+                    break
+    
 
 class GmailJig(object):
     emails = ''
