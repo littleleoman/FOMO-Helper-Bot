@@ -227,7 +227,7 @@ async def custom_help(ctx, *command):
         )
         
         keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate** \n**!cancel** \n**sms!help** \n**!accounthelp** \n**!donutuk**'
-        keyword_descriptions = 'Jig your home address; type input between **" "**\n'
+        keyword_descriptions = 'Jig your home address\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
         keyword_descriptions += 'Checks if a website is Shopify\n'
@@ -601,8 +601,10 @@ async def gmail_jig(ctx, email):
                 description='This command manipulates any residential address passed to it as a parameter.',
                 aliases=['addr', 'adr'],
                 pass_context=True)
-async def address_jig(ctx, adr):
+async def address_jig(ctx):
     address = AddressJig()
+    adr = str(ctx.message.content) 
+    adr = adr.replace("!address ", "")
     await address.generate_address_two(str(adr), ctx)
 
 
