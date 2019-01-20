@@ -21,7 +21,7 @@ import _thread
 import stripe
 import names
 import twitter
-
+from twilio.rest import Client
 # from datetime import datetime
 from decimal import Decimal
 from discord.ext.commands import Bot
@@ -73,6 +73,7 @@ STRIPE = None
 # Krispy Kreme class reference
 KRISPYKREME = None
 SUCCESS_POSTER = None
+SMS = None 
 
 # Logger for tracking errors.
 logger = logging.getLogger('discord')
@@ -183,6 +184,23 @@ async def on_message(message):
             for attachment in message.attachments:
                 image = attachment["url"]
                 SUCCESS_POSTER.success_poster(author, image)
+    
+    if message.content.startswith('sms!help'):
+        await SMS.sms_help(message)
+    elif message.content.startswith('sms!send'):
+        await SMS.send_sms(message)
+    elif message.content.startswith('sms!stop'):
+        await SMS.remove_user(message)
+    elif message.content.startswith('sms!update'):
+        number = str(message.content)
+        number = number.replace("sms!update ","")
+        await SMS.update_user(message, number)
+    elif message.content.startswith('sms!check'):
+        await SMS.check_user(message)
+    elif message.content.startswith('sms!add'):
+        number = str(message.content)
+        number = number.replace("sms!add ","")
+        await SMS.add_user(message, number)
     
     # Make sure the message sent is not a command
     if not message.content.startswith('!') and not message.content.startswith('?'):
@@ -793,6 +811,192 @@ class KrispyKreme(object):
         if submit2.status_code != 200:
             session.close()
             return("Request Failed")
+
+
+class FOMO_SMS(object):
+    
+    def __init__(self):
+        self.username = 'fomo'
+        self.handle = 'ad0bd2fda9c68f566cc69248f799ac68'
+        self.userid = '16193'
+        self.from_ = 'FOMO%20Alerts'
+        self.account_sid = 'AC351781f47036b9e7a9378e9f035e14e7'
+        self.auth_token = '8cde20027a5a740c8ef291e90f78a25d'
+        self.sms_client = Client(self.account_sid, self.auth_token)
+        self.sms_db_client = pymongo.MongoClient('mongodb://heroku_lgwq2009:jge233cq5v9ouqv8fajurm3dnm@ds161144.mlab.com:61144/heroku_lgwq2009')
+        self.sms_db = self.sms_db_client.get_database()
+        self.posts = self.sms_db.posts
+
+    async def add_user(self, message, number):
+        server = client.get_server('355178719809372173')
+        author = message.author
+        db_check = self.posts.find({'discord_id':author.id}).count()
+        member = server.get_member(author.id) 
+            
+        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+            # If user isn't in the database, check if the entered number was entered with a + sign before it
+            if db_check == 0:
+                # Add number to the database if it is correct
+                if '+' in number:
+                    new_user = dict()
+                    new_user['discord_id'] = author.id 
+                    new_user['number_+'] = number 
+                    new_user['number'] = number.replace('+','')
+                    new_post = self.posts.insert_one(new_user).inserted_id
+                    embed = Embed(title="SUCCESS!", description="You have been added to the database.", color=0xffffff)
+                    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                    embed.add_field(name="Number on File:", value=new_user['number_+'])
+                    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                    await client.send_message(author, embed=embed)
+                else:
+                    embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
+                    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                    embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
+                    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                    await client.send_message(author, embed=embed)
+            elif db_check > 0:
+                user = self.posts.find_one({'discord_id':author.id})
+                embed = Embed(title="FOUND!", description="You are already in the database.", color=0xffffff)
+                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                embed.add_field(name="TO UPDATE YOUR NUMBER, SAY:", value="sms!update")
+                embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                await client.send_message(author, embed=embed)
+        else:
+            embed = Embed(title="NOT A MEMBER", description="You must be a paying member to access this feature.", color=0xffffff)
+            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            await client.send_message(author, embed=embed)
+                           
+    async def check_user(self, message):
+        server = client.get_server('355178719809372173')
+        author = message.author
+        member = server.get_member(author.id)
+        db_check = self.posts.find({'discord_id':author.id}).count()
+    
+        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+            if db_check > 0:
+                user = self.posts.find_one({'discord_id': author.id})
+                embed = Embed(title="FOUND!", description="You were found in the database.", color=0xffffff)
+                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                embed.add_field(name="TO UPDATE YOUR NUMBER ON FILE, SAY:", value="sms!update")
+                embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                await client.send_message(author, embed=embed)
+            elif db_check == 0:
+                embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
+                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                embed.add_field(name="TO ADD YOUR NUMBER, SAY:", value="sms!add followed by your number with the country & area code.")
+                embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                await client.send_message(author, embed=embed)
+        else:
+            embed = Embed(title="NOT A MEMBER", description="You must be a paying member to access this feature.", color=0xffffff)
+            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            await client.send_message(author, embed=embed)
+            
+    async def update_user(self, message, number):
+        server = client.get_server('355178719809372173')
+        author = message.author
+        member = server.get_member(author.id)
+    
+        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+            if '+' in number:
+                number_plus = number
+                number_noplus = number.replace('+','')
+                db_check = self.posts.find({'discord_id':author.id}).count()
+    
+                if db_check > 0:
+                    self.posts.update_one({
+                        'discord_id': author.id
+                        }, {
+                            '$set': {
+                                'number_+':number_plus,
+                                'number':number_noplus
+                            }
+                    })
+                    user = self.posts.find_one({'discord_id': author.id})
+                    embed = Embed(title="SUCCESS!", description="Your number on file was updated.", color=0xffffff)
+                    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                    embed.add_field(name="NUMBER ON FILE:", value=user['number_+'])
+                    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                    await client.send_message(author, embed=embed)
+                elif db_check == 0:
+                    embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
+                    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                    embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
+                    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                    await client.send_message(author, embed=embed)
+            else:
+                embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
+                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
+                embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                await client.send_message(author, embed=embed)
+        else:
+            embed = Embed(title="NOT A MEMBER", description="You must be a paying member to access this feature.", color=0xffffff)
+            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            await client.send_message(author, embed=embed)
+        
+    
+    async def remove_user(self, message):
+        server = client.get_server('355178719809372173')
+        author = message.author
+        member = server.get_member(author.id)
+    
+        db_check = self.posts.find({'discord_id':author.id}).count()
+    
+        if db_check == 0:
+            embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
+            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+            embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
+            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            await client.send_message(author, embed=embed)
+        elif db_check > 0:
+            user = self.posts.find_one({'discord_id':author.id})
+            self.posts.delete_one(user)
+            embed = Embed(title="REMOVED", description="You will no longer receive SMS alerts.", color=0xffffff)
+            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+            embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
+            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            await client.send_message(author, embed=embed)
+            
+    async def send_sms(self, message):
+        server = client.get_server('355178719809372173')
+        author = message.author
+        member = server.get_member(author.id)
+    
+        if 'Admin' or 'Moderator' in [role.name for role in member.roles]:
+            users = self.posts.find({})
+            msg = str(message.content)
+            msg = msg.replace('sms!send ', '')
+            for user in users:
+                number = user['number_+']
+                sms_message = self.sms_client.messages.create(
+                    to=number,
+                    from_="+16148108716",
+                    body=msg)
+                
+                if "queued" or "sent" or "delivered" in sms_message.status:
+                    print("SMS SENT: " + sms_message.status)
+                else:
+                    print("ERROR SENDING SMS: " + sms_message.status)
+            await client.send_message(author, "Message Sent!")
+        else:
+            embed = Embed(title="NOT A STAFF MEMBER", description="You must be a moderator/admin to use this command.", color=0xffffff)
+            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            await client.send_message(author, embed=embed)
+            
+    async def sms_help(self, message):
+        author = message.author
+        embed = Embed(title="SMS HELP CENTER", color=0xffffff)
+        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+        embed.add_field(name="sms!add", value="Adds your number to the database.")
+        embed.add_field(name="sms!check", value="Checks if your number is in the database.")
+        embed.add_field(name="sms!update", value="Updates your number in the database.")
+        embed.add_field(name="sms!stop", value="Removes your number from the database.")
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        await client.send_message(author, embed=embed)
 
 
 class SuccessPoster(object): 
@@ -1485,6 +1689,7 @@ if __name__ == "__main__":
         STRIPE = Stripe()
         KRISPYKREME = KrispyKreme()
         SUCCESS_POSTER = SuccessPoster()
+        SMS = FOMO_SMS()
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
