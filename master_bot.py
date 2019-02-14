@@ -1146,10 +1146,11 @@ class Stripe(object):
             if delta.days > 30 and (document['status'] == 'disabled'):
                 discord_id = document["discord_id"]
                 user = discord_server.get_member(discord_id)
-                    
-                if "Member" in [role.name for role in user.roles]:
-                    member_role = get(discord_server.roles, name='Member')
-                    await client.remove_roles(user, member_role)
+                
+                if user != None:
+                    if "Member" in [role.name for role in user.roles]:
+                        member_role = get(discord_server.roles, name='Member')
+                        await client.remove_roles(user, member_role)
             if delta.days > 30 and (document['status'] == 'active'):
                 discord_id = document['discord_id']
                 user = get(client.get_all_members(), id=discord_id)
