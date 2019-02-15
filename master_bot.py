@@ -1207,7 +1207,7 @@ class Stripe(object):
                         await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
                         await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
                                                       + "We will now be cancelling your subscription.")
-                            
+                             
                         discord_user = discord_server.get_member(discord_id)
                         member_role = get(discord_server.roles, name='Member')
                         await client.remove_roles(discord_user, member_role)
