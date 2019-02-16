@@ -254,17 +254,17 @@ async def custom_help(ctx, *command):
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
         keyword_descriptions += 'Checks if a website is Shopify\n'
-        keyword_descriptions += 'Calculates seller profit after fees for a given sale price\n'
+        keyword_descriptions += 'Calculates seller profits after fees on all websites.\n'
         keyword_descriptions += 'Authenticates members and assigns correct role\n'
         keyword_descriptions += 'Cancel your current subscription\n'
         keyword_descriptions += 'Signup, change, or remove your number from SMS alerts\n'
         keyword_descriptions += 'Quickly generate accounts for various websites (DM only)\n'
-        keyword_descriptions += 'Get your free Krispy Kreme doughnut using your Gmail prefix!\n'
+        keyword_descriptions += 'Get a Krispy Kreme doughnut using your Gmail prefix!\n'
         keyword_descriptions += 'Generate accounts on Shopify\n'
         keyword_descriptions += 'Generate accounts on Solebox\n'
         keyword_descriptions += 'Generate views on your eBay listing\n'
         keyword_descriptions += 'Generate watchers on your eBay listing\n'
-        keyword_descriptions += 'Calculate the perfect to delay to use on Shopify websites.'
+        keyword_descriptions += 'Get the perfect delay to use on Shopify websites.'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
