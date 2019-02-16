@@ -249,7 +249,7 @@ async def custom_help(ctx, *command):
             description = BOT_DESCRIPTION
         )
         
-        keywords = '*!address* \n*!gmail* \n*!atc* \n*!isshopify* \n*!fee* \n*!activate* \n*!cancel* \n*sms!help* \n*!accounthelp* \n*!donutuk* \n*!shopify* \n*!solebox* \n*!ebayviews* \n*!ebaywatch* \n*!delay*'
+        keywords = '*!address* \n*!gmail* \n*!atc* \n*!isshopify* \n*!fee* \n*!activate* \n*!cancel* \n*sms!help* \n*!donutuk* \n*!shopify* \n*!solebox* \n*!ebayviews* \n*!ebaywatch* \n*!delay*'
         keyword_descriptions = 'Jig your home address\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
@@ -258,7 +258,6 @@ async def custom_help(ctx, *command):
         keyword_descriptions += 'Authenticates members and assigns correct role\n'
         keyword_descriptions += 'Cancel your current subscription\n'
         keyword_descriptions += 'Signup, change, or remove your number from SMS alerts\n'
-        keyword_descriptions += 'Quickly generate accounts for various websites (DM only)\n'
         keyword_descriptions += 'Get a Krispy Kreme doughnut using your Gmail prefix!\n'
         keyword_descriptions += 'Generate accounts on Shopify\n'
         keyword_descriptions += 'Generate accounts on Solebox\n'
