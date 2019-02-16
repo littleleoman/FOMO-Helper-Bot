@@ -37,7 +37,6 @@ footer_text = 'Powered by FOMO | @FOMO_supply'
 member_role = 'Member'
 sub_channel = 'subs'
 sitelist_link = 'https://goo.gl/b7m6hi'
-success_channel = '516800385176961044'
 guide_link = 'https://goo.gl/HhtiYL'
 mongo_sms_url = 'mongodb://heroku_lgwq2009:jge233cq5v9ouqv8fajurm3dnm@ds161144.mlab.com:61144/heroku_lgwq2009'
 discord_owner_id = '460997994121134082'
@@ -416,7 +415,7 @@ async def custom_help(ctx, *command):
 @client.command(name='delay',
                 pass_context=True)
 async def delay_calc(ctx):
-    author = ctx.message.autor
+    author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
     embed.set_footer(icon_url=icon_img, text=footer_text)
     await client.send_message(author, embed=embed)  
