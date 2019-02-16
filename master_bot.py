@@ -220,7 +220,7 @@ async def on_message(message):
     if not message.content.startswith('!') and not message.content.startswith('?'):
         # Automate responses by displaying specific output based on user message if necessary
 
-        elif re.search('fomo', message.content, re.IGNORECASE):
+        if re.search('fomo', message.content, re.IGNORECASE):
             if re.search('guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
                 embed=discord.Embed(title="FOMO GUIDE", 
                                     description="[CLICK HERE]({})".format(guide_link),
