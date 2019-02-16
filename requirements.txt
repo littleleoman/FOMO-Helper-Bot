@@ -7,4 +7,7 @@ pymongo==3.7.1
 stripe==2.15.0
 names==0.3.0
 twilio==6.23.1
+<<<<<<< HEAD
 python-anticaptcha==0.3.1
+=======
+>>>>>>> refs/remotes/origin/master
