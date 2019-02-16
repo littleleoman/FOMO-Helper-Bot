@@ -54,8 +54,11 @@ twilio_number = '"+16148108716"'
 BOT_PREFIX = ("?", "!")
 # General Discord Bot Description
 BOT_DESCRIPTION = '''**FOMO Helper** is a general service bot for all your consumer needs.
+
 There are a couple of utility commands which are showcased here, and should serve you well.
+
 To use all commands, precede the keyword by an exclamation mark (!) or a question mark (?).
+
 Example:
     !gmail example@gmail.com
                 OR
