@@ -259,7 +259,7 @@ async def custom_help(ctx, *command):
         keyword_descriptions += 'Cancel your current subscription\n'
         keyword_descriptions += 'Signup, change, or remove your number from SMS alerts\n'
         keyword_descriptions += 'Quickly generate accounts for various websites (DM only)\n'
-        keyword_descriptions += 'Get your free Krispy Kreme doughnut!\n'
+        keyword_descriptions += 'Get your free Krispy Kreme doughnut using your Gmail prefix!\n'
         keyword_descriptions += 'Generate accounts on Shopify\n'
         keyword_descriptions += 'Generate accounts on Solebox\n'
         keyword_descriptions += 'Generate views on your eBay listing\n'
@@ -345,7 +345,7 @@ async def custom_help(ctx, *command):
         embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'donutuk')):
-        desc = "Get yourself a free Krispy Kreme doughnut by passing your email prefix as a parameter."
+        desc = "Get yourself a free Krispy Kreme doughnut by passing your email prefix as a parameter.\nExample: if your Gmail is john@gmail.com, say `!donutuk john` to get a free donut!"
         embed = Embed(
             color = 0xffffff,
             description = desc
@@ -356,7 +356,7 @@ async def custom_help(ctx, *command):
         await client.send_message(author, embed=embed)
 
     elif (len(command) > 0 and (command[0] == 'shopify')):
-        desc = "Generate an account on any Shopify website using your catchall domain."
+        desc = "Generate an account on any Shopify website using your Gmail address."
         embed = Embed(
             color = 0xffffff,
             description = desc
@@ -386,7 +386,7 @@ async def custom_help(ctx, *command):
         embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'ebaywatch')):
-        desc = "Generate watchers on your eBay listing."
+        desc = "Generate watchers on your eBay listing.\nFormat: `!ebaywatch link watchers`\nExample: `!ebaywatch https://www.ebay.com/itm/MYITEM 5` will add 5 watchers to your listng.\nMaximum is 10!"
         embed = Embed(
             color = 0xffffff,
             description = desc
@@ -791,7 +791,7 @@ async def add_to_cart(ctx, url):
 ''' Discord command for eBay views: limited to 200 views one command 
     @param ctx: Discord information
     @param rul: Url for item to be viewed '''
-@client.command(name='ebayview', 
+@client.command(name='ebayviews', 
                 description='Automatic eBay viewer for any listing. Views the given URL up to 200 times',
                 pass_context=True)
 async def ebay_view(ctx, url):
