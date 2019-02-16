@@ -413,10 +413,12 @@ async def delay_calc(ctx):
     embed.set_footer(icon_url=icon_img, text=footer_text)
     await client.send_message(author, embed=embed)  
     proxies = await client.wait_for_message(author=author)
+    proxies = proxies.content
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many tasks do you have?", color=0xffffff)
     embed.set_footer(icon_url=icon_img, text=footer_text)
     await client.send_message(author, embed=embed) 
     tasks = await client.wait_for_message(author=author)
+    tasks = tasks.content
     tasks = int(tasks)
     proxies = int(proxies)
     delay = str(3500/(proxies/tasks))
