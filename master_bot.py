@@ -224,8 +224,8 @@ async def on_message(message):
                 embed.set_footer(icon_url=icon_img, text=footer_text)
                 await client.send_message(message.channel, embed=embed)
 
-        elif re.search('fomo', message.content, re.IGNORECASE):
-            if re.search('sitelist|list|droplist', message.content, re.IGNORECASE):
+        
+            elif re.search('sitelist|list|droplist', message.content, re.IGNORECASE):
                 embed=discord.Embed(title="FOMO SITELIST", 
                                     description="[CLICK HERE]({})".format(sitelist_link),
                                     colour=discord.Colour(0xffffff))
