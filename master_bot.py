@@ -264,7 +264,7 @@ async def custom_help(ctx, *command):
         keyword_descriptions += 'Generate accounts on Solebox\n'
         keyword_descriptions += 'Generate views on your eBay listing\n'
         keyword_descriptions += 'Generate watchers on your eBay listing\n'
-        keyword_descriptions += 'Calculate the perfect to delay to use to monitor Shopify websites.'
+        keyword_descriptions += 'Calculate the perfect to delay to use on Shopify websites.'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
