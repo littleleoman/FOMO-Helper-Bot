@@ -91,13 +91,6 @@ KRISPYKREME = None
 SUCCESS_POSTER = None
 SMS = None 
 
-# Logger for tracking errors.
-logger = logging.getLogger('discord')
-logger.setLevel(logging.ERROR)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
-
 # Header to make the requests
 headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
 
@@ -1282,7 +1275,8 @@ class Stripe(object):
             old_date = document['pay_date']
             web_source = document['web_source']
             old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
-                       
+            
+            # TODO - fix removing old members from server and database  
             delta = now - old_date
             if delta.days > 30 and (document['status'] == 'disabled'):
                 discord_id = document["discord_id"]
@@ -1546,13 +1540,10 @@ class Shopify(object):
                         return
                 await client.send_message(channel, 'It IS NOT a Shopify website!')
         except requests.Timeout as error:
-            logger.error('Timeout Error: %s', str(error))
             await client.send_message(channel, "There was a timeout error")
         except requests.ConnectionError as error:
-            logger.error('Connection Error: %s', str(error))
             await client.send_message(channel, "A connection error has occurred.")
         except requests.RequestException as error:
-            logger.error('Request Error: %s', str(error))
             await client.send_message(channel, "An error occurred making the internet request.")
     
     
@@ -1576,13 +1567,10 @@ class Shopify(object):
                 await self.get_size_variant(url, page, ctx)
                 return
         except requests.Timeout as error:
-            logger.error('Timeout Error: %s', str(error))
             await client.send_message(ctx.message.channel,"There was a timeout error")
         except requests.ConnectionError as error:
-            logger.error('Connection Error: %s', str(error))
             await client.send_message(ctx.message.channel,"A connection error has occurred.")
         except requests.RequestException as error:
-            logger.error('Request Error: %s', str(error))
             await client.send_message(ctx.message.channel,"An error occurred making the internet request.")
             
     ''' Retrieves only the absolute URL from passed in URL.
