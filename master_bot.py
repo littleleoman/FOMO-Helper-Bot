@@ -1,6 +1,5 @@
 '''
 Created on Jul 15, 2018
-
 @author: yung_messiah
 '''
 import asyncio
@@ -21,6 +20,8 @@ import _thread
 import stripe
 import names
 import twitter
+import shopifyy
+import solebox
 from twilio.rest import Client
 # from datetime import datetime
 from decimal import Decimal
@@ -31,20 +32,35 @@ from discord.embeds import Embed
 from threading import Thread
 from bs4 import BeautifulSoup
 
+server_id = "355178719809372173"
+footer_text = 'Powered by FOMO | @FOMO_supply'
+member_role = 'Member'
+sub_channel = 'subs'
+sitelist_link = 'https://goo.gl/b7m6hi'
+success_channel = '516800385176961044'
+guide_link = 'https://goo.gl/HhtiYL'
+mongo_sms_url = 'mongodb://heroku_lgwq2009:jge233cq5v9ouqv8fajurm3dnm@ds161144.mlab.com:61144/heroku_lgwq2009'
+discord_owner_id = '460997994121134082'
+icon_img = 'https://i.imgur.com/5fSzax1.jpg'
+twitter_consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
+twitter_consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
+twitter_access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
+twitter_access_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
+twilio_from = 'FOMO%20Alerts'
+twilio_auth_token = '8cde20027a5a740c8ef291e90f78a25d'
+twilio_sid = 'AC351781f47036b9e7a9378e9f035e14e7'
+twilio_number = '"+16148108716"'
+
 # Discord command triggers
 BOT_PREFIX = ("?", "!")
 # General Discord Bot Description
 BOT_DESCRIPTION = '''**FOMO Helper** is a general service bot for all your consumer needs.
-
 There are a couple of utility commands which are showcased here, and should serve you well.
-
 To use all commands, precede the keyword by an exclamation mark (!) or a question mark (?).
-
 Example:
     !gmail example@gmail.com
                 OR
     ?gmail example@gmail.com
-
 '''
 
 # Token for Discord Bot 
@@ -74,7 +90,6 @@ STRIPE = None
 KRISPYKREME = None
 SUCCESS_POSTER = None
 SMS = None 
-FOMO_SERVER_ID = "355178719809372173"
 
 # Header to make the requests
 headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
@@ -102,14 +117,13 @@ def tiny(url, ctx):
     
     
 ''' Subscribes user to service by adding them to the database and assigning the appropriate role(s).
-
     @param email: The email to be added to the database
     @param author: User responsible for sending authentication message '''
 async def sub_and_assign_roles(email, author):
     # Reference to the FOMO discord server
-    discord_server = client.get_server(FOMO_SERVER_ID)
+    discord_server = client.get_server(server_id)
 
-    role = get(discord_server.roles, name="Member")
+    role = get(discord_server.roles, name=member_role)
     user = discord_server.get_member(author.id)
     await client.add_roles(user, role)
 
@@ -132,7 +146,6 @@ async def on_ready():
     
     
 ''' Method triggered by server event when a member leaves the Discord group 
-
     @param member: User leaving the server. '''
 @client.event
 async def on_member_remove(member):
@@ -149,7 +162,7 @@ async def on_member_remove(member):
             pass
         else:
             for role in member.roles:
-                if "Member" in role.name:
+                if member_role in role.name:
                     result = subscriptions.update_one({
                         "discord_id": member.id
                     }, {
@@ -167,7 +180,7 @@ async def on_message(message):
     if message.author == client.user:
         return 
     
-    if message.channel.name == "subs":
+    if message.channel.name == sub_channel:
         await STRIPE.process_payment(message)
     
     if message.channel.name == "success":
@@ -199,39 +212,30 @@ async def on_message(message):
     # Make sure the message sent is not a command
     if not message.content.startswith('!') and not message.content.startswith('?'):
         # Automate responses by displaying specific output based on user message if necessary
-         if re.search('nike element react|element react|react 87|react|nike element', message.content, re.IGNORECASE):
-             if re.search('sitelist', message.content, re.IGNORECASE):
-                await client.send_message(message.channel, 'Nike Element React sitelist URL: <https://goo.gl/b7m6hi>')
-             elif re.search('keyword|kw|kws|keywords', message.content, re.IGNORECASE):
-                await client.send_message(message.channel, 'Nike Element React keywords: +react, +element, +87')
-             elif re.search('raffle|raffles', message.content, re.IGNORECASE):
-                 await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>')
-         elif re.search('pharrell afro pack|pharrell afro|afro pack|pharrell afro hu|afro hu|pharrell hu', message.content, re.IGNORECASE):
-             if re.search('raffle|raffles', message.content, re.IGNORECASE):
-                 await client.send_message(message.channel, 'Updated list in <#471089859034087434>, don\'t forget to enter! Open raffles can also be found on <https://fomo.supply/>') 
-         elif re.search('slots', message.content, re.IGNORECASE):
-             if re.search('guide|how\s+do|work|what\s+are|how\s+to|sign\s+up|submit', message.content, re.IGNORECASE):
-                 embed=discord.Embed(title="SLOTS", 
-                                     description="You can find a detailed explanation on how slots work in <#471003962854604810> or in the [FOMO Guide](https://goo.gl/HhtiYL)",
-                                     colour=discord.Colour(0xffffff))
-                 embed.set_thumbnail(url="https://i.imgur.com/dzn0XF3.jpg")
-                 embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
-                 await client.send_message(message.channel, embed=embed)
-         elif re.search('fomo', message.content, re.IGNORECASE):
-             if re.search('guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
-                 embed=discord.Embed(title="FOMO GUIDE", 
-                                     description="[CLICK HERE](https://goo.gl/HhtiYL)",
-                                     colour=discord.Colour(0xffffff))
-                 embed.set_thumbnail(url="https://i.imgur.com/dzn0XF3.jpg")
-                 embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
-                 await client.send_message(message.channel, embed=embed)
+
+        if re.search('fomo', message.content, re.IGNORECASE):
+            if re.search('guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
+                embed=discord.Embed(title="FOMO GUIDE", 
+                                    description="[CLICK HERE]({})".format(guide_link),
+                                    colour=discord.Colour(0xffffff))
+                embed.set_thumbnail(url=icon_img)
+                embed.set_footer(icon_url=icon_img, text=footer_text)
+                await client.send_message(message.channel, embed=embed)
+
+        elif re.search('fomo', message.content, re.IGNORECASE):
+            if re.search('sitelist|list|droplist', message.content, re.IGNORECASE):
+                embed=discord.Embed(title="FOMO SITELIST", 
+                                    description="[CLICK HERE]({})".format(sitelist_link),
+                                    colour=discord.Colour(0xffffff))
+                embed.set_thumbnail(url=icon_img)
+                embed.set_footer(icon_url=icon_img, text=footer_text)
+                await client.send_message(message.channel, embed=embed)
     else:
         # If it's a command that was sent, process the command normally
         await client.process_commands(message)
 
 
 ''' Discord custom help command, formatted differently from the default help command
-
     @param ctx: Discord information
     @param *command: List of arguments passed with the command '''  
 @client.command(name='help',
@@ -246,7 +250,7 @@ async def custom_help(ctx, *command):
             description = BOT_DESCRIPTION
         )
         
-        keywords = '**!address** \n**!gmail** \n**!atc** \n**!isshopify** \n**!fee** \n**!activate** \n**!cancel** \n**sms!help** \n**!accounthelp** \n**!donutuk**'
+        keywords = '*!address* \n*!gmail* \n*!atc* \n*!isshopify* \n*!fee* \n*!activate* \n*!cancel* \n*sms!help* \n*!accounthelp* \n*!donutuk* \n*!shopify* \n*!solebox* \n*!ebayviews* \n*!ebaywatch* \n*!delay*'
         keyword_descriptions = 'Jig your home address\n'
         keyword_descriptions += 'Jig your gmail address\n'
         keyword_descriptions += 'Generate ATC for a shopify URL\n'
@@ -256,12 +260,21 @@ async def custom_help(ctx, *command):
         keyword_descriptions += 'Cancel your current subscription\n'
         keyword_descriptions += 'Signup, change, or remove your number from SMS alerts\n'
         keyword_descriptions += 'Quickly generate accounts for various websites (DM only)\n'
-        keyword_descriptions += 'Get your free Krispy Kreme doughnut!'
+        keyword_descriptions += 'Get your free Krispy Kreme doughnut!\n'
+        keyword_descriptions += 'Generate accounts on Shopify\n'
+        keyword_descriptions += 'Generate accounts on Solebox\n'
+        keyword_descriptions += 'Generate views on your eBay listing\n'
+        keyword_descriptions += 'Generate watchers on your eBay listing'
         
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
         embed.add_field(name='More Info', value="For more information on a keyword, type **!help keyword**", inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
+        await client.send_message(author, embed=embed)    
+        embed.add_field(name='Keywords:', value=keywords, inline=True)
+        embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
+        embed.add_field(name='More Info', value="For more information on a keyword, type **!help keyword**", inline=False)
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)    
     elif (len(command) > 0 and (command[0] == 'gmail' or command[0] == 'mail' or command[0] == 'email')):
         desc =  'This command manipulates any gmail address passed to it as a parameter.'
@@ -270,7 +283,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ gmail | mail | email ]', inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'address' or command[0] == 'adr' or command[0] == 'addr')):
         desc = 'This command manipulates any residential address passed to it as a parameter.'
@@ -279,7 +292,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ address | addr | adr ]', inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'atc')):
         desc = 'Add To Cart command for any Shopify website. Generates a link leading the user '
@@ -289,7 +302,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ atc ]', inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'isshopify')):
         desc = 'This command uses a given URL in order to determine whether '
@@ -299,7 +312,7 @@ async def custom_help(ctx, *command):
             description = desc
         )
         embed.add_field(name='Aliases', value='[ isshopify ]', inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'fee')):
         desc = "Calculates the seller fees applied by different websites."
@@ -309,7 +322,7 @@ async def custom_help(ctx, *command):
         )
         
         embed.add_field(name='Aliases', value='[ fee ]', inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'activate')):
         desc = "Activate your subscription in our server and get access to all our content."
@@ -319,7 +332,7 @@ async def custom_help(ctx, *command):
         )
         
         embed.add_field(name='Aliases', value='[ activate ]', inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'cancel')):
         desc = "Cancel your subscription in our server by passing the email used to subscribe as a parameter."
@@ -329,7 +342,7 @@ async def custom_help(ctx, *command):
         )
         
         embed.add_field(name='Aliases', value='[ cancel ]', inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
     elif (len(command) > 0 and (command[0] == 'donutuk')):
         desc = "Get yourself a free Krispy Kreme doughnut by passing your email prefix as a parameter."
@@ -339,8 +352,80 @@ async def custom_help(ctx, *command):
         )
         
         embed.add_field(name='Aliases', value='[ donutuk ]', inline=False)
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
+
+    elif (len(command) > 0 and (command[0] == 'shopify')):
+        desc = "Generate an account on any Shopify website using your catchall domain."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ shopify ]', inline=False)
+        embed.set_footer(icon_url=icon_img, text=footer_text)
+        await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'solebox')):
+        desc = "Generate an account on Solebox using your catchall domain."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ solebox ]', inline=False)
+        embed.set_footer(icon_url=icon_img, text=footer_text)
+        await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'ebayviews')):
+        desc = "Generate 200 views on your eBay listing."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ ebayviews ]', inline=False)
+        embed.set_footer(icon_url=icon_img, text=footer_text)
+        await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'ebaywatch')):
+        desc = "Generate watchers on your eBay listing."
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ ebaywatch ]', inline=False)
+        embed.set_footer(icon_url=icon_img, text=footer_text)
+        await client.send_message(author, embed=embed)
+    elif (len(command) > 0 and (command[0] == 'delay')):
+        desc = "Calculate the perfect delay to use when botting Shopify. The delay calculated here will **never** get you banned!"
+        embed = Embed(
+            color = 0xffffff,
+            description = desc
+        )
+        
+        embed.add_field(name='Aliases', value='[ delay ]', inline=False)
+        embed.set_footer(icon_url=icon_img, text=footer_text)
+        await client.send_message(author, embed=embed)
+
+@client.command(name='delay',
+                pass_context=True)
+async def delay_calc(ctx):
+    author = ctx.message.autor
+    embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
+    embed.set_footer(icon_url=icon_img, text=footer_text)
+    await client.send_message(author, embed=embed)  
+    proxies = await client.wait_for_message(author=author)
+    embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many tasks do you have?", color=0xffffff)
+    embed.set_footer(icon_url=icon_img, text=footer_text)
+    await client.send_message(author, embed=embed) 
+    tasks = await client.wait_for_message(author=author)
+    tasks = int(tasks)
+    proxies = int(proxies)
+    delay = str(3500/(proxies/tasks))
+    embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="Delay to never get banned: {} ms".format(delay), color=0xffffff)
+    embed.set_footer(icon_url=icon_img, text=footer_text)
+    await client.send_message(author, embed=embed) 
+
+
 
 
 @client.command(name='chargedaily',
@@ -364,6 +449,71 @@ async def servers_list(ctx):
         message += f"\t- {server.name}: {server.id}\n"
         
     await client.send_message(author, message)
+
+@client.command(name='shopify', pass_context=True)
+async def shopifyyy(ctx):
+    author = ctx.message.author
+    embed = discord.Embed(title="SHOPIFY ACCOUNTE GENERATOR", description="Generate accounts on any Shopify website.", color=0xffffff)
+    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/social-media-2092/100/social-35-512.png')
+    embed.add_field(name="PLEASE ENTER A SHOPIFY STORE URL", value='FOR EXAMPLE: `https://kith.com/`')
+    await client.send_message(author, embed=embed)
+    url = await client.wait_for_message(author=author)
+    url = url.content
+    check = shopifyy.shopify_check(url)
+
+    if check == False:
+        embed = discord.Embed(title="SHOPIFY ACCOUNTE GENERATOR", description="Generate accounts on any Shopify website.", color=0xffffff)
+        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/social-media-2092/100/social-35-512.png')
+        embed.add_field(name="INVALID SHOPIFY URL", value="Make sure you enter a valid Shopify URL.\nIf the Shopify store has a password page up, or if the given URL isn't a Shopify URL, no account will be generated.")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
+        await client.send_message(author, embed=embed)
+        return
+
+
+    embed = discord.Embed(title="ENTER YOUR CATCHALL DOMAIN", description="If you are not sure what this is, please watch [this video](https://www.youtube.com/watch?v=tx4-LNKK5d8)", color=0xffffff)
+    await client.send_message(author, embed=embed)
+    
+    catchall = await client.wait_for_message(author=author)
+    catchall = catchall.content
+
+    embed = discord.Embed(title="ACCOUNT IS BEING GENERATED", description="Please allow up to 2 minutes.", color=0xffffff)
+    
+    edit_this = await client.send_message(author, embed=embed)
+    credentials = shopifyy.shopify_gen(url,catchall)
+    username, password = credentials.split(':')
+
+    embed = discord.Embed(title="ACCOUNT GENERATED!", description="Generated on: `%s`" % url, color=0xffffff)
+    embed.add_field(name="EMAIL:", value=username)
+    embed.add_field(name="PASSWORD:", value=password, inline=False)
+    embed.set_footer(icon_url=icon_img, text=footer_text)
+    await client.edit_message(edit_this, embed=embed)    
+
+@client.command(name='solebox', pass_context=True)
+async def add_user2(ctx):
+    author = ctx.message.author
+
+
+    embed = discord.Embed(title="SOLEBOX ACCOUNTE GENERATOR", description="Generate accounts on [Solebox](https://solebox.com).", color=0xffffff)
+    embed.set_thumbnail(url='https://i.imgur.com/GoEB99v.jpg')
+    embed.add_field(name="PLEASE ENTER YOUR CATCHALL DOMAIN", value="If you are not sure what this is, please watch [this video](https://www.youtube.com/watch?v=tx4-LNKK5d8)")
+    await client.send_message(author, embed=embed)
+
+    catchall = await client.wait_for_message(author=author)
+    catchall = catchall.content
+
+    embed = discord.Embed(title="ACCOUNT IS BEING GENERATED", description="Please allow up to 2 minutes.", color=0xffffff)
+    edit_this = await client.send_message(author, embed=embed)
+    credentials = solebox.solebox_gen(catchall)
+    username, password = credentials.split(':')
+
+    embed = discord.Embed(title="ACCOUNT GENERATED!", color=0xffffff)
+    embed.add_field(name="EMAIL:", value=username)
+    embed.add_field(name="PASSWORD:", value=password, inline=False)
+    embed.set_footer(icon_url=icon_img, text=footer_text)
+    await client.edit_message(edit_this, embed=embed)  
+    
+
+
 
 ''' Complement to connectedservers command. Removes FOMO Helper from any unauthorized servers
     using the bot. 
@@ -397,7 +547,7 @@ async def remove_from_server(ctx, *args):
                 pass_context=True)
 async def donut_message(ctx, gmail):
     author = ctx.message.author
-    server = client.get_server(FOMO_SERVER_ID)
+    server = client.get_server(server_id)
     user = server.get_member(author.id)
     await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
     
@@ -435,7 +585,7 @@ async def donut_message(ctx, gmail):
 #     # Message author
 #     author = ctx.message.author 
 #     # FOMO Discord server reference
-#     discord_server = client.get_server(FOMO_SERVER_ID)
+#     discord_server = client.get_server(server_id)
 #     # Member reference for user 
 #     member = discord_server.get_member(author.id)
 #     
@@ -472,7 +622,6 @@ async def donut_message(ctx, gmail):
         
 
 ''' Cancels a user's subscription and updates the database 
-
     @param ctx: Discord information
     @param email: Email associated to acount to cancel subscription for'''
 @client.command(name='cancel',
@@ -480,7 +629,7 @@ async def donut_message(ctx, gmail):
                 pass_context=True)
 async def cancel(ctx, email):
     # FOMO Discord server reference
-    discord_server = client.get_server(FOMO_SERVER_ID)
+    discord_server = client.get_server(server_id)
     # Message author
     author = ctx.message.author 
     # Discord member reference based on user id
@@ -514,7 +663,7 @@ async def activate(ctx, email):
     # Discord message author  
     author = ctx.message.author
     # FOMO Discord server reference 
-    discord_server = client.get_server(FOMO_SERVER_ID)
+    discord_server = client.get_server(server_id)
       
     # Check if message is a private message
     if isinstance(ctx.message.channel, discord.PrivateChannel):
@@ -533,7 +682,6 @@ async def activate(ctx, email):
         
         
 ''' Discord command to calculate the fees that are applied to sale products on multiple websites.
-
     @param ctx: Discord information
     @param sale_price: Price for which to make the calculations'''
 @client.command(name='fee',
@@ -601,7 +749,6 @@ async def shopify_check(ctx, url):
     
 
 ''' Discord command to Jig a specific gmail address.
-
     @param ctx: Discord information
     @param email: Email to be jigged '''
 @client.command(name='gmail',
@@ -614,7 +761,6 @@ async def gmail_jig(ctx, email):
     
 
 ''' Discord command to Jig a specific residential address.
-
     @param ctx: Discord information
     @param adr: Residential address to be jigged ''' 
 @client.command(name='address',
@@ -629,7 +775,6 @@ async def address_jig(ctx):
 
 
 ''' Discord command to generate Add to Cart links for Shopify Websites.
-
     @param ctx: Discord information
     @param url: URL for item to be purchased '''  
 @client.command(name='atc',
@@ -642,7 +787,6 @@ async def add_to_cart(ctx, url):
     await shopify.run(str(url), ctx)
 
 ''' Discord command for eBay views: limited to 200 views one command 
-
     @param ctx: Discord information
     @param rul: Url for item to be viewed '''
 @client.command(name='ebayview', 
@@ -671,7 +815,6 @@ async def ebay_view(ctx, url):
 
 
 ''' Discord command for eBay watches: limited to 20 views one command 
-
     @param ctx: Discord information
     @param url: URL for eBay listing
     @param watches: Number of watches '''
@@ -810,24 +953,21 @@ class KrispyKreme(object):
 class FOMO_SMS(object):
     
     def __init__(self):
-        self.username = 'fomo'
-        self.handle = 'ad0bd2fda9c68f566cc69248f799ac68'
-        self.userid = '16193'
-        self.from_ = 'FOMO%20Alerts'
-        self.account_sid = 'AC351781f47036b9e7a9378e9f035e14e7'
-        self.auth_token = '8cde20027a5a740c8ef291e90f78a25d'
+        self.from_ = twilio_from
+        self.account_sid = twilio_sid
+        self.auth_token = twilio_auth_token
         self.sms_client = Client(self.account_sid, self.auth_token)
-        self.sms_db_client = pymongo.MongoClient('mongodb://heroku_lgwq2009:jge233cq5v9ouqv8fajurm3dnm@ds161144.mlab.com:61144/heroku_lgwq2009')
+        self.sms_db_client = pymongo.MongoClient(mongo_sms_url)
         self.sms_db = self.sms_db_client.get_database()
         self.posts = self.sms_db.posts
 
     async def add_user(self, message, number):
-        server = client.get_server('FOMO_SERVER_ID')
+        server = client.get_server(server_id)
         author = message.author
         db_check = self.posts.find({'discord_id':author.id}).count()
         member = server.get_member(author.id) 
             
-        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+        if member_role or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
             # If user isn't in the database, check if the entered number was entered with a + sign before it
             if db_check == 0:
                 # Add number to the database if it is correct
@@ -840,59 +980,59 @@ class FOMO_SMS(object):
                     embed = Embed(title="SUCCESS!", description="You have been added to the database.", color=0xffffff)
                     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
                     embed.add_field(name="Number on File:", value=new_user['number_+'])
-                    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                    embed.set_footer(icon_url=icon_img, text=footer_text)
                     await client.send_message(author, embed=embed)
                 else:
                     embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
                     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
                     embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
-                    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                    embed.set_footer(icon_url=icon_img, text=footer_text)
                     await client.send_message(author, embed=embed)
             elif db_check > 0:
                 user = self.posts.find_one({'discord_id':author.id})
                 embed = Embed(title="FOUND!", description="You are already in the database.", color=0xffffff)
                 embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
                 embed.add_field(name="TO UPDATE YOUR NUMBER, SAY:", value="sms!update")
-                embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                embed.set_footer(icon_url=icon_img, text=footer_text)
                 await client.send_message(author, embed=embed)
         else:
             embed = Embed(title="NOT A MEMBER", description="You must be a paying member to access this feature.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
                            
     async def check_user(self, message):
-        server = client.get_server('FOMO_SERVER_ID')
+        server = client.get_server(server_id)
         author = message.author
         member = server.get_member(author.id)
         db_check = self.posts.find({'discord_id':author.id}).count()
     
-        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+        if member_role or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
             if db_check > 0:
                 user = self.posts.find_one({'discord_id': author.id})
                 embed = Embed(title="FOUND!", description="You were found in the database.", color=0xffffff)
                 embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
                 embed.add_field(name="TO UPDATE YOUR NUMBER ON FILE, SAY:", value="sms!update")
-                embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                embed.set_footer(icon_url=icon_img, text=footer_text)
                 await client.send_message(author, embed=embed)
             elif db_check == 0:
                 embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
                 embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
                 embed.add_field(name="TO ADD YOUR NUMBER, SAY:", value="sms!add followed by your number with the country & area code.")
-                embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                embed.set_footer(icon_url=icon_img, text=footer_text)
                 await client.send_message(author, embed=embed)
         else:
             embed = Embed(title="NOT A MEMBER", description="You must be a paying member to access this feature.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
             
     async def update_user(self, message, number):
-        server = client.get_server('FOMO_SERVER_ID')
+        server = client.get_server(server_id)
         author = message.author
         member = server.get_member(author.id)
     
-        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+        if member_role or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
             if '+' in number:
                 number_plus = number
                 number_noplus = number.replace('+','')
@@ -911,29 +1051,29 @@ class FOMO_SMS(object):
                     embed = Embed(title="SUCCESS!", description="Your number on file was updated.", color=0xffffff)
                     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
                     embed.add_field(name="NUMBER ON FILE:", value=user['number_+'])
-                    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                    embed.set_footer(icon_url=icon_img, text=footer_text)
                     await client.send_message(author, embed=embed)
                 elif db_check == 0:
                     embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
                     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
                     embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
-                    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                    embed.set_footer(icon_url=icon_img, text=footer_text)
                     await client.send_message(author, embed=embed)
             else:
                 embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
                 embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
                 embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
-                embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+                embed.set_footer(icon_url=icon_img, text=footer_text)
                 await client.send_message(author, embed=embed)
         else:
             embed = Embed(title="NOT A MEMBER", description="You must be a paying member to access this feature.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
         
     
     async def remove_user(self, message):
-        server = client.get_server('FOMO_SERVER_ID')
+        server = client.get_server(server_id)
         author = message.author
         member = server.get_member(author.id)
     
@@ -943,7 +1083,7 @@ class FOMO_SMS(object):
             embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
             embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
-            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
         elif db_check > 0:
             user = self.posts.find_one({'discord_id':author.id})
@@ -951,15 +1091,15 @@ class FOMO_SMS(object):
             embed = Embed(title="REMOVED", description="You will no longer receive SMS alerts.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
             embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
-            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
             
     async def send_sms(self, message):
-        server = client.get_server('FOMO_SERVER_ID')
+        server = client.get_server(server_id)
         author = message.author
         member = server.get_member(author.id)
     
-        if 'Admin' or 'Moderator' in [role.name for role in member.roles]:
+        if member.server_permissions.administrator:
             users = self.posts.find({})
             msg = str(message.content)
             msg = msg.replace('sms!send ', '')
@@ -967,7 +1107,7 @@ class FOMO_SMS(object):
                 number = user['number_+']
                 sms_message = self.sms_client.messages.create(
                     to=number,
-                    from_="+16148108716",
+                    from_=twilio_number,
                     body=msg)
                 
                 if "queued" or "sent" or "delivered" in sms_message.status:
@@ -978,7 +1118,7 @@ class FOMO_SMS(object):
         else:
             embed = Embed(title="NOT A STAFF MEMBER", description="You must be a moderator/admin to use this command.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+            embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
             
     async def sms_help(self, message):
@@ -989,17 +1129,17 @@ class FOMO_SMS(object):
         embed.add_field(name="sms!check", value="Checks if your number is in the database.")
         embed.add_field(name="sms!update", value="Updates your number in the database.")
         embed.add_field(name="sms!stop", value="Removes your number from the database.")
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
 
 
 class SuccessPoster(object): 
     
     def __init__(self):
-        self.consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
-        self.consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
-        self.access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
-        self.access_token_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
+        self.consumer_key = twitter_consumer_key
+        self.consumer_secret = twitter_consumer_secret
+        self.access_token = twitter_access_token
+        self.access_token_secret = twitter_access_secret
         self.twitter_api = twitter.Api(consumer_key=self.consumer_key,
                                        consumer_secret=self.consumer_secret,
                                        access_token_key=self.access_token,
@@ -1011,7 +1151,7 @@ class SuccessPoster(object):
 
 class Stripe(object):
     async def process_payment(self, message):
-        messiah = get(client.get_all_members(), id="460997994121134082")
+        messiah = get(client.get_all_members(), id=discord_owner_id)
         msg_data = message.content.split()
         token = msg_data[0]
         email = msg_data[1].lower()
@@ -1120,8 +1260,8 @@ class Stripe(object):
                 await sub_and_assign_roles(email, ctx.message.author)
             
     async def recurring_charges(self):
-        discord_server = client.get_server(FOMO_SERVER_ID)
-        messiah = get(client.get_all_members(), id="460997994121134082")
+        discord_server = client.get_server(server_id)
+        messiah = get(client.get_all_members(), id=discord_owner_id)
         now = datetime.datetime.now().date()
         cursor = subscriptions.find({})
         
@@ -1135,16 +1275,16 @@ class Stripe(object):
             old_date = document['pay_date']
             web_source = document['web_source']
             old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
-                 
-            # TODO - fix removing old members from database & server      
+            
+            # TODO - fix removing old members from server and database  
             delta = now - old_date
             if delta.days > 30 and (document['status'] == 'disabled'):
                 discord_id = document["discord_id"]
                 user = discord_server.get_member(discord_id)
                 
                 if user != None:
-                    if "Member" in [role.name for role in user.roles]:
-                        member_role = get(discord_server.roles, name='Member')
+                    if member_role in [role.name for role in user.roles]:
+                        member_role = get(discord_server.roles, name=member_role)
                         await client.remove_roles(user, member_role)
             if delta.days > 30 and (document['status'] == 'active'):
                 discord_id = document['discord_id']
@@ -1204,7 +1344,7 @@ class Stripe(object):
                                                       + "We will now be cancelling your subscription.")
                              
                         discord_user = discord_server.get_member(discord_id)
-                        member_role = get(discord_server.roles, name='Member')
+                        member_role = get(discord_server.roles, name=member_role)
                         await client.remove_roles(discord_user, member_role)
                 except stripe.error.RateLimitError as e:
                     await client.send_message(messiah, f"Rate limit error: {e}")
