@@ -74,13 +74,7 @@ STRIPE = None
 KRISPYKREME = None
 SUCCESS_POSTER = None
 SMS = None 
-
-# Logger for tracking errors.
-logger = logging.getLogger('discord')
-logger.setLevel(logging.ERROR)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+FOMO_SERVER_ID = "355178719809372173"
 
 # Header to make the requests
 headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
@@ -113,7 +107,7 @@ def tiny(url, ctx):
     @param author: User responsible for sending authentication message '''
 async def sub_and_assign_roles(email, author):
     # Reference to the FOMO discord server
-    discord_server = client.get_server("355178719809372173")
+    discord_server = client.get_server(FOMO_SERVER_ID)
 
     role = get(discord_server.roles, name="Member")
     user = discord_server.get_member(author.id)
@@ -403,7 +397,7 @@ async def remove_from_server(ctx, *args):
                 pass_context=True)
 async def donut_message(ctx, gmail):
     author = ctx.message.author
-    server = client.get_server("355178719809372173")
+    server = client.get_server(FOMO_SERVER_ID)
     user = server.get_member(author.id)
     await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
     
@@ -441,7 +435,7 @@ async def donut_message(ctx, gmail):
 #     # Message author
 #     author = ctx.message.author 
 #     # FOMO Discord server reference
-#     discord_server = client.get_server("355178719809372173")
+#     discord_server = client.get_server(FOMO_SERVER_ID)
 #     # Member reference for user 
 #     member = discord_server.get_member(author.id)
 #     
@@ -486,7 +480,7 @@ async def donut_message(ctx, gmail):
                 pass_context=True)
 async def cancel(ctx, email):
     # FOMO Discord server reference
-    discord_server = client.get_server("355178719809372173")
+    discord_server = client.get_server(FOMO_SERVER_ID)
     # Message author
     author = ctx.message.author 
     # Discord member reference based on user id
@@ -520,7 +514,7 @@ async def activate(ctx, email):
     # Discord message author  
     author = ctx.message.author
     # FOMO Discord server reference 
-    discord_server = client.get_server("355178719809372173")
+    discord_server = client.get_server(FOMO_SERVER_ID)
       
     # Check if message is a private message
     if isinstance(ctx.message.channel, discord.PrivateChannel):
@@ -828,7 +822,7 @@ class FOMO_SMS(object):
         self.posts = self.sms_db.posts
 
     async def add_user(self, message, number):
-        server = client.get_server('355178719809372173')
+        server = client.get_server('FOMO_SERVER_ID')
         author = message.author
         db_check = self.posts.find({'discord_id':author.id}).count()
         member = server.get_member(author.id) 
@@ -868,7 +862,7 @@ class FOMO_SMS(object):
             await client.send_message(author, embed=embed)
                            
     async def check_user(self, message):
-        server = client.get_server('355178719809372173')
+        server = client.get_server('FOMO_SERVER_ID')
         author = message.author
         member = server.get_member(author.id)
         db_check = self.posts.find({'discord_id':author.id}).count()
@@ -894,7 +888,7 @@ class FOMO_SMS(object):
             await client.send_message(author, embed=embed)
             
     async def update_user(self, message, number):
-        server = client.get_server('355178719809372173')
+        server = client.get_server('FOMO_SERVER_ID')
         author = message.author
         member = server.get_member(author.id)
     
@@ -939,7 +933,7 @@ class FOMO_SMS(object):
         
     
     async def remove_user(self, message):
-        server = client.get_server('355178719809372173')
+        server = client.get_server('FOMO_SERVER_ID')
         author = message.author
         member = server.get_member(author.id)
     
@@ -961,7 +955,7 @@ class FOMO_SMS(object):
             await client.send_message(author, embed=embed)
             
     async def send_sms(self, message):
-        server = client.get_server('355178719809372173')
+        server = client.get_server('FOMO_SERVER_ID')
         author = message.author
         member = server.get_member(author.id)
     
@@ -1126,7 +1120,7 @@ class Stripe(object):
                 await sub_and_assign_roles(email, ctx.message.author)
             
     async def recurring_charges(self):
-        discord_server = client.get_server("355178719809372173")
+        discord_server = client.get_server(FOMO_SERVER_ID)
         messiah = get(client.get_all_members(), id="460997994121134082")
         now = datetime.datetime.now().date()
         cursor = subscriptions.find({})
@@ -1141,7 +1135,8 @@ class Stripe(object):
             old_date = document['pay_date']
             web_source = document['web_source']
             old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
-                       
+                 
+            # TODO - fix removing old members from database & server      
             delta = now - old_date
             if delta.days > 30 and (document['status'] == 'disabled'):
                 discord_id = document["discord_id"]
@@ -1405,13 +1400,10 @@ class Shopify(object):
                         return
                 await client.send_message(channel, 'It IS NOT a Shopify website!')
         except requests.Timeout as error:
-            logger.error('Timeout Error: %s', str(error))
             await client.send_message(channel, "There was a timeout error")
         except requests.ConnectionError as error:
-            logger.error('Connection Error: %s', str(error))
             await client.send_message(channel, "A connection error has occurred.")
         except requests.RequestException as error:
-            logger.error('Request Error: %s', str(error))
             await client.send_message(channel, "An error occurred making the internet request.")
     
     
@@ -1435,13 +1427,10 @@ class Shopify(object):
                 await self.get_size_variant(url, page, ctx)
                 return
         except requests.Timeout as error:
-            logger.error('Timeout Error: %s', str(error))
             await client.send_message(ctx.message.channel,"There was a timeout error")
         except requests.ConnectionError as error:
-            logger.error('Connection Error: %s', str(error))
             await client.send_message(ctx.message.channel,"A connection error has occurred.")
         except requests.RequestException as error:
-            logger.error('Request Error: %s', str(error))
             await client.send_message(ctx.message.channel,"An error occurred making the internet request.")
             
     ''' Retrieves only the absolute URL from passed in URL.
