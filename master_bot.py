@@ -264,12 +264,7 @@ async def custom_help(ctx, *command):
         keyword_descriptions += 'Generate views on your eBay listing\n'
         keyword_descriptions += 'Generate watchers on your eBay listing\n'
         keyword_descriptions += 'Get the perfect delay to use on Shopify websites.'
-        
-        embed.add_field(name='Keywords:', value=keywords, inline=True)
-        embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
-        embed.add_field(name='More Info', value="For more information on a keyword, type **!help keyword**", inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)    
+          
         embed.add_field(name='Keywords:', value=keywords, inline=True)
         embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
         embed.add_field(name='More Info', value="For more information on a keyword, type **!help keyword**", inline=False)
