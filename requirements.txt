@@ -1,7 +1,10 @@
+python-twitter==3.5
 beautifulsoup4==4.6.0
 requests==2.19.1
 discord.py==0.16.12
 lxml==4.2.3
 pymongo==3.7.1
-twilio==6.16.1
 stripe==2.15.0
+names==0.3.0
+twilio==6.23.1
+python-anticaptcha==0.3.1
