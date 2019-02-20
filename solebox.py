@@ -16,7 +16,16 @@ state = 'NY'
 city = 'New York'
 
 headers = {
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'
+    'authority': 'www.solebox.com',
+    'method': 'GET',
+    'path': '/en/my-account/',
+    'scheme': 'https',
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'en-US,en;q=0.9,pt;q=0.8',
+    'cache-control': 'max-age=0',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36',
+    'upgrade-insecure-requests': '1'
 }
 
 def solebox_gen(catchall):
