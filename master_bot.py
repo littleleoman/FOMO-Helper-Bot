@@ -1334,17 +1334,15 @@ class Stripe(object):
                     await client.send_message(messiah, f"Code is: {err.get('code')}")
                         
                     if error_count == 1:
-                        pass
-#                         await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
-#                                                       + "We will try two more times before cancelling your subscription. Please contact an admin as soon as possible.")
+                        await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
+                                                    + "We will try two more times before cancelling your subscription. Please contact an admin as soon as possible.")
                     elif error_count == 2:
-                        pass
-#                         await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
-#                                                       + "We will try one more time before cancelling your subscription. Please contact an admin as soon as possible.")
+                        await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
+                                                    + "We will try one more time before cancelling your subscription. Please contact an admin as soon as possible.")
                     else:
                         await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
-#                         await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
-#                                                       + "We will now be cancelling your subscription.")
+                        await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
+                                                    + "We will now be cancelling your subscription.")
                              
                         discord_user = discord_server.get_member(discord_id)
                         print(f'Discord user: {discord_user}')
