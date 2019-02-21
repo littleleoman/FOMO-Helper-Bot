@@ -1284,8 +1284,8 @@ class Stripe(object):
                 
                 if user != None:
                     if member_role in [role.name for role in user.roles]:
-                        member_role = get(discord_server.roles, name=member_role)
-                        await client.remove_roles(user, member_role)
+                        role = get(discord_server.roles, name=member_role)
+                        await client.remove_roles(user, role)
             if delta.days > 30 and (document['status'] == 'active'):
                 discord_id = document['discord_id']
                 user = get(client.get_all_members(), id=discord_id)
@@ -1348,8 +1348,8 @@ class Stripe(object):
                              
                         discord_user = discord_server.get_member(discord_id)
                         print(f'Discord user: {discord_user}')
-                        member_role = get(discord_server.roles, name=member_role)
-                        await client.remove_roles(discord_user, member_role)
+                        role = get(discord_server.roles, name=member_role)
+                        await client.remove_roles(discord_user, role)
                 except stripe.error.RateLimitError as e:
                     await client.send_message(messiah, f"Rate limit error: {e}")
                     break
