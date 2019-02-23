@@ -491,7 +491,7 @@ async def post_calendar(ctx):
         embed.add_field(name="STOCK LEVEL:", value=str(levels), inline=True)
         embed.add_field(name="MONEY SIZES:", value=str(bestsizes), inline=True)
         embed.add_field(name="STYLE CODE:", value=str(stylecode), inline=True)
-        embed.add_field(name="MARKET:", value="[CLICK HERE]({})".format(imgurl), inline=True)
+        embed.add_field(name="MARKET:", value="[CLICK HERE]({})".format(suplink), inline=True)
         embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply | Information is Subject to Change!")
 
 
