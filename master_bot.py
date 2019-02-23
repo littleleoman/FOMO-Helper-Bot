@@ -162,7 +162,8 @@ async def on_member_remove(member):
         status = data["status"]
         
         if status == "disabled":
-            pass
+            query = { "discord_id": f"{member.id}" }
+            subscriptions.delete_one(query)
         else:
             for role in member.roles:
                 if member_role in role.name:
