@@ -145,6 +145,7 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    await client.change_presence(game=discord.Game(name='!help'), status=None,afk=False)
     
     
 ''' Method triggered by server event when a member leaves the Discord group 
@@ -402,6 +403,108 @@ async def custom_help(ctx, *command):
         embed.add_field(name='Aliases', value='[ delay ]', inline=False)
         embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
+
+
+@client.command(name='calendar', pass_context=True)
+async def post_calendar(ctx):
+    author = ctx.message.author
+    channel = '534057583426797568'
+
+    await client.send_message(author, 'PASSWORD?')
+    password = await client.wait_for_message(author=author)
+    password = str(password.content).lower()
+    
+    if password != 'saopaulo321':
+        return await client.send_message(author, 'You do not have permissions to use this command.')
+
+    elif password == 'saopaulo321':
+
+        #JORDAN 1 CRIMSON START
+        embed=discord.Embed(title='__**AIR JORDAN 1 RETRO HIGH HYPER CRIMSON**__', description="***JANUARY 24TH***", color=0xffffff)
+        embed.set_thumbnail(url="https://stockx-360.imgix.net/Air-Jordan-1-Retro-High-Neutral-Grey-Hyper-Crimson/Images/Air-Jordan-1-Retro-High-Neutral-Grey-Hyper-Crimson/Lv2/img01.jpg")
+        
+        embed.add_field(name="RETAIL:", value="USD $160", inline=True)
+        embed.add_field(name="RESELL:", value="USD $200-250", inline=True)
+        embed.add_field(name="STOCK LEVEL:", value="HIGH", inline=True)
+        embed.add_field(name="MONEY SIZES:", value="SMALLER/BAE SIZES", inline=True)
+        embed.add_field(name="STYLE CODE:", value="555088-018", inline=True)
+        embed.add_field(name="MARKET:", value="[CLICK HERE](https://web.suplexed.com/555088-018/jordan-1-retro-high-neutral-grey-hyper-crimson)", inline=True)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply | Information Subject to Change!")
+        await client.send_message(author, 'SAMPLE MESSAGE, SAY ANYTHING TO CONTINUE.\nSAY "CANCEL" AT ANYTIME TO CANCEL', embed=embed)
+        ready = await client.wait_for_message(author=author)
+        ready = str(ready.content).upper()
+        if 'CANCEL' in ready:
+            return await client.send_message(author, 'CANCELLED')
+        #JORDAN 1 CRIMSON END
+        await client.send_message(author, 'ENTER THE PRODUCT TITLE')
+        title = await client.wait_for_message(author=author)
+        title = str(title.content).upper()
+        title = "__**" + title + "**__"
+        if 'CANCEL' in title:
+            return await client.send_message(author, 'CANCELLED')
+        await client.send_message(author, 'ENTER THE PRODUCT RELEASE DATE, FOLLOW THE FORMAT IN THE EXAMPLE')
+        reldate = await client.wait_for_message(author=author)
+        reldate = str(reldate.content).upper()
+        reldate = "***" + reldate + "***"
+        if 'CANCEL' in reldate:
+            return await client.send_message(author, 'CANCELLED')
+        await client.send_message(author, 'RETAIL (IN USD WITH $, FOLLOW THE FORMAT IN THE EXAMPLE)')
+        retail = await client.wait_for_message(author=author)
+        retail = str(retail.content).upper()
+        if 'CANCEL' in retail:
+            return await client.send_message(author, 'CANCELLED')
+        await client.send_message(author, 'ESTIAMTED RESELL VALUE (IN USD WITH $, FOLLOW THE FORMAT IN THE EXAMPLE)')
+        resell = await client.wait_for_message(author=author)
+        resell = str(resell.content).upper()
+        if 'CANCEL' in resell:
+            return await client.send_message(author, 'CANCELLED')
+        await client.send_message(author, 'STOCK LEVEL (LOW-MEDIUM-HIGH):')
+        levels = await client.wait_for_message(author=author)
+        levels = str(levels.content).upper()
+        if 'CANCEL' in levels:
+            return await client.send_message(author, 'CANCELLED')
+        await client.send_message(author, 'MONEY SIZE RANGE (SPECIFY SIZES IN US, OR JUST SAY BAE SIZES FOR EXAMPLE):')
+        bestsizes = await client.wait_for_message(author=author)
+        bestsizes = str(bestsizes.content).upper()
+        if 'CANCEL' in bestsizes:
+            return await client.send_message(author, 'CANCELLED')
+        await client.send_message(author, 'STYLE CODE (PLEASE DOULBE CHECK):')
+        stylecode = await client.wait_for_message(author=author)
+        stylecode = str(stylecode.content).upper()
+        if 'CANCEL' in stylecode:
+            return await client.send_message(author, 'CANCELLED')
+        await client.send_message(author, 'SUPLEXED LINK:')
+        suplink = await client.wait_for_message(author=author)
+        suplink = str(suplink.content).lower()
+        if 'CANCEL' in suplink:
+            return await client.send_message(author, 'CANCELLED')
+        await client.send_message(author, 'IMAGE URL (MAKE SURE URL ENDS IN .JPG OR .PNG FOR EXAMPLE):')
+        imgurl  = await client.wait_for_message(author=author)
+        imgurl = str(imgurl.content).lower()
+
+
+        embed=discord.Embed(title=title, description=reldate, color=0xffffff)
+        embed.set_thumbnail(url=imgurl)
+        
+        embed.add_field(name="RETAIL:", value=str(retail), inline=True)
+        embed.add_field(name="RESELL:", value=str(resell), inline=True)
+        embed.add_field(name="STOCK LEVEL:", value=str(levels), inline=True)
+        embed.add_field(name="MONEY SIZES:", value=str(bestsizes), inline=True)
+        embed.add_field(name="STYLE CODE:", value=str(stylecode), inline=True)
+        embed.add_field(name="MARKET:", value="[CLICK HERE]({})".format(imgurl), inline=True)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply | Information is Subject to Change!")
+
+
+        await client.send_message(author, "LOOKING GOOD?", embed=embed)
+        await client.send_message(author, "Say `Yes` or `Y` if you are done, and `N` or `no` if you aren't.")
+        response  = await client.wait_for_message(author=author)
+
+        if 'y' in str(response.content).lower():
+            await client.send_message(client.get_channel(channel), embed=embed)
+            await client.send_message(author, 'MESSAGE POSTED')
+        else:
+            return await client.send_message(author, 'Please try again by saying `!calendar`')
+
 
 @client.command(name='delay',
                 pass_context=True)
