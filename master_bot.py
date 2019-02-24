@@ -48,7 +48,7 @@ twitter_access_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
 twilio_from = 'FOMO%20Alerts'
 twilio_auth_token = '8cde20027a5a740c8ef291e90f78a25d'
 twilio_sid = 'AC351781f47036b9e7a9378e9f035e14e7'
-twilio_number = '"+16148108716"'
+twilio_number = "+16148108716"
 
 # Discord command triggers
 BOT_PREFIX = ("?", "!")
