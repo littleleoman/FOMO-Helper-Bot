@@ -23,6 +23,7 @@ import twitter
 import shopifyy
 import solebox
 from twilio.rest import Client
+from twilio.base.exceptions import TwilioRestException
 # from datetime import datetime
 from decimal import Decimal
 from discord.ext.commands import Bot
@@ -1220,7 +1221,7 @@ class FOMO_SMS(object):
                     number = user['number_+']
                     sms_message = self.sms_client.messages.create(
                         to=number,
-                        from_=twilio_phone_number,
+                        from_=twilio_number,
                         body=msg)
                 
                     if "queued" or "sent" or "delivered" in sms_message.status:
