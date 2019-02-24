@@ -1227,13 +1227,13 @@ class FOMO_SMS(object):
                         print("SMS SENT: " + sms_message.status)
                 except:
                     print("ERROR SENDING SMS: " + sms_message.status + ": " + number)
-        await client.send_message(author, "Message Sent!")
         else:
             embed = Embed(title="NOT A STAFF MEMBER", description="You must be a moderator/admin to use this command.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
             embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
             return
+        await client.send_message(author, "Message Sent!")
 
 
 class SuccessPoster(object): 
