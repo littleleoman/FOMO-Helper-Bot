@@ -1070,21 +1070,29 @@ class FOMO_SMS(object):
         db_check = self.posts.find({'discord_id':author.id}).count()
         member = server.get_member(author.id) 
             
-        if member_role or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
             # If user isn't in the database, check if the entered number was entered with a + sign before it
             if db_check == 0:
                 # Add number to the database if it is correct
                 if '+' in number:
-                    new_user = dict()
-                    new_user['discord_id'] = author.id 
-                    new_user['number_+'] = number 
-                    new_user['number'] = number.replace('+','')
-                    new_post = self.posts.insert_one(new_user).inserted_id
-                    embed = Embed(title="SUCCESS!", description="You have been added to the database.", color=0xffffff)
-                    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                    embed.add_field(name="Number on File:", value=new_user['number_+'])
-                    embed.set_footer(icon_url=icon_img, text=footer_text)
-                    await client.send_message(author, embed=embed)
+                    validate = is_valid_number(number)
+                    if validate == True:
+                        new_user = dict()
+                        new_user['discord_id'] = author.id 
+                        new_user['number_+'] = number 
+                        new_user['number'] = number.replace('+','')
+                        new_post = self.posts.insert_one(new_user).inserted_id
+                        embed = Embed(title="SUCCESS!", description="You have been added to the database.", color=0xffffff)
+                        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                        embed.add_field(name="Number on File:", value=new_user['number_+'])
+                        embed.set_footer(icon_url=icon_img, text=footer_text)
+                        await client.send_message(author, embed=embed)
+                    elif validate == False:
+                        embed = Embed(title="INVALID NUMBER", description="Please make sure you have entered your number correctly with country and area code.")
+                        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                        embed.add_field(name="Example:", value="+13051231234 and ***NOT*** (305) 123-1234")
+                        embed.set_footer(icon_url=icon_img, text=footer_text)
+                        await client.send_message(author, embed=embed)                        
                 else:
                     embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
                     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
@@ -1135,39 +1143,40 @@ class FOMO_SMS(object):
         author = message.author
         member = server.get_member(author.id)
     
-        if member_role or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
             if '+' in number:
                 number_plus = number
                 number_noplus = number.replace('+','')
                 db_check = self.posts.find({'discord_id':author.id}).count()
-    
-                if db_check > 0:
-                    self.posts.update_one({
-                        'discord_id': author.id
-                        }, {
-                            '$set': {
-                                'number_+':number_plus,
-                                'number':number_noplus
-                            }
-                    })
-                    user = self.posts.find_one({'discord_id': author.id})
-                    embed = Embed(title="SUCCESS!", description="Your number on file was updated.", color=0xffffff)
+                validate = is_valid_number(number_plus)
+                if validate == True:
+                    if db_check > 0:
+                        self.posts.update_one({
+                            'discord_id': author.id
+                            }, {
+                                '$set': {
+                                    'number_+':number_plus,
+                                    'number':number_noplus
+                                }
+                        })
+                        user = self.posts.find_one({'discord_id': author.id})
+                        embed = Embed(title="SUCCESS!", description="Your number on file was updated.", color=0xffffff)
+                        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                        embed.add_field(name="NUMBER ON FILE:", value=user['number_+'])
+                        embed.set_footer(icon_url=icon_img, text=footer_text)
+                        await client.send_message(author, embed=embed)
+                    elif db_check == 0:
+                        embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
+                        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                        embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
+                        embed.set_footer(icon_url=icon_img, text=footer_text)
+                        await client.send_message(author, embed=embed)
+                elif validate == False:
+                    embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
                     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                    embed.add_field(name="NUMBER ON FILE:", value=user['number_+'])
+                    embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
                     embed.set_footer(icon_url=icon_img, text=footer_text)
                     await client.send_message(author, embed=embed)
-                elif db_check == 0:
-                    embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
-                    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                    embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
-                    embed.set_footer(icon_url=icon_img, text=footer_text)
-                    await client.send_message(author, embed=embed)
-            else:
-                embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
-                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
-                embed.set_footer(icon_url=icon_img, text=footer_text)
-                await client.send_message(author, embed=embed)
         else:
             embed = Embed(title="NOT A MEMBER", description="You must be a paying member to access this feature.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
@@ -1201,39 +1210,30 @@ class FOMO_SMS(object):
         server = client.get_server(server_id)
         author = message.author
         member = server.get_member(author.id)
-    
+
         if member.server_permissions.administrator:
-            users = self.posts.find({})
-            msg = str(message.content)
-            msg = msg.replace('sms!send ', '')
-            for user in users:
-                number = user['number_+']
-                sms_message = self.sms_client.messages.create(
-                    to=number,
-                    from_=twilio_number,
-                    body=msg)
+            try:
+                users = self.posts.find({})
+                msg = str(message.content)
+                msg = msg.replace('sms!send ', '')
+                for user in users:
+                    number = user['number_+']
+                    sms_message = self.sms_client.messages.create(
+                        to=number,
+                        from_=twilio_phone_number,
+                        body=msg)
                 
-                if "queued" or "sent" or "delivered" in sms_message.status:
-                    print("SMS SENT: " + sms_message.status)
-                else:
-                    print("ERROR SENDING SMS: " + sms_message.status)
+                    if "queued" or "sent" or "delivered" in sms_message.status:
+                        print("SMS SENT: " + sms_message.status)
+            except TwilioRestException as e:
+                    print("ERROR SENDING SMS: " + sms_message.status + ": " + number)
             await client.send_message(author, "Message Sent!")
         else:
             embed = Embed(title="NOT A STAFF MEMBER", description="You must be a moderator/admin to use this command.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
             embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
-            
-    async def sms_help(self, message):
-        author = message.author
-        embed = Embed(title="SMS HELP CENTER", color=0xffffff)
-        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-        embed.add_field(name="sms!add", value="Adds your number to the database.")
-        embed.add_field(name="sms!check", value="Checks if your number is in the database.")
-        embed.add_field(name="sms!update", value="Updates your number in the database.")
-        embed.add_field(name="sms!stop", value="Removes your number from the database.")
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
+            return
 
 
 class SuccessPoster(object): 
