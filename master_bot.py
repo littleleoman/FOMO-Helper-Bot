@@ -1213,22 +1213,21 @@ class FOMO_SMS(object):
         member = server.get_member(author.id)
 
         if member.server_permissions.administrator:
-            try:
-                users = self.posts.find({})
-                msg = str(message.content)
-                msg = msg.replace('sms!send ', '')
-                for user in users:
-                    number = user['number_+']
+            users = self.posts.find({})
+            msg = str(message.content)
+            msg = msg.replace('sms!send ', '')
+            for user in users:
+                number = user['number_+']
+                try:
                     sms_message = self.sms_client.messages.create(
                         to=number,
                         from_=twilio_number,
-                        body=msg)
-                
+                        body=msg)          
                     if "queued" or "sent" or "delivered" in sms_message.status:
                         print("SMS SENT: " + sms_message.status)
-            except TwilioRestException as e:
+                except:
                     print("ERROR SENDING SMS: " + sms_message.status + ": " + number)
-            await client.send_message(author, "Message Sent!")
+        await client.send_message(author, "Message Sent!")
         else:
             embed = Embed(title="NOT A STAFF MEMBER", description="You must be a moderator/admin to use this command.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
