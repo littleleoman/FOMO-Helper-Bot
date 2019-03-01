@@ -1235,6 +1235,16 @@ class FOMO_SMS(object):
             return
         await client.send_message(author, "Message Sent!")
 
+    async def sms_help(self, message):
+        author = message.author
+        embed = discord.Embed(title="SMS HELP CENTER", color=0xffffff)
+        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+        embed.add_field(name="sms!add", value="Adds your number to the database.")
+        embed.add_field(name="sms!check", value="Checks if your number is in the database.")
+        embed.add_field(name="sms!update", value="Updates your number in the database.")
+        embed.add_field(name="sms!stop", value="Removes your number from the database.")
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        await client.send_message(author, embed=embed)
 
 class SuccessPoster(object): 
     
