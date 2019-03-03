@@ -35,6 +35,8 @@ from bs4 import BeautifulSoup
 # Token for Discord Bot 
 TOKEN = os.environ["BOT_TOKEN"]
 MONGODB_URI = os.environ["MONGODB_URI"]
+FOMO_STRIPE_KEY = userInfo['STRIPE_KEY']
+MOREHYPED_STRIPE_KEY = "sk_live_22BhRSioB4It4EgGxPZEM9Wr"
 
 with open('config.json','r') as config:
     userInfo = json.load(config)
@@ -74,8 +76,6 @@ Example:
 
 ''' Initiliaze Stripe api with correct credential '''
 stripe.api_version = "2018-11-08"
-FOMO_STRIPE_KEY = "sk_live_L9N3yTtjVRnyySzf0nSn6BRD"
-MOREHYPED_STRIPE_KEY = "sk_live_22BhRSioB4It4EgGxPZEM9Wr"
 
 # stripe.api_key = "sk_live_L9N3yTtjVRnyySzf0nSn6BRD"
 # Create Discord Bot instance with the given command triggers
