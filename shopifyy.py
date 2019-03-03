@@ -9,6 +9,7 @@ from python_anticaptcha import AnticaptchaClient, NoCaptchaTaskProxylessTask
 from bs4 import BeautifulSoup
 import re
 import os
+import json
 
 headers = {
     'Upgrade-Insecure-Requests': '1',
@@ -19,7 +20,7 @@ headers = {
 }
 
 password = 'MyPassword123'
-captcha_api = os.environ["CAPTCHA_API"]
+#captcha_api = os.environ["CAPTCHA_API"]
 
 def shopify_check(website):
     if website.endswith('/') == False:
@@ -98,3 +99,56 @@ def shopify_gen(website, email):
 
     else:
         return(email + ":" + password)
+
+def atc_link_gen(product):
+    productURL = re.search(r'^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/\n]+)', product)
+    # STORE DOMAIN
+    productURL = str(productURL.group(0))
+    # STORE JSON
+    productData = product + '.json'
+    print(productData)
+    # STORE CART URL
+    productCart = productURL + '/cart/'
+    print(productCart)
+    
+    session = requests.session()
+    data = session.get(productData)
+    print(data)
+    if data.status_code != 200:
+        return "ERROR"
+    data = json.loads(data.text)
+    variants = data['product']['variants']
+    picture = data['product']['images'][0]['src']
+    title = data['product']['title']
+    img = picture.replace('\\','')
+    linkParts = list()
+    for variant in variants:
+        link = dict()
+        link['id'] = variant['id']
+        link['size'] = variant['title']
+        linkParts.append(link)
+    links = list()
+    for linkPart in linkParts:
+        link = dict()
+        link['URL'] = productCart + str(linkPart['id']) + ":1"
+        link['URL'] = tiny(link['URL'])
+        link['Size'] = linkPart['size']
+        links.append(link)
+    info = dict()
+    info['links'] = links
+    info['image'] = img
+    info['title'] = title
+    return(info)
+
+def tiny(url):
+    URL = "https://tinyurl.com/create.php?source=indexpage&url=" + url + "&submit=Make+TinyURL%21&alias="
+    raw_HTML = requests.get(URL, timeout=10)
+        
+    if raw_HTML.status_code != 200:
+        client.send_message(ctx.message.channel, "An error has occurred completing your request")
+        return None
+    else:
+        page = BeautifulSoup(raw_HTML.text, 'lxml')
+        return page.find_all('div', {'class': 'indent'})[1].b.string
+    
+    

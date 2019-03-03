@@ -23,7 +23,6 @@ import twitter
 import shopifyy
 import solebox
 from twilio.rest import Client
-from twilio.base.exceptions import TwilioRestException
 # from datetime import datetime
 from decimal import Decimal
 from discord.ext.commands import Bot
@@ -886,10 +885,34 @@ async def address_jig(ctx):
                 'straight to the payment page. Takes in the item\'s URL as a parameter',
                 pass_context=True)
 async def add_to_cart(ctx, url):
-    shopify = Shopify()
-    await client.send_message(ctx.message.channel, ':hourglass: Retrieving sizes. Please wait...')
-    await shopify.run(str(url), ctx)
+    #shopify = Shopify()
+    #await client.send_message(ctx.message.channel, ':hourglass: Retrieving sizes. Please wait...')
+    #await shopify.run(str(url), ctx)
+    await client.send_message(ctx.message.channel, ":hourglass: standby... we are generating your links.")
+    info = atc_link_gen(url)
+    if info['links'] == 'ERROR' or info['image'] == 'ERROR':
+        await client.send_message(ctx.message.channel, "THERE WAS AN ERROR, MAKE SURE YOUR URL IS A SHOPIFY PRODUCT URL!")
 
+    embed3 = discord.Embed(title=":shopping_cart: GENERATING LINKS FOR:", description=info['title'], color=0xffffff)
+    embed3.set_thumbnail(url=info['image'])
+    embed3.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+    await client.send_message(ctx.message.channel, embed=embed3)
+
+    sizes = ''
+    URLs = ''
+    string = ''
+    links = info['links']
+    for link in links:
+        string += str(link['Size']) + ": " + "[CART](" + link['URL'] + ")\n"
+        #sizes += str(link['Size']) + "\n"
+        #URLs += "[CART](" + link['URL'] + ")"
+    print(string)
+    embed2 = discord.Embed(title=":shopping_cart:", description=string, color=0xffffff)
+    #embed2.add_field(name="CARTS",value=sizes,inline=True)
+    #embed2.add_field(name="LINK",value=URLs,inline=True)
+    #embed2.add_field(name="CARTS",value=string)
+
+    await client.send_message(ctx.message.channel, embed=embed2)
 ''' Discord command for eBay views: limited to 200 views one command 
     @param ctx: Discord information
     @param rul: Url for item to be viewed '''
@@ -1071,29 +1094,21 @@ class FOMO_SMS(object):
         db_check = self.posts.find({'discord_id':author.id}).count()
         member = server.get_member(author.id) 
             
-        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+        if member_role or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
             # If user isn't in the database, check if the entered number was entered with a + sign before it
             if db_check == 0:
                 # Add number to the database if it is correct
                 if '+' in number:
-                    validate = is_valid_number(number)
-                    if validate == True:
-                        new_user = dict()
-                        new_user['discord_id'] = author.id 
-                        new_user['number_+'] = number 
-                        new_user['number'] = number.replace('+','')
-                        new_post = self.posts.insert_one(new_user).inserted_id
-                        embed = Embed(title="SUCCESS!", description="You have been added to the database.", color=0xffffff)
-                        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                        embed.add_field(name="Number on File:", value=new_user['number_+'])
-                        embed.set_footer(icon_url=icon_img, text=footer_text)
-                        await client.send_message(author, embed=embed)
-                    elif validate == False:
-                        embed = Embed(title="INVALID NUMBER", description="Please make sure you have entered your number correctly with country and area code.")
-                        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                        embed.add_field(name="Example:", value="+13051231234 and ***NOT*** (305) 123-1234")
-                        embed.set_footer(icon_url=icon_img, text=footer_text)
-                        await client.send_message(author, embed=embed)                        
+                    new_user = dict()
+                    new_user['discord_id'] = author.id 
+                    new_user['number_+'] = number 
+                    new_user['number'] = number.replace('+','')
+                    new_post = self.posts.insert_one(new_user).inserted_id
+                    embed = Embed(title="SUCCESS!", description="You have been added to the database.", color=0xffffff)
+                    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                    embed.add_field(name="Number on File:", value=new_user['number_+'])
+                    embed.set_footer(icon_url=icon_img, text=footer_text)
+                    await client.send_message(author, embed=embed)
                 else:
                     embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
                     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
@@ -1144,40 +1159,39 @@ class FOMO_SMS(object):
         author = message.author
         member = server.get_member(author.id)
     
-        if 'Member' or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
+        if member_role or 'Moderator' or 'Admin' in [role.name for role in member.roles]:
             if '+' in number:
                 number_plus = number
                 number_noplus = number.replace('+','')
                 db_check = self.posts.find({'discord_id':author.id}).count()
-                validate = is_valid_number(number_plus)
-                if validate == True:
-                    if db_check > 0:
-                        self.posts.update_one({
-                            'discord_id': author.id
-                            }, {
-                                '$set': {
-                                    'number_+':number_plus,
-                                    'number':number_noplus
-                                }
-                        })
-                        user = self.posts.find_one({'discord_id': author.id})
-                        embed = Embed(title="SUCCESS!", description="Your number on file was updated.", color=0xffffff)
-                        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                        embed.add_field(name="NUMBER ON FILE:", value=user['number_+'])
-                        embed.set_footer(icon_url=icon_img, text=footer_text)
-                        await client.send_message(author, embed=embed)
-                    elif db_check == 0:
-                        embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
-                        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                        embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
-                        embed.set_footer(icon_url=icon_img, text=footer_text)
-                        await client.send_message(author, embed=embed)
-                elif validate == False:
-                    embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
+    
+                if db_check > 0:
+                    self.posts.update_one({
+                        'discord_id': author.id
+                        }, {
+                            '$set': {
+                                'number_+':number_plus,
+                                'number':number_noplus
+                            }
+                    })
+                    user = self.posts.find_one({'discord_id': author.id})
+                    embed = Embed(title="SUCCESS!", description="Your number on file was updated.", color=0xffffff)
                     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                    embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
+                    embed.add_field(name="NUMBER ON FILE:", value=user['number_+'])
                     embed.set_footer(icon_url=icon_img, text=footer_text)
                     await client.send_message(author, embed=embed)
+                elif db_check == 0:
+                    embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
+                    embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                    embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
+                    embed.set_footer(icon_url=icon_img, text=footer_text)
+                    await client.send_message(author, embed=embed)
+            else:
+                embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
+                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
+                embed.set_footer(icon_url=icon_img, text=footer_text)
+                await client.send_message(author, embed=embed)
         else:
             embed = Embed(title="NOT A MEMBER", description="You must be a paying member to access this feature.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
@@ -1211,40 +1225,40 @@ class FOMO_SMS(object):
         server = client.get_server(server_id)
         author = message.author
         member = server.get_member(author.id)
-
+    
         if member.server_permissions.administrator:
             users = self.posts.find({})
             msg = str(message.content)
             msg = msg.replace('sms!send ', '')
             for user in users:
                 number = user['number_+']
-                try:
-                    sms_message = self.sms_client.messages.create(
-                        to=number,
-                        from_=twilio_number,
-                        body=msg)          
-                    if "queued" or "sent" or "delivered" in sms_message.status:
-                        print("SMS SENT: " + sms_message.status)
-                except:
-                    print("ERROR SENDING SMS: " + sms_message.status + ": " + number)
+                sms_message = self.sms_client.messages.create(
+                    to=number,
+                    from_=twilio_number,
+                    body=msg)
+                
+                if "queued" or "sent" or "delivered" in sms_message.status:
+                    print("SMS SENT: " + sms_message.status)
+                else:
+                    print("ERROR SENDING SMS: " + sms_message.status)
+            await client.send_message(author, "Message Sent!")
         else:
             embed = Embed(title="NOT A STAFF MEMBER", description="You must be a moderator/admin to use this command.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
             embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(author, embed=embed)
-            return
-        await client.send_message(author, "Message Sent!")
-
+            
     async def sms_help(self, message):
         author = message.author
-        embed = discord.Embed(title="SMS HELP CENTER", color=0xffffff)
+        embed = Embed(title="SMS HELP CENTER", color=0xffffff)
         embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
         embed.add_field(name="sms!add", value="Adds your number to the database.")
         embed.add_field(name="sms!check", value="Checks if your number is in the database.")
         embed.add_field(name="sms!update", value="Updates your number in the database.")
         embed.add_field(name="sms!stop", value="Removes your number from the database.")
-        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(author, embed=embed)
+
 
 class SuccessPoster(object): 
     
@@ -1623,223 +1637,7 @@ class AddressJig(object):
             embed.add_field(name='Jigged Addresses', value=self.addresses, inline=True)
             
             await client.send_message(ctx.message.author, embed=embed)
-            
-            
-class Shopify(object):
-    # Shopify ATC related variables
-    sizes = ''
-    atc_links = ''
-    
-    ''' Checks whether a given url is a Shopify website or not.
-    
-        @param ctx: Discord information 
-        @param url: The URL to check for Shopify status ''' 
-    async def check_if_shopify(self, ctx, url):
-        channel = ctx.message.channel
-        
-        # Ensure url starts with https:// in case url only contains www....
-        url_formatting = re.match('https://', url)
-        if url_formatting == None:
-            url = 'https://' + url
-        try:
-            raw_HTML = requests.get(url, headers=headers, timeout=10)
-            if raw_HTML.status_code != 200:
-                await client.send_message(channel, "An error has occurred completing your request.")
-            else:
-                # Search for a specific script that exists in all shopify websites
-                page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
-                script = page.find_all('script')
-                for i in script:
-                    # If script is found, we know it's a Shopify website
-                    if 'shopify' in str(i).lower():
-                        await client.send_message(channel, "It IS a Shopify website!")
-                        return
-                await client.send_message(channel, 'It IS NOT a Shopify website!')
-        except requests.Timeout as error:
-            await client.send_message(channel, "There was a timeout error")
-        except requests.ConnectionError as error:
-            await client.send_message(channel, "A connection error has occurred.")
-        except requests.RequestException as error:
-            await client.send_message(channel, "An error occurred making the internet request.")
-    
-    
-    ''' Retrieves sizes for item in stock.
-        
-        @param url: The url passed by the user pointing to the item he/she wants
-        @param ctx: Discord information  ''' 
-    async def get_sizes(self, url, ctx):
-        # Ensure url starts with https:// in case url only contains www....
-        url_formatting = re.match('https://', url)
-        if url_formatting == None:
-            url = 'https://' + url
-        try:
-            raw_HTML = requests.get(url, headers=headers, timeout=10)
-            if raw_HTML.status_code != 200:
-                await client.send_message(ctx.message.channel,"An error has occurred completing your request")
-                return 
-            else:
-                page = bs4.BeautifulSoup(raw_HTML.text, 'lxml')
-#                 print(page.title.string)
-                await self.get_size_variant(url, page, ctx)
-                return
-        except requests.Timeout as error:
-            await client.send_message(ctx.message.channel,"There was a timeout error")
-        except requests.ConnectionError as error:
-            await client.send_message(ctx.message.channel,"A connection error has occurred.")
-        except requests.RequestException as error:
-            await client.send_message(ctx.message.channel,"An error occurred making the internet request.")
-            
-    ''' Retrieves only the absolute URL from passed in URL.
-    
-        @param url: The address passed in by the user
-        @return: absolute url retrieved from given url '''
-    def get_absolute_url(self, url):
-        absolute_url = re.match('https://', url)
-        if absolute_url == None:
-            absolute_url = re.match('[a-zA-Z0-9.-]+/', url)
-            if absolute_url == None:
-                return False
-            absolute_url = absolute_url.group()
-            return absolute_url
-        else:
-            absolute_url = re.match('https://[a-zA-Z0-9.-]+/', url)
-            absolute_url = absolute_url.group()
-            return absolute_url
-        
-    ''' Retrieves the thumbnail image for the item requested.
-    
-        @param page: HTML containing information to be scraped for image URL
-        @return: url for thumbnail image to be displayed on Discord or None if not found'''
-    def get_thumbnail_image(self, page):
-        correct_image = None
-        img = page.find_all('img')
-        for i in img:
-            if 'products' in str(i):
-                correct_image = str(i)
-                break
-        
-        if correct_image == None:
-            return None
-        else:
-            item_image_url = re.search('cdn\.shopify.+\"', correct_image)
-            if item_image_url == None:
-                return None
-            else:
-                item_image_url = item_image_url.group()
-                item_image_url = item_image_url.split(' ')
-                url = "https://"
-                url += item_image_url[0].replace('"','')
-                return url
-    
-    ''' Retrieves the id associated to the item size (required to create a link). 
-    
-        @param url: The item's url  
-        @param page: Page information retrieved through requests
-        @param ctx: Discord information  '''
-    async def get_size_variant(self, url, page, ctx):
-        scripts = page.find_all("script")
-        if scripts == None:
-            await client.send_message(ctx.message.channel,"An error has occurred completing your request. Check that the website is a shopify website.")
-            return
-        
-        script_index = self.find_variant_script(scripts)
-        
-        script = scripts[script_index].getText()
-        
-        ''' split it in this manner to store items of script separated by a new line '''
-        script = script.split(';')
-        ''' retrieve only the line containing size information '''
-        script = script[3]
-        ''' split in this manner so that each size is a different list item '''
-        script = script.split('{\"id\":')
-        ''' remove unwanted information in beginning of list '''
-        script.remove(script[0])
-        script.remove(script[0])
-        
-        status = True  
-        for item in script:
-            if 'public_title\":\"' in item:
-                data = item
-                data = data.split(',')
-                
-                size = data[3].split("\"")
-                size = size[3]
-#                 print(size)
-                retrieved_id = data[0]
-                
-                # add leading and trailing spaces to make regex matching easier
-                size = " " + size + " "
-                item_size = re.search('\s\d+\.\d+\s', str(size))
-                if item_size == None:
-                    item_size = re.search('\s\d{1,2}\s', str(size))
-                    if item_size == None:
-                        item_size = re.search('(?i)(XS|X-S|(\sS\s|Small)|(\sM\s|Medium)|(\sL\s|Large)' + 
-                                                      '|XL|XXL|XXXL|X-L|XX-L|XXX-L)', str(size))
-                        if item_size == None:
-                            item_size = size
-                
-                if item_size != size:
-                    item_size = item_size.group()
-                    
-                item_size = item_size.replace('\\', '')
-                item_size = item_size.replace('/', "")
-                status = await self.print_link(url, item_size, str(retrieved_id), ctx)
-                if status == False:
-                    break
-        
-        thumbnail_url = self.get_thumbnail_image(page)
-        embed = Embed(title=page.title.string, url=url, description=self.atc_links, color=0x00f900)
-        embed.set_footer(text=str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-        if thumbnail_url == None:
-            pass
-        else:
-            embed.set_thumbnail(url=thumbnail_url)
-
-        await client.send_message(ctx.message.channel, embed=embed)
-    
-    
-    ''' Prints a correctly formated link which takes user straight to purchase.
-    
-        @param url: URL of the item to be bought
-        @param size: Size of the given item
-        @param retrieved_id: Id associated to the item size
-        @param ctx: Discord information 
-        @return: Whether or not generating links was successful '''
-    async def print_link(self, url, size, retrieved_id, ctx):
-        absolute_url = self.get_absolute_url(url)
-        if absolute_url == False:
-            await client.send_message(ctx.message.channel, "An error has occurred completing your request")
-            return False
-        
-        self.sizes += size + "\n"
-        link = tiny(absolute_url + 'cart/' + retrieved_id + ':1', ctx)
-        if link == None:
-            return False
-        else:
-            self.atc_links += '[[ ATC ]](' + link + ') - ' + size + '\n'
-        
-        return True
-    
-    ''' Kickstarts the entire script.
-    
-        @param url: The url pointing to the item which the user wants to buy
-        @param ctx: Discord information '''
-    async def run(self, url, ctx):
-        await self.get_sizes(url, ctx)
-        
-    ''' Find the correct script to retrieve information from.
-    
-        @params scripts: All the scripts retrieved for the page '''
-    def find_variant_script(self, scripts):  
-        for number, script in enumerate(scripts):
-            if "variants\":[{" in script.getText():
-                return number
-                break
-            
-            
-          
-
-            
+                        
 class eBay(object):
     def ebayview(self, ctx, url):
         headers = {
