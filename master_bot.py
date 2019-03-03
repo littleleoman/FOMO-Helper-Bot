@@ -889,7 +889,7 @@ async def add_to_cart(ctx, url):
     #await client.send_message(ctx.message.channel, ':hourglass: Retrieving sizes. Please wait...')
     #await shopify.run(str(url), ctx)
     await client.send_message(ctx.message.channel, ":hourglass: standby... we are generating your links.")
-    info = atc_link_gen(url)
+    info = shopifyy.atc_link_gen(url)
     if info['links'] == 'ERROR' or info['image'] == 'ERROR':
         await client.send_message(ctx.message.channel, "THERE WAS AN ERROR, MAKE SURE YOUR URL IS A SHOPIFY PRODUCT URL!")
 
