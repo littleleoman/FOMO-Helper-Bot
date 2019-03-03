@@ -32,23 +32,30 @@ from discord.embeds import Embed
 from threading import Thread
 from bs4 import BeautifulSoup
 
-server_id = "355178719809372173"
-footer_text = 'Powered by FOMO | @FOMO_supply'
-member_role = 'Member'
-sub_channel = 'subs'
-sitelist_link = 'https://goo.gl/b7m6hi'
-guide_link = 'https://goo.gl/HhtiYL'
-mongo_sms_url = 'mongodb://heroku_lgwq2009:jge233cq5v9ouqv8fajurm3dnm@ds161144.mlab.com:61144/heroku_lgwq2009'
-discord_owner_id = '460997994121134082'
-icon_img = 'https://i.imgur.com/5fSzax1.jpg'
-twitter_consumer_key = 'xl7NGsDQFkEqjBZZlFeevVKNd'
-twitter_consumer_secret = 'SEDqpBcG0nSCx7AA5PSAkCxbKsipyNANPzAqoCRBIuP7T0FBDx'
-twitter_access_token = '1062494333180485632-JlSb9XCLG2CutesQlGkj6IJXmBEPXU'
-twitter_access_secret = 'dTuDD8Czvh131ei2I4xozumvQMTy70PCdaqRIN2iGcB8d'
-twilio_from = 'FOMO%20Alerts'
-twilio_auth_token = '8cde20027a5a740c8ef291e90f78a25d'
-twilio_sid = 'AC351781f47036b9e7a9378e9f035e14e7'
-twilio_number = "+16148108716"
+# Token for Discord Bot 
+TOKEN = os.environ["BOT_TOKEN"]
+MONGODB_URI = os.environ["MONGODB_URI"]
+
+with open('config.json','r') as config:
+    userInfo = json.load(config)
+
+server_id = userInfo['server_id']
+footer_text = userInfo['footer_text']
+member_role = userInfo['member_role']
+sub_channel = userInfo['sub_channel']
+sitelist_link = userInfo['sitelist_link']
+guide_link = userInfo['guide_link']
+mongo_sms_url = userInfo['mongo_sms_url']
+discord_owner_id = userInfo['discord_owner_id']
+icon_img = userInfo['icon_img']
+twitter_consumer_key = userInfo['twitter_consumer_key']
+twitter_consumer_secret = userInfo['twitter_consumer_secret']
+twitter_access_token = userInfo['twitter_access_token']
+twitter_access_secret = userInfo['twitter_access_secret']
+twilio_from = userInfo['twilio_from']
+twilio_auth_token = userInfo['twilio_auth_token']
+twilio_sid = userInfo['twilio_sid']
+twilio_number = userInfo['twilio_number']
 
 # Discord command triggers
 BOT_PREFIX = ("?", "!")
@@ -64,11 +71,6 @@ Example:
                 OR
     ?gmail example@gmail.com
 '''
-
-# Token for Discord Bot 
-TOKEN = os.environ["FOMO_HELPER_BOT_TOKEN"]
-# URI for Mongo/Heroku Database
-MONGODB_URI = os.environ["FOMO_HELPER_MONGODB_URI"]
 
 ''' Initiliaze Stripe api with correct credential '''
 stripe.api_version = "2018-11-08"
@@ -847,8 +849,11 @@ async def fee_calculator(ctx, sale_price):
                 description='This command uses a given URL in order to determine whether a website is a shopify site or not.',
                 pass_context=True)
 async def shopify_check(ctx, url):
-    shopify = Shopify()
-    await shopify.check_if_shopify(ctx, url)
+    check = shopifyy.shopify_check(url)
+    if check == True:
+        await client.send_message(ctx.message.channel, ":white_check_mark: [THE URL]({}) __**IS**__ A SHOPIFY WEBSITE!".format(url))
+    elif check == False:
+        await client.send_mesage(ctx.message.channel, ":no_entry_sign: [THE URL]({}) __**IS NOT**__ A SHOPIFY WEBSITE!".format(url))
     
 
 ''' Discord command to Jig a specific gmail address.

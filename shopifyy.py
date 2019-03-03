@@ -142,7 +142,6 @@ def tiny(url):
     raw_HTML = requests.get(URL, timeout=10)
         
     if raw_HTML.status_code != 200:
-        client.send_message(ctx.message.channel, "An error has occurred completing your request")
         return None
     else:
         page = BeautifulSoup(raw_HTML.text, 'lxml')
