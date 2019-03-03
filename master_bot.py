@@ -885,9 +885,6 @@ async def address_jig(ctx):
                 'straight to the payment page. Takes in the item\'s URL as a parameter',
                 pass_context=True)
 async def add_to_cart(ctx, url):
-    #shopify = Shopify()
-    #await client.send_message(ctx.message.channel, ':hourglass: Retrieving sizes. Please wait...')
-    #await shopify.run(str(url), ctx)
     await client.send_message(ctx.message.channel, ":hourglass: standby... we are generating your links.")
     info = shopifyy.atc_link_gen(url)
     if info['links'] == 'ERROR' or info['image'] == 'ERROR':
@@ -897,22 +894,15 @@ async def add_to_cart(ctx, url):
     embed3.set_thumbnail(url=info['image'])
     embed3.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
     await client.send_message(ctx.message.channel, embed=embed3)
-
-    sizes = ''
-    URLs = ''
     string = ''
     links = info['links']
     for link in links:
         string += str(link['Size']) + ": " + "[CART](" + link['URL'] + ")\n"
-        #sizes += str(link['Size']) + "\n"
-        #URLs += "[CART](" + link['URL'] + ")"
     print(string)
     embed2 = discord.Embed(title=":shopping_cart:", description=string, color=0xffffff)
-    #embed2.add_field(name="CARTS",value=sizes,inline=True)
-    #embed2.add_field(name="LINK",value=URLs,inline=True)
-    #embed2.add_field(name="CARTS",value=string)
-
     await client.send_message(ctx.message.channel, embed=embed2)
+
+
 ''' Discord command for eBay views: limited to 200 views one command 
     @param ctx: Discord information
     @param rul: Url for item to be viewed '''

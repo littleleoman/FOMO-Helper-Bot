@@ -20,7 +20,7 @@ headers = {
 }
 
 password = 'MyPassword123'
-#captcha_api = os.environ["CAPTCHA_API"]
+captcha_api = os.environ["CAPTCHA_API"]
 
 def shopify_check(website):
     if website.endswith('/') == False:
@@ -106,14 +106,11 @@ def atc_link_gen(product):
     productURL = str(productURL.group(0))
     # STORE JSON
     productData = product + '.json'
-    print(productData)
     # STORE CART URL
     productCart = productURL + '/cart/'
-    print(productCart)
     
     session = requests.session()
     data = session.get(productData)
-    print(data)
     if data.status_code != 200:
         return "ERROR"
     data = json.loads(data.text)
