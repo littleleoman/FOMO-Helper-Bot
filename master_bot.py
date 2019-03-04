@@ -957,15 +957,13 @@ async def shopifyTools(ctx):
                 pass_context=True)
 async def shopify_check(ctx, url):
     check = shopify.shopify_check(url)
-    print("URL IN MESSAGE: " + str(url))
-    print("CHECK RESPONSE:\n" + str(check))
     if check['status'] == "TRUE":
-        embed = discord.Embed(title="SHOPIFY CHECK", description=":white_check_mark: [THE URL]({}) __***IS***__ ***A SHOPIFY WEBSITE!***".format(check['URL']), color=0xffffff)
+        embed = discord.Embed(title="SHOPIFY CHECK", description=":white_check_mark: ***[THE URL]({})*** __***IS***__ ***A SHOPIFY WEBSITE!***".format(check['URL']), color=0xffffff)
         embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(ctx.message.channel, embed=embed)
         #await client.send_message(ctx.message.channel, ":white_check_mark: [THE URL]({}) __**IS**__ A SHOPIFY WEBSITE!".format(url))
     elif check['status'] == "FALSE":
-        embed = discord.Embed(title="SHOPIFY CHECK", description=":no_entry_sign: [THE URL]({}) __***IS NOT***__ ***A SHOPIFY WEBSITE!***".format(check['URL']), color=0xffffff)
+        embed = discord.Embed(title="SHOPIFY CHECK", description=":no_entry_sign: ***[THE URL]({})*** __***IS NOT***__ ***A SHOPIFY WEBSITE!***".format(check['URL']), color=0xffffff)
         embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(ctx.message.channel, embed=embed)
         #await client.send_message(ctx.message.channel, ":no_entry_sign: [THE URL]({}) __**IS NOT**__ A SHOPIFY WEBSITE!".format(url))

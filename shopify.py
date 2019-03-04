@@ -29,21 +29,11 @@ def shopify_check(website):
         website = 'https://' + website
     elif parse.scheme == 'http://':
         website = website.replace('http://','https://')
-
-    if website.endswith('/') == False:
-        Adminwebsite = website + '/admin'
-    else:
-        Adminwebsite = website + 'admin'
-    print("ADMIN URL: " + str(Adminwebsite))
-    print("URL AFTER CHECKING FOR HTTPS AND BACKSLASH: " + str(website))
-    check = requests.get(Adminwebsite)
-    if check != 200:
-        return({"status":"FALSE","URL":website})
-
-    elif 'shopify' in str(check.url):
+    check = requests.get(website)
+    if 'shopify' in check.text:
         return({"status":"TRUE","URL":website})
-    elif 'shopify' not in str(check.url):
-        return({"status":"FALSE","URL":website})   
+    elif 'shopify' not in check.text:
+        return({"status":"FALSE","URL":website})
 
 def find_auth_token(website):
     soup = BeautifulSoup(website,"lxml")
