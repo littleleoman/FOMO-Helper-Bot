@@ -1,6 +1,6 @@
 '''
 Created on Jul 15, 2018
-@author: yung_messiah
+@author: yung_messiah & FOMO#0001
 '''
 import asyncio, datetime, discord, pinger, json, success, os, pymongo, re, requests, _thread, stripe, shopify, solebox
 import sms as SMS_CLIENT
@@ -50,6 +50,8 @@ twilio_auth_token = userInfo['twilio_auth_token']
 twilio_sid = userInfo['twilio_sid']
 twilio_number = userInfo['twilio_number']
 MONITOR_LIST = userInfo['MONITORS']
+MEMBER_ROLES = userInfo['MEMBER_ROLES']
+STAFF_ROLES = userInfo['STAFF_ROLES']
 fmRole = userInfo['FREE_MONTH']
 
 # Discord command triggers
@@ -353,7 +355,7 @@ async def custom_help(ctx, *command):
             #description = BOT_DESCRIPTION
         )
         embed5.add_field(name=":incoming_envelope: !gmail [gmail]\nExample: `!gmail fomo@gmail.com`",value="Generate additional email addresses using Gmail's period trick. I will need your full Gmail address like in the example.", inline=True)
-        embed5.add_field(name=':mailbox_with_mail: !address ["address"]\nExample: `!address "1234 152nd Ave`"',value="Generate additional unique shipping addresses for the same address. These addresses are accepted by all shipping carriers. Use these to order more than 1 of the same item to the same place. Make sure to wrap you address in quotes like in the example!", inline=True)
+        embed5.add_field(name=':mailbox_with_mail: !address ["address"]\nExample: `!address "1234 152nd Ave"`',value="Generate additional unique shipping addresses for the same address. These addresses are accepted by all shipping carriers. Use these to order more than 1 of the same item to the same place. Make sure to wrap you address in quotes like in the example!", inline=True)
         embed5.add_field(name=':moneybag: !fee [amount]\nExample: `!fee 1000`',value="Calculate seller fees and payouts for all major reselling platforms.", inline=True)
         embed5.add_field(name=':doughnut: !donutuk [gmail prefix]\nExample: `!donutuk fomo`', value="Get a free Krispy Kreme doughnut, 100% legit and safe. Make sure to pass in your Gmail prefix as a paremeter. If your Gmail is fomo@gmail.com, send `!donutuk fomo`, for example.", inline=True)
 ### TOOLS HELP COMMAND ------------------------------------------------------------------------------------------- TOOLS HELP COMMAND ###
@@ -377,6 +379,7 @@ async def custom_help(ctx, *command):
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
+    embed7.set_footer(icon_url=icon_img, text=footer_text)
 ### FINAL HELP MESSAGE ------------------------------------------------------------------------------------------- FINAL HELP MESSAGE ###
 
 ### SEND HELP MESSAGE ------------------------------------------------------------------------------------------- SEND HELP MESSAGE ###
@@ -395,7 +398,7 @@ async def custom_help(ctx, *command):
 
 ### CALENDAR START ------------------------------------------------------------------------------------------------ CALENDAR START
 @client.command(name='calendar', pass_context=True)
-@discord.ext.commands.has_any_role("Admin","Moderator","Support")
+@discord.ext.commands.has_any_role(STAFF_ROLES)
 async def post_calendar(ctx):
     author = ctx.message.author
     channel = '534057583426797568'
@@ -409,7 +412,7 @@ async def post_calendar(ctx):
     embed.add_field(name="MONEY SIZES:", value="SMALLER/BAE SIZES", inline=True)
     embed.add_field(name="STYLE CODE:", value="555088-018", inline=True)
     embed.add_field(name="MARKET:", value="[CLICK HERE](https://web.suplexed.com/555088-018/jordan-1-retro-high-neutral-grey-hyper-crimson)", inline=True)
-    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply | Information Subject to Change!")
+    embed.set_footer(icon_url=icon_img, text=footer_text + " | Information Subject to Change!")
     await client.send_message(author, 'SAMPLE MESSAGE, SAY ANYTHING TO CONTINUE.\nSAY "CANCEL" AT ANYTIME TO CANCEL', embed=embed)
     ready = await client.wait_for_message(author=author)
     ready = str(ready.content).upper()
@@ -472,7 +475,7 @@ async def post_calendar(ctx):
     embed.add_field(name="MONEY SIZES:", value=str(bestsizes), inline=True)
     embed.add_field(name="STYLE CODE:", value=str(stylecode), inline=True)
     embed.add_field(name="MARKET:", value="[CLICK HERE]({})".format(suplink), inline=True)
-    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply | Information is Subject to Change!")
+    embed.set_footer(icon_url=icon_img, text=footer_text + " | Information is Subject to Change!")
 
 
     await client.send_message(author, "LOOKING GOOD?", embed=embed)
@@ -489,6 +492,7 @@ async def post_calendar(ctx):
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
 @client.command(name='delay',
                 pass_context=True)
+@discord.ext.commands.has_any_role(STAFF_ROLES, MEMBER_ROLES)
 async def delay_calc(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
@@ -900,7 +904,7 @@ async def add_to_cart(ctx, url):
 
     embed3 = discord.Embed(title=":shopping_cart: GENERATING LINKS FOR:", description=info['title'], color=0xffffff)
     embed3.set_thumbnail(url=info['image'])
-    embed3.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+    embed3.set_footer(icon_url=icon_img, text=footer_text)
     await client.send_message(ctx.message.channel, embed=embed3)
     string = ''
     links = info['links']
