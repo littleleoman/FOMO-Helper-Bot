@@ -23,6 +23,8 @@ password = 'MyPassword123'
 captcha_api = os.environ["CAPTCHA_API"]
 
 def shopify_check(website):
+    if 'https://' or 'http://' not in website:
+        website = 'https://' + website
     if website.endswith('/') == False:
         website = website + '/admin'
     else:

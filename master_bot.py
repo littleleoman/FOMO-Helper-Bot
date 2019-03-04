@@ -958,12 +958,12 @@ async def shopifyTools(ctx):
 async def shopify_check(ctx, url):
     check = shopify.shopify_check(url)
     if check == True:
-        embed = discord>embed(title=":white_check_mark: [***THE URL***]({}) __***IS***__ ***A SHOPIFY WEBSITE!***", color=0xffffff)
+        embed = discord.Embed(title=":white_check_mark: [***THE URL***]({}) __***IS***__ ***A SHOPIFY WEBSITE!***", color=0xffffff)
         embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(ctx.message.author, embed=embed)
         #await client.send_message(ctx.message.channel, ":white_check_mark: [THE URL]({}) __**IS**__ A SHOPIFY WEBSITE!".format(url))
     elif check == False:
-        embed = discord>embed(title=":no_entry_sign: [***THE URL***]({}) __***IS NOT***__ ***A SHOPIFY WEBSITE!***", color=0xffffff)
+        embed = discord.Embed(title=":no_entry_sign: [***THE URL***]({}) __***IS NOT***__ ***A SHOPIFY WEBSITE!***", color=0xffffff)
         embed.set_footer(icon_url=icon_img, text=footer_text)
         await client.send_message(ctx.message.author, embed=embed)
         #await client.send_message(ctx.message.channel, ":no_entry_sign: [THE URL]({}) __**IS NOT**__ A SHOPIFY WEBSITE!".format(url))
