@@ -920,9 +920,9 @@ async def add_to_cart(ctx, url):
 async def shopify_check(ctx, url):
     check = shopify.shopify_check(url)
     if check == True:
-        await client.send_message(ctx.message.channel, ":white_check_mark: [THE URL]({}) __**IS**__ A SHOPIFY WEBSITE!".format(url))
+        await ctx.message.channel.send(ctx.message.channel, ":white_check_mark: [THE URL]({}) __**IS**__ A SHOPIFY WEBSITE!".format(url))
     elif check == False:
-        await client.send_mesage(ctx.message.channel, ":no_entry_sign: [THE URL]({}) __**IS NOT**__ A SHOPIFY WEBSITE!".format(url))
+        await ctx.mesasge.channel.send(ctx.message.channel, ":no_entry_sign: [THE URL]({}) __**IS NOT**__ A SHOPIFY WEBSITE!".format(url))
 
 @client.command(name='shopify', pass_context=True)
 async def shopifyTools(ctx):
