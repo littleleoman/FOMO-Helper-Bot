@@ -317,16 +317,16 @@ async def custom_help(ctx, *command):
     
     if len(command) == 0:
         embed = Embed(
-            title="{} COMMANDS".format(BOT_NAME),
-            description="List of commands I can run for you :slight_smile:",
+            title="__***{} COMMANDS***__".format(BOT_NAME),
+            description="**List of commands I can run for you** :slight_smile:",
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
         await client.send_message(ctx.message.author, embed=embed)
 ### ACTIVATION HELP COMMAND ------------------------------------------------------------------------------------------- ACTIVATION HELP COMMAND ###
         embed = Embed(
-            title=":closed_lock_with_key: Authentication Commands",
-            description="Commands to activate or cancel your membership.",
+            title=":closed_lock_with_key: __***Authentication Commands***__",
+            description="**Commands to activate or cancel your membership.**",
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
@@ -337,8 +337,8 @@ async def custom_help(ctx, *command):
 
 ### SHOPIFY HELP COMMAND --------------------------------------------------------------------------------------- SHOPIFY HELP COMMAND ###
         embed = Embed(
-            title=":shopping_bags: Shopify Tools",
-            description='Commands for all of your Shopify needs!',
+            title=":shopping_bags: __***Shopify Tools***__",
+            description='**Commands for all of your Shopify needs!**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
@@ -351,8 +351,8 @@ async def custom_help(ctx, *command):
 
 ### SMS HELP COMMAND --------------------------------------------------------------------------------------- SMS HELP COMMAND ###
         embed = Embed(
-            title=":speech_left: SMS Notifications",
-            description='say `sms!help` to learn about my SMS commands.',
+            title=":speech_left: __***SMS Notifications***__",
+            description='**Say `sms!help` to learn about my SMS commands.**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
@@ -361,8 +361,8 @@ async def custom_help(ctx, *command):
 
 ### TOOLS HELP COMMAND ------------------------------------------------------------------------------------------- TOOLS HELP COMMAND ###
         embed = Embed(
-            title=":tools: Miscellaneous Tools",
-            description='Commands to check fees on popular reselling platforms and more.',
+            title=":tools: __***Miscellaneous Tools***__",
+            description='**Commands to check fees on popular reselling platforms and more.**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
@@ -375,8 +375,8 @@ async def custom_help(ctx, *command):
 
 ### EBAY HELP COMMAND ------------------------------------------------------------------------------------------- EBAY HELP COMMAND ###
         embed = Embed(
-            title=":shopping_bags: eBay Tools",
-            description='Commands to add watchers and/or viewers to your eBay listing(s).',
+            title=":shopping_bags: __***eBay Tools***__",
+            description='**Commands to add watchers and/or viewers to your eBay listing(s).**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
@@ -389,7 +389,7 @@ async def custom_help(ctx, *command):
 ### FINAL HELP MESSAGE ------------------------------------------------------------------------------------------- FINAL HELP MESSAGE ###
         embed = Embed(
             title=":warning:",
-            description='If you are having any troubles or issues, please open a ticket or DM an admin!',
+            description='**If you are having any troubles or issues, please open a ticket or DM an admin!**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
