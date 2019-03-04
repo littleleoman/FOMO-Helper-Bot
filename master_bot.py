@@ -10,8 +10,7 @@ from dateutil.relativedelta import *
 import gmail as GM
 from address import AddressJig
 from fee import feeCalc
-from discord.ext.commands import Bot
-from discord.ext.commands import has_role, has_any_role
+from discord.ext.commands import Bot, has_role, has_any_role, CheckFailure
 from discord.utils import get
 from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed 
@@ -1219,8 +1218,12 @@ class Stripe(object):
                     await client.send_message(messiah, f"Exception occurred during recurring_charge: {e}")
                     break
 ### END STRIPE AUTH --------------------------------------------------------------------------------------------- END STRIPE AUTH
-Exception discord.ext.commands.CheckFailure(message=None, *args)
-
+@client.event
+async def on_error(error, ctx):
+    if isinstance(error, CheckFailure):
+        embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't a member or staff member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
+        embed.set_footer(text=footer_text,icon_url=icon_img)
+        await client.send_message(ctx.message.channel, embed=embed)
 
 if __name__ == "__main__":           
     # Initialize Discord bot by making the first call to it
