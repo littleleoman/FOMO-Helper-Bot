@@ -325,7 +325,7 @@ async def custom_help(ctx, *command):
         await client.send_message(ctx.message.author, embed=embed)
 ### ACTIVATION HELP COMMAND ------------------------------------------------------------------------------------------- ACTIVATION HELP COMMAND ###
         embed = Embed(
-            title=":closed_lock_with_key: __***Authentication Commands***__",
+            title=":closed_lock_with_key: __***AUTHENTICATION COMMANDS***__",
             description="**Commands to activate or cancel your membership.**",
             color = 0xffffff
             #description = BOT_DESCRIPTION
@@ -337,7 +337,7 @@ async def custom_help(ctx, *command):
 
 ### SHOPIFY HELP COMMAND --------------------------------------------------------------------------------------- SHOPIFY HELP COMMAND ###
         embed = Embed(
-            title=":shopping_bags: __***Shopify Tools***__",
+            title=":shopping_bags: __***SHOPIFY TOOLS***__",
             description='**Commands for all of your Shopify needs!**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
@@ -351,7 +351,7 @@ async def custom_help(ctx, *command):
 
 ### SMS HELP COMMAND --------------------------------------------------------------------------------------- SMS HELP COMMAND ###
         embed = Embed(
-            title=":speech_left: __***SMS Notifications***__",
+            title=":speech_left: __***SMS NOTIFICATIONS***__",
             description='**Say `sms!help` to learn about my SMS commands.**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
@@ -361,7 +361,7 @@ async def custom_help(ctx, *command):
 
 ### TOOLS HELP COMMAND ------------------------------------------------------------------------------------------- TOOLS HELP COMMAND ###
         embed = Embed(
-            title=":tools: __***Miscellaneous Tools***__",
+            title=":tools: __***MISCELLANEOUS TOOLS***__",
             description='**Commands to check fees on popular reselling platforms and more.**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
@@ -375,7 +375,7 @@ async def custom_help(ctx, *command):
 
 ### EBAY HELP COMMAND ------------------------------------------------------------------------------------------- EBAY HELP COMMAND ###
         embed = Embed(
-            title=":shopping_bags: __***eBay Tools***__",
+            title=":shopping_bags: __***EBAY TOOLS***__",
             description='**Commands to add watchers and/or viewers to your eBay listing(s).**',
             color = 0xffffff
             #description = BOT_DESCRIPTION
