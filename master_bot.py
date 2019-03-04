@@ -2,7 +2,7 @@
 Created on Jul 15, 2018
 @author: yung_messiah & FOMO#0001
 '''
-import asyncio, datetime, discord, pinger, json, success, os, pymongo, re, requests, _thread, stripe, shopify, solebox
+import asyncio, datetime, pinger, discord, json, success, os, pymongo, re, requests, _thread, stripe, shopify, solebox
 import sms as SMS_CLIENT
 import ebay as EBAY
 import krispykreme as KK
@@ -398,7 +398,7 @@ async def custom_help(ctx, *command):
 @client.command(name='calendar', pass_context=True)
 async def post_calendar(ctx):
     if ctx.message.author.server_permissions.manage_channels == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a staff member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a staff member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.author, embed=embed)
 
@@ -615,7 +615,7 @@ async def cancel(ctx, email):
                 pass_context=True)
 async def donut_message(ctx, gmail):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.author, embed=embed)
     author = ctx.message.author
@@ -646,7 +646,7 @@ async def donut_message(ctx, gmail):
 @client.command(name='fmCheck', pass_context=True)
 async def check(ctx):
     if ctx.message.author.server_permissions.administrator == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     date = datetime.datetime.today().strftime('%Y-%m-%d')
@@ -692,7 +692,7 @@ async def check(ctx):
 @client.command(name='fmEnd', pass_context=True)
 async def end(ctx, user : discord.Member):
     if ctx.message.author.server_permissions.administrator == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     await client.delete_message(ctx.message)
@@ -714,10 +714,10 @@ Hey there! Hope ya enjoyed your time!
 @client.command(name='freemonth', pass_context=True)
 async def freemonth(ctx, user : discord.Member):
     if ctx.message.author.server_permissions.administrator == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
-    if paying_member_role in [role.name for role in user.roles]:
+    if member_role in [role.name for role in user.roles]:
         member = user
         ids = member.id
         your_datetime = datetime.datetime.today()
@@ -807,7 +807,7 @@ async def activate(ctx, email):
                 pass_context=True)
 async def fee_calculator(ctx, sale_price):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     # Discord channel on which command was called
@@ -834,7 +834,7 @@ async def fee_calculator(ctx, sale_price):
                 pass_context=True)
 async def gmail_jig(ctx, email):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     gmail = GM.GmailJig()
@@ -853,7 +853,7 @@ async def gmail_jig(ctx, email):
                 pass_context=True)
 async def address_jig(ctx):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     address = AddressJig()
@@ -876,7 +876,7 @@ async def address_jig(ctx):
 @has_permissions(manage_channels=True)
 async def send_SMS(ctx):
     if ctx.message.author.server_permissions.manage_channels == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a staff member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a staff member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     message = str(ctx.message.content).replace('!sendsms ','')
@@ -893,7 +893,7 @@ async def send_SMS(ctx):
                 pass_context=True)
 async def ebay_view(ctx, url):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     if ebay_used_urls[0] != datetime.date.today():
@@ -926,7 +926,7 @@ async def ebay_view(ctx, url):
                 pass_context=True)
 async def ebay_watch(ctx, url, watches):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     try: 
@@ -950,7 +950,7 @@ async def ebay_watch(ctx, url, watches):
                 pass_context=True)
 async def add_to_cart(ctx, url):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     await client.send_message(ctx.message.channel, ":hourglass: standby... we are generating your links.")
@@ -973,7 +973,7 @@ async def add_to_cart(ctx, url):
 @client.command(name='shopify', pass_context=True)
 async def shopifyTools(ctx):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
@@ -1021,7 +1021,7 @@ async def shopifyTools(ctx):
                 pass_context=True)
 async def shopify_check(ctx, url):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     check = shopify.shopify_check(url)
@@ -1041,7 +1041,7 @@ async def shopify_check(ctx, url):
 @client.command(name='solebox', pass_context=True)
 async def add_user2(ctx):
     if ctx.message.author.server_permissions.read_message_history == False:
-        embed = disocrd.Embed(title=':no_entry_sign: You must be a member to use this command!')
+        embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
