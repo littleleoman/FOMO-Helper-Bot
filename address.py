@@ -1,4 +1,4 @@
-import random, string, asyncio
+import random, string
 
 class AddressJig(object):
     addresses = ''
@@ -17,7 +17,7 @@ class AddressJig(object):
     
         @param address: The address passed by the user
         @param ctx: Discord information '''  
-    async def generate_address_two(self, address, ctx):
+    def generate_address_two(self, address, ctx):
         if address.replace(' ', '') == '':
             return("INVALID")
             #await client.send_message(ctx.message.author,"Please enter a valid address.")
