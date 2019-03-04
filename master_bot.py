@@ -910,20 +910,6 @@ async def add_to_cart(ctx, url):
     embed2 = discord.Embed(title=":shopping_cart:", description=string, color=0xffffff)
     await client.send_message(ctx.message.channel, embed=embed2)
 
-''' Discord command to check if a specific website is a Shopify website
-    
-    @param ctx: Discord information
-    @param url: URL to be checked '''  
-@client.command(name='isshopify',
-                description='This command uses a given URL in order to determine whether a website is a shopify site or not.',
-                pass_context=True)
-async def shopify_check(ctx, url):
-    check = shopify.shopify_check(url)
-    if check == True:
-        await ctx.channel.send(ctx.message.channel, ":white_check_mark: [THE URL]({}) __**IS**__ A SHOPIFY WEBSITE!".format(url))
-    elif check == False:
-        await ctx.channel.send(ctx.message.channel, ":no_entry_sign: [THE URL]({}) __**IS NOT**__ A SHOPIFY WEBSITE!".format(url))
-
 @client.command(name='shopify', pass_context=True)
 async def shopifyTools(ctx):
     author = ctx.message.author
@@ -961,6 +947,20 @@ async def shopifyTools(ctx):
     embed.add_field(name="PASSWORD:", value=password, inline=False)
     embed.set_footer(icon_url=icon_img, text=footer_text)
     await client.edit_message(edit_this, embed=embed)   
+
+''' Discord command to check if a specific website is a Shopify website
+    
+    @param ctx: Discord information
+    @param url: URL to be checked '''  
+@client.command(name='isshopify',
+                description='This command uses a given URL in order to determine whether a website is a shopify site or not.',
+                pass_context=True)
+async def shopify_check(ctx, url):
+    check = shopify.shopify_check(url)
+    if check == True:
+        await client.send_message(ctx.message.channel, ":white_check_mark: [THE URL]({}) __**IS**__ A SHOPIFY WEBSITE!".format(url))
+    elif check == False:
+        await client.send_message(ctx.message.channel, ":no_entry_sign: [THE URL]({}) __**IS NOT**__ A SHOPIFY WEBSITE!".format(url))
 ### END SHOPIFY TOOLS ---------------------------------------------------------------------------------------------- END SHOPIFY TOOLS ###
 
 ### START SOLEBOX ------------------------------------------------------------------------------------------------------------ START SOLEBOX
