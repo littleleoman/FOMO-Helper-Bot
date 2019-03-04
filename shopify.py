@@ -7,6 +7,7 @@ import random
 import requests
 from python_anticaptcha import AnticaptchaClient, NoCaptchaTaskProxylessTask
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 import re
 import os
 import json
@@ -23,16 +24,22 @@ password = 'MyPassword123'
 captcha_api = os.environ["CAPTCHA_API"]
 
 def shopify_check(website):
-    if 'https://' or 'http://' not in website:
+    parse = urlparse(website)
+    if parse.scheme == '':
         website = 'https://' + website
+    elif parse.scheme == 'http://':
+        website = website.replace('http://','https://')
+
     if website.endswith('/') == False:
         website = website + '/admin'
     else:
         website = website + 'admin'
     
     check = requests.get(website)
+    if check != 200:
+        return False
 
-    if 'shopify' in check.text:
+    elif 'shopify' in check.text:
         return True
     else:
         return False
