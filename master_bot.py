@@ -399,8 +399,7 @@ async def custom_help(ctx, *command):
 
 ### CALENDAR START ------------------------------------------------------------------------------------------------ CALENDAR START
 @client.command(name='calendar', pass_context=True)
-for role in STAFF_ROLES:
-    @has_role(role)
+@has_role([role for role in STAFF_ROLES])
 async def post_calendar(ctx):
     author = ctx.message.author
     channel = '534057583426797568'
@@ -494,8 +493,7 @@ async def post_calendar(ctx):
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
 @client.command(name='delay',
                 pass_context=True)
-for role in ALL_ROLES:
-    @has_role(role)
+@has_role([role for role in ALL_ROLES])
 async def delay_calc(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
@@ -836,8 +834,7 @@ async def address_jig(ctx):
     @param rul: Url for item to be viewed '''
 ### SMS SEND COMMAND --------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 @client.command(name='sendsms')
-for role in STAFF_ROLES:
-    @has_role(role)
+@has_role([role for role in STAFF_ROLES])
 async def send_SMS(ctx):
     message = str(ctx.message.content).replace('!sendsms ','')
     send = SMS_CLIENT.send_sms(message)
