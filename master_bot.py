@@ -11,7 +11,7 @@ import gmail as GM
 from address import AddressJig
 from fee import feeCalc
 from discord.ext.commands import Bot
-from discord.ext.commands import has_role
+from discord.ext.commands import has_role, has_any_role
 from discord.utils import get
 from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed 
@@ -33,7 +33,8 @@ posted_channels = dict()
 
 server_id = userInfo['server_id']
 footer_text = userInfo['footer_text']
-member_role = userInfo['member_role']
+# ROLE FOR PAYING MEMBERS
+member_role = userInfo['paying_member_role']
 sub_channel = userInfo['sub_channel']
 sitelist_link = userInfo['sitelist_link']
 BOT_NAME = userInfo['BOT_NAME']
@@ -51,8 +52,9 @@ twilio_auth_token = userInfo['twilio_auth_token']
 twilio_sid = userInfo['twilio_sid']
 twilio_number = userInfo['twilio_number']
 MONITOR_LIST = userInfo['MONITORS']
-ALL_ROLES = userInfo['ALL_ROLES']
-STAFF_ROLES = userInfo['STAFF_ROLES']
+# ROLE FOR MEMBERS ALLOWED TO USE THE BOT (LIFETIME ETC)
+MEMBER_ROLE = userInfo['MEMBER_ROLE']
+STAFF_ROLE = userInfo['STAFF_ROLE']
 fmRole = userInfo['FREE_MONTH']
 
 # Discord command triggers
@@ -399,7 +401,7 @@ async def custom_help(ctx, *command):
 
 ### CALENDAR START ------------------------------------------------------------------------------------------------ CALENDAR START
 @client.command(name='calendar', pass_context=True)
-@has_role([role for role in STAFF_ROLES])
+@has_role(STAFF_ROLE)
 async def post_calendar(ctx):
     author = ctx.message.author
     channel = '534057583426797568'
@@ -493,7 +495,7 @@ async def post_calendar(ctx):
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
 @client.command(name='delay',
                 pass_context=True)
-@has_role([role for role in ALL_ROLES])
+@has_any_role(STAFF_ROLE, MEMBER_ROLE)
 async def delay_calc(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
@@ -834,7 +836,7 @@ async def address_jig(ctx):
     @param rul: Url for item to be viewed '''
 ### SMS SEND COMMAND --------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 @client.command(name='sendsms')
-@has_role([role for role in STAFF_ROLES])
+@has_role(STAFF_ROLE)
 async def send_SMS(ctx):
     message = str(ctx.message.content).replace('!sendsms ','')
     send = SMS_CLIENT.send_sms(message)
@@ -1217,7 +1219,9 @@ class Stripe(object):
                     await client.send_message(messiah, f"Exception occurred during recurring_charge: {e}")
                     break
 ### END STRIPE AUTH --------------------------------------------------------------------------------------------- END STRIPE AUTH
-            
+Exception discord.ext.commands.CheckFailure(message=None, *args)
+
+
 if __name__ == "__main__":           
     # Initialize Discord bot by making the first call to it
     try:
