@@ -330,22 +330,22 @@ async def custom_help(ctx, *command):
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
-        embed.add_field(name=':white_check_mark: !activate [email], Example: `!activate fomo@gmail.com`',value="Activate your subscription. Follow the example, if you have trouble, please open a ticket or DM an admin!")
-        embed.add_field(name=':cry:sob: !cancel [email], Example: `!cancel fomo@gmail.com`', value='Cancel your subscription. You will remain a member until 30 days after your last payment and no longer will be charged.')
+        embed.add_field(name=':white_check_mark: !activate [email]\nExample: `!activate fomo@gmail.com`',value="Activate your subscription. Follow the example, if you have trouble, please open a ticket or DM an admin!", inline=True)
+        embed.add_field(name=':cry:sob: !cancel [email]\nExample: `!cancel fomo@gmail.com`', value='Cancel your subscription. You will remain a member until 30 days after your last payment and no longer will be charged.', inline=True)
         await client.send_message(ctx.message.author, embed=embed)
 ### ACTIVATION HELP COMMAND ------------------------------------------------------------------------------------------- ACTIVATION HELP COMMAND ###
 
 ### SHOPIFY HELP COMMAND --------------------------------------------------------------------------------------- SHOPIFY HELP COMMAND ###
         embed = Embed(
-            title=":shopify: Shopify Tools",
+            title=":shopping_bags: Shopify Tools",
             description='Commands for all of your Shopify needs!',
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
-        embed.add_field(name=':grey_question: !isshopify [URL], Example: `!isshopify https://kith.com`', value='Check if any given website is a Shopify website.')
-        embed.add_field(name=':shopping_cart: !atc [URL], Example: `!atc https://kith.com/product/sneaker', value='Generate ATC links for any Shopify product. These links add the product to your cart to help you checkout much faster!')
-        embed.add_field(name=':globe_with_meridians: !shopify, Example: `!shopify`',value='Generate an account on any Shopify website. I will ask you for the information I need after you call the command.')
-        embed.add_field(name='::arrows_counterclockwise: !delay, Example: `!delay`',value='Calculate a delay to use with your Shopify bot. The delay calculated will __**NEVER**__ get your proxies banned. I will ask you for the information I need after you call the command.')
+        embed.add_field(name=':grey_question: !isshopify [URL]\nExample: `!isshopify https://kith.com`', value='Check if any given website is a Shopify website.', inline=True)
+        embed.add_field(name=':shopping_cart: !atc [URL]\nExample: `!atc https://kith.com/product/sneaker`', value='Generate ATC links for any Shopify product. These links add the product to your cart to help you checkout much faster!', inline=True)
+        embed.add_field(name=':globe_with_meridians: !shopify\nExample: `!shopify`',value='Generate an account on any Shopify website. I will ask you for the information I need after you call the command.', inline=True)
+        embed.add_field(name=':arrows_counterclockwise: !delay\nExample: `!delay`',value='Calculate a delay to use with your Shopify bot. The delay calculated will __**NEVER**__ get your proxies banned. I will ask you for the information I need after you call the command.', inline=True)
         await client.send_message(ctx.message.author, embed=embed)
 ### SHOPIFY HELP COMMAND --------------------------------------------------------------------------------------- SHOPIFY HELP COMMAND ###
 
@@ -366,10 +366,10 @@ async def custom_help(ctx, *command):
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
-        embed.add_field(name=":incoming_envelope: !gmail [gmail], Example: `!gmail fomo@gmail.com`",value="Generate additional email addresses using Gmail's period trick. I will need your full Gmail address like in the example.")
-        embed.add_field(name=':mailbox_with_mail: !address ["address"], Example: `!address "1234 152nd Ave`"',value="Generate additional unique shipping addresses for the same address. These addresses are accepted by all shipping carriers. Use these to order more than 1 of the same item to the same place. Make sure to wrap you address in quotes like in the example!")
-        embed.add_field(name=':moneybag: !fee [amount], Example: `!fee 1000`',value="Calculate seller fees and payouts for all major reselling platforms.")
-        embed.add_field(name=':doughnut: !donutuk [gmail prefix], Example: `!donutuk fomo`', value="Get a free Krispy Kreme doughnut, 100% legit and safe. Make sure to pass in your Gmail prefix as a paremeter. If your Gmail is fomo@gmail.com, send `!donutuk fomo`, for example.")
+        embed.add_field(name=":incoming_envelope: !gmail [gmail]\nExample: `!gmail fomo@gmail.com`",value="Generate additional email addresses using Gmail's period trick. I will need your full Gmail address like in the example.", inline=True)
+        embed.add_field(name=':mailbox_with_mail: !address ["address"]\nExample: `!address "1234 152nd Ave`"',value="Generate additional unique shipping addresses for the same address. These addresses are accepted by all shipping carriers. Use these to order more than 1 of the same item to the same place. Make sure to wrap you address in quotes like in the example!", inline=True)
+        embed.add_field(name=':moneybag: !fee [amount]\nExample: `!fee 1000`',value="Calculate seller fees and payouts for all major reselling platforms.", inline=True)
+        embed.add_field(name=':doughnut: !donutuk [gmail prefix]\nExample: `!donutuk fomo`', value="Get a free Krispy Kreme doughnut, 100% legit and safe. Make sure to pass in your Gmail prefix as a paremeter. If your Gmail is fomo@gmail.com, send `!donutuk fomo`, for example.", inline=True)
         await client.send_message(ctx.message.author, embed=embed)
 ### TOOLS HELP COMMAND ------------------------------------------------------------------------------------------- TOOLS HELP COMMAND ###
 
@@ -381,8 +381,8 @@ async def custom_help(ctx, *command):
             #description = BOT_DESCRIPTION
         )
 
-        embed.add_field(name=':eye: !ebayviews [eBay listing URL], Example: `!ebayviews https://ebay.com/itm/1234`',value='Add 200 views to your eBay listing. Simply pass in your listing URL as a parameter! Please allow up to 5 minutes for views to be applied.')
-        embed.add_field(name=':watch: !ebaywatch [eBay listing URL] [number of watchers], Example: `!ebaywatch https://ebay.com/itm/1234 10',value="Add as many as 10 watchers to your eBay listing. Follow the example to make sure you call the command correctly! Please allow up to 5 minutes for watches to be applied.")
+        embed.add_field(name=':eye: !ebayviews [eBay listing URL]\nExample: `!ebayviews https://ebay.com/itm/1234`',value='Add 200 views to your eBay listing. Simply pass in your listing URL as a parameter! Please allow up to 5 minutes for views to be applied.', inline=True)
+        embed.add_field(name=':watch: !ebaywatch [eBay listing URL] [number of watchers]\nExample: `!ebaywatch https://ebay.com/itm/1234 10`',value="Add as many as 10 watchers to your eBay listing. Follow the example to make sure you call the command correctly! Please allow up to 5 minutes for watches to be applied.", inline=True)
         await client.send_message(ctx.message.author, embed=embed)
 ### EBAY HELP COMMAND ------------------------------------------------------------------------------------------- EBAY HELP COMMAND ###
 
