@@ -157,7 +157,8 @@ async def on_message(message):
                 SUCCESS_POSTER.success_poster(author, image)
 ### MONITOR PINGER ----------------------------------------------------------------------------------------- MONITOR PINGER ###
     embeds = message.embeds
-    keywords = k
+    keywords = requests.get('https://jsonblob.com/api/jsonBlob/1a574529-3e55-11e9-bd88-f34ccbbcde5d')
+    keywords = json.loads(k.text)
     if len(embeds) == 0:
         for keyword in keywords:
             sub_keys = keywords[keyword]
