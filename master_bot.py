@@ -52,6 +52,7 @@ twilio_number = userInfo['twilio_number']
 MONITOR_LIST = userInfo['MONITORS']
 MEMBER_ROLES = userInfo['MEMBER_ROLES']
 STAFF_ROLES = userInfo['STAFF_ROLES']
+ALL_ROLES = MEMBER_ROLES + ", " + STAFF_ROLES
 fmRole = userInfo['FREE_MONTH']
 
 # Discord command triggers
@@ -492,7 +493,7 @@ async def post_calendar(ctx):
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
 @client.command(name='delay',
                 pass_context=True)
-@discord.ext.commands.has_any_role(STAFF_ROLES, MEMBER_ROLES)
+@discord.ext.commands.has_any_role(ALL_ROLES)
 async def delay_calc(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
