@@ -877,7 +877,7 @@ async def fee_calculator(ctx, sale_price):
                 pass_context=True)
 async def gmail_jig(ctx, email):
     gmail = GM.GmailJig()
-    emails = gmail.run(str(email))
+    emails = await gmail.run(str(email))
     embed = Embed(title="TRICKED EMAILS:", description=emails, color=0xffffff)
     client.send_message(ctx.message.author,embed=embed)
 ### END GMAIL COMMAND ----------------------------------------------------------------------------------- END GMAIL COMMAND ###
@@ -894,7 +894,7 @@ async def address_jig(ctx):
     address = AddressJig()
     adr = str(ctx.message.content) 
     adr = adr.replace("!address ", "")
-    response = address.generate_address_two(str(adr), ctx)
+    response = await address.generate_address_two(str(adr), ctx)
     if response == 'INVALID':
         await client.send_message(ctx.message.author,"Please enter a valid address.")
     else:
