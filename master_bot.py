@@ -331,7 +331,7 @@ async def custom_help(ctx, *command):
             #description = BOT_DESCRIPTION
         )
         embed.add_field(name=':white_check_mark: !activate [email]\nExample: `!activate fomo@gmail.com`',value="Activate your subscription. Follow the example, if you have trouble, please open a ticket or DM an admin!", inline=True)
-        embed.add_field(name=':cry:sob: !cancel [email]\nExample: `!cancel fomo@gmail.com`', value='Cancel your subscription. You will remain a member until 30 days after your last payment and no longer will be charged.', inline=True)
+        embed.add_field(name=':sob: !cancel [email]\nExample: `!cancel fomo@gmail.com`', value='Cancel your subscription. You will remain a member until 30 days after your last payment and no longer will be charged.', inline=True)
         await client.send_message(ctx.message.author, embed=embed)
 ### ACTIVATION HELP COMMAND ------------------------------------------------------------------------------------------- ACTIVATION HELP COMMAND ###
 
