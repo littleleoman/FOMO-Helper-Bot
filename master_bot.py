@@ -32,7 +32,6 @@ posted_channels = dict()
 
 server_id = userInfo['server_id']
 footer_text = userInfo['footer_text']
-# ROLE FOR PAYING MEMBERS
 member_role = userInfo['paying_member_role']
 sub_channel = userInfo['sub_channel']
 sitelist_link = userInfo['sitelist_link']
@@ -51,9 +50,6 @@ twilio_auth_token = userInfo['twilio_auth_token']
 twilio_sid = userInfo['twilio_sid']
 twilio_number = userInfo['twilio_number']
 MONITOR_LIST = userInfo['MONITORS']
-# ROLE FOR MEMBERS ALLOWED TO USE THE BOT (LIFETIME ETC)
-MEMBER_ROLE = userInfo['MEMBER_ROLE']
-STAFF_ROLE = userInfo['STAFF_ROLE']
 fmRole = userInfo['FREE_MONTH']
 
 # Discord command triggers
