@@ -1,4 +1,4 @@
-import random, string
+import random, string, asyncio
 
 class AddressJig(object):
     addresses = ''
