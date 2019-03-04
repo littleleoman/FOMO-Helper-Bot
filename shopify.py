@@ -31,16 +31,16 @@ def shopify_check(website):
         website = website.replace('http://','https://')
 
     if website.endswith('/') == False:
-        website = website + '/admin'
+        Adminwebsite = website + '/admin'
     else:
-        website = website + 'admin'
+        Adminwebsite = website + 'admin'
     
-    check = requests.get(website)
+    check = requests.get(Adminwebsite)
     if check != 200:
         return False
 
     elif 'shopify' in check.text:
-        return True
+        return({"status":True,"URL":website})
     else:
         return False
     
