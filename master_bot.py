@@ -10,7 +10,7 @@ from dateutil.relativedelta import *
 import gmail as GM
 from address import AddressJig
 from fee import feeCalc
-from discord.ext.commands import Bot, has_role, has_any_role, CheckFailure
+from discord.ext.commands import Bot, has_permissions, CheckFailure
 from discord.utils import get
 from discord.errors import LoginFailure, HTTPException
 from discord.embeds import Embed 
@@ -400,7 +400,7 @@ async def custom_help(ctx, *command):
 
 ### CALENDAR START ------------------------------------------------------------------------------------------------ CALENDAR START
 @client.command(name='calendar', pass_context=True)
-@has_role(STAFF_ROLE)
+@has_permissions(manage_channels=True)
 async def post_calendar(ctx):
     author = ctx.message.author
     channel = '534057583426797568'
@@ -494,7 +494,7 @@ async def post_calendar(ctx):
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
 @client.command(name='delay',
                 pass_context=True)
-@has_any_role(STAFF_ROLE, MEMBER_ROLE)
+@has_permissions(read_message_history=True)
 async def delay_calc(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
@@ -835,7 +835,7 @@ async def address_jig(ctx):
     @param rul: Url for item to be viewed '''
 ### SMS SEND COMMAND --------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 @client.command(name='sendsms')
-@has_role(STAFF_ROLE)
+@has_permissions(manage_channels=True)
 async def send_SMS(ctx):
     message = str(ctx.message.content).replace('!sendsms ','')
     send = SMS_CLIENT.send_sms(message)
@@ -1219,7 +1219,7 @@ class Stripe(object):
                     break
 ### END STRIPE AUTH --------------------------------------------------------------------------------------------- END STRIPE AUTH
 @client.event
-async def on_error(error, ctx):
+async def on_command_error(error, ctx):
     if isinstance(error, CheckFailure):
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't a member or staff member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
