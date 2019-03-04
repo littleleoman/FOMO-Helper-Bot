@@ -3,7 +3,6 @@ Created on Jul 15, 2018
 @author: yung_messiah
 '''
 import asyncio, datetime, discord, pinger, json, success, os, pymongo, re, requests, _thread, stripe, shopify, solebox
-import pinger_keywords as k
 import sms as SMS_CLIENT
 import ebay as EBAY
 import krispykreme as KK
@@ -19,6 +18,9 @@ from discord.embeds import Embed
 with open('config.json','r') as config:
     userInfo = json.load(config)
 
+# PULL PINGER KEYWORDS
+k = requests.get('https://jsonblob.com/api/jsonBlob/1a574529-3e55-11e9-bd88-f34ccbbcde5d')
+k = json.loads(k.text)
 # Token for Discord Bot 
 TOKEN = os.environ["BOT_TOKEN"]
 MONGODB_URI = os.environ["MONGODB_URI"]
