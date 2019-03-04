@@ -37,14 +37,12 @@ def shopify_check(website):
     
     check = requests.get(Adminwebsite)
     if check != 200:
-        return False
+        return({"status":"FALSE","URL":website})
 
     elif 'shopify' in check.text:
-        return({"status":True,"URL":website})
+        return({"status":"TRUE","URL":website})
     else:
-        return False
-    
-    
+        return({"status":"FALSE","URL":website})   
 
 def find_auth_token(website):
     soup = BeautifulSoup(website,"lxml")
