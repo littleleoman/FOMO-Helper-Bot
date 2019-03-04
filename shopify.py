@@ -39,9 +39,9 @@ def shopify_check(website):
     if check != 200:
         return({"status":"FALSE","URL":website})
 
-    elif 'shopify' in check.text:
+    elif 'shopify' in str(check.url):
         return({"status":"TRUE","URL":website})
-    else:
+    elif 'shopify' not in str(check.url):
         return({"status":"FALSE","URL":website})   
 
 def find_auth_token(website):
