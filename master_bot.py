@@ -157,7 +157,7 @@ async def on_message(message):
                 SUCCESS_POSTER.success_poster(author, image)
 ### MONITOR PINGER ----------------------------------------------------------------------------------------- MONITOR PINGER ###
     embeds = message.embeds
-    keywords = k.keywords
+    keywords = k
     if len(embeds) == 0:
         for keyword in keywords:
             sub_keys = keywords[keyword]
