@@ -379,7 +379,7 @@ async def custom_help(ctx, *command):
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
-    embed7.set_footer(icon_url=icon_img, text=footer_text)
+        embed7.set_footer(icon_url=icon_img, text=footer_text)
 ### FINAL HELP MESSAGE ------------------------------------------------------------------------------------------- FINAL HELP MESSAGE ###
 
 ### SEND HELP MESSAGE ------------------------------------------------------------------------------------------- SEND HELP MESSAGE ###
