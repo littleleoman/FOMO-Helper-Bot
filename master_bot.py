@@ -317,160 +317,84 @@ async def custom_help(ctx, *command):
     
     if len(command) == 0:
         embed = Embed(
-            color = 0xffffff,
-            description = BOT_DESCRIPTION
+            title="{} COMMANDS".format(BOT_NAME),
+            description="List of commands I can run for you :slight_smile:",
+            color = 0xffffff
+            #description = BOT_DESCRIPTION
         )
-        
-        keywords = '*!address* \n*!gmail* \n*!atc* \n*!isshopify* \n*!fee* \n*!activate* \n*!cancel* \n*sms!help* \n*!donutuk* \n*!shopify* \n*!solebox* \n*!ebayviews* \n*!ebaywatch* \n*!delay*'
-        keyword_descriptions = 'Jig your home address\n'
-        keyword_descriptions += 'Jig your gmail address\n'
-        keyword_descriptions += 'Generate ATC for a shopify URL\n'
-        keyword_descriptions += 'Checks if a website is Shopify\n'
-        keyword_descriptions += 'Calculates seller profits after fees on all websites.\n'
-        keyword_descriptions += 'Authenticates members and assigns correct role\n'
-        keyword_descriptions += 'Cancel your current subscription\n'
-        keyword_descriptions += 'Signup, change, or remove your number from SMS alerts\n'
-        keyword_descriptions += 'Get a Krispy Kreme doughnut using your Gmail prefix!\n'
-        keyword_descriptions += 'Generate accounts on Shopify\n'
-        keyword_descriptions += 'Generate accounts on Solebox\n'
-        keyword_descriptions += 'Generate views on your eBay listing\n'
-        keyword_descriptions += 'Generate watchers on your eBay listing\n'
-        keyword_descriptions += 'Get the perfect delay to use on Shopify websites.'
-          
-        embed.add_field(name='Keywords:', value=keywords, inline=True)
-        embed.add_field(name='Brief:', value=keyword_descriptions, inline=True)
-        embed.add_field(name='More Info', value="For more information on a keyword, type **!help keyword**", inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)    
-    elif (len(command) > 0 and (command[0] == 'gmail' or command[0] == 'mail' or command[0] == 'email')):
-        desc =  'This command manipulates any gmail address passed to it as a parameter.'
+        await client.send_message(ctx.message.author, embed=embed)
+### ACTIVATION HELP COMMAND ------------------------------------------------------------------------------------------- ACTIVATION HELP COMMAND ###
         embed = Embed(
-            color = 0xffffff,
-            description = desc
+            title=":closed_lock_with_key: Authentication Commands".format(BOT_NAME),
+            description="Commands to activate or cancel your membership.",
+            color = 0xffffff
+            #description = BOT_DESCRIPTION
         )
-        embed.add_field(name='Aliases', value='[ gmail | mail | email ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'address' or command[0] == 'adr' or command[0] == 'addr')):
-        desc = 'This command manipulates any residential address passed to it as a parameter.'
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        embed.add_field(name='Aliases', value='[ address | addr | adr ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'atc')):
-        desc = 'Add To Cart command for any Shopify website. Generates a link leading the user '
-        desc += 'straight to the payment page. Takes in the item\'s URL as a parameter'
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        embed.add_field(name='Aliases', value='[ atc ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'isshopify')):
-        desc = 'This command uses a given URL in order to determine whether '
-        desc += 'a website is a shopify site or not.'
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        embed.add_field(name='Aliases', value='[ isshopify ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'fee')):
-        desc = "Calculates the seller fees applied by different websites."
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        
-        embed.add_field(name='Aliases', value='[ fee ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'activate')):
-        desc = "Activate your subscription in our server and get access to all our content."
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        
-        embed.add_field(name='Aliases', value='[ activate ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'cancel')):
-        desc = "Cancel your subscription in our server by passing the email used to subscribe as a parameter."
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        
-        embed.add_field(name='Aliases', value='[ cancel ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'donutuk')):
-        desc = "Get yourself a free Krispy Kreme doughnut by passing your email prefix as a parameter.\nExample: if your Gmail is john@gmail.com, say `!donutuk john` to get a free donut!"
-        embed = Embed(
-            color = 0xffffff,
-            description = desc
-        )
-        
-        embed.add_field(name='Aliases', value='[ donutuk ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
+        embed.add_field(name=':white_check_mark: !activate [email], Example: `!activate fomo@gmail.com`',value="Activate your subscription. Follow the example, if you have trouble, please open a ticket or DM an admin!")
+        embed.add_field(name=':cry:sob: !cancel [email], Example: `!cancel fomo@gmail.com`', value='Cancel your subscription. You will remain a member until 30 days after your last payment and no longer will be charged.')
+        await client.send_message(ctx.message.author, embed=embed)
+### ACTIVATION HELP COMMAND ------------------------------------------------------------------------------------------- ACTIVATION HELP COMMAND ###
 
-    elif (len(command) > 0 and (command[0] == 'shopify')):
-        desc = "Generate an account on any Shopify website using your Gmail address."
+### SHOPIFY HELP COMMAND --------------------------------------------------------------------------------------- SHOPIFY HELP COMMAND ###
         embed = Embed(
-            color = 0xffffff,
-            description = desc
+            title=":shopify: Shopify Tools",
+            description='Commands for all of your Shopify needs!',
+            color = 0xffffff
+            #description = BOT_DESCRIPTION
         )
-        
-        embed.add_field(name='Aliases', value='[ shopify ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'solebox')):
-        desc = "Generate an account on Solebox using your catchall domain."
+        embed.add_field(name=':grey_question: !isshopify [URL], Example: `!isshopify https://kith.com`', value='Check if any given website is a Shopify website.')
+        embed.add_field(name=':shopping_cart: !atc [URL], Example: `!atc https://kith.com/product/sneaker', value='Generate ATC links for any Shopify product. These links add the product to your cart to help you checkout much faster!')
+        embed.add_field(name=':globe_with_meridians: !shopify, Example: `!shopify`',value='Generate an account on any Shopify website. I will ask you for the information I need after you call the command.')
+        embed.add_field(name='::arrows_counterclockwise: !delay, Example: `!delay`',value='Calculate a delay to use with your Shopify bot. The delay calculated will __**NEVER**__ get your proxies banned. I will ask you for the information I need after you call the command.')
+        await client.send_message(ctx.message.author, embed=embed)
+### SHOPIFY HELP COMMAND --------------------------------------------------------------------------------------- SHOPIFY HELP COMMAND ###
+
+### SMS HELP COMMAND --------------------------------------------------------------------------------------- SMS HELP COMMAND ###
         embed = Embed(
-            color = 0xffffff,
-            description = desc
+            title=":speech_left: SMS Notifications",
+            description='say `sms!help` to learn about my SMS commands.',
+            color = 0xffffff
+            #description = BOT_DESCRIPTION
         )
-        
-        embed.add_field(name='Aliases', value='[ solebox ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'ebayviews')):
-        desc = "Generate 200 views on your eBay listing."
+        await client.send_message(ctx.message.author, embed=embed)
+### SMS HELP COMMAND --------------------------------------------------------------------------------------- SMS HELP COMMAND ###
+
+### TOOLS HELP COMMAND ------------------------------------------------------------------------------------------- TOOLS HELP COMMAND ###
         embed = Embed(
-            color = 0xffffff,
-            description = desc
+            title=":tools: Miscellaneous Tools",
+            description='Commands to check fees on popular reselling platforms and more.',
+            color = 0xffffff
+            #description = BOT_DESCRIPTION
         )
-        
-        embed.add_field(name='Aliases', value='[ ebayviews ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'ebaywatch')):
-        desc = "Generate watchers on your eBay listing.\nFormat: `!ebaywatch link watchers`\nExample: `!ebaywatch https://www.ebay.com/itm/MYITEM 5` will add 5 watchers to your listng.\nMaximum is 10!"
+        embed.add_field(name=":incoming_envelope: !gmail [gmail], Example: `!gmail fomo@gmail.com`",value="Generate additional email addresses using Gmail's period trick. I will need your full Gmail address like in the example.")
+        embed.add_field(name=':mailbox_with_mail: !address ["address"], Example: `!address "1234 152nd Ave`"',value="Generate additional unique shipping addresses for the same address. These addresses are accepted by all shipping carriers. Use these to order more than 1 of the same item to the same place. Make sure to wrap you address in quotes like in the example!")
+        embed.add_field(name=':moneybag: !fee [amount], Example: `!fee 1000`',value="Calculate seller fees and payouts for all major reselling platforms.")
+        embed.add_field(name=':doughnut: !donutuk [gmail prefix], Example: `!donutuk fomo`', value="Get a free Krispy Kreme doughnut, 100% legit and safe. Make sure to pass in your Gmail prefix as a paremeter. If your Gmail is fomo@gmail.com, send `!donutuk fomo`, for example.")
+        await client.send_message(ctx.message.author, embed=embed)
+### TOOLS HELP COMMAND ------------------------------------------------------------------------------------------- TOOLS HELP COMMAND ###
+
+### EBAY HELP COMMAND ------------------------------------------------------------------------------------------- EBAY HELP COMMAND ###
         embed = Embed(
-            color = 0xffffff,
-            description = desc
+            title=":shopping_bags: eBay Tools",
+            description='Commands to add watchers and/or viewers to your eBay listing(s).',
+            color = 0xffffff
+            #description = BOT_DESCRIPTION
         )
-        
-        embed.add_field(name='Aliases', value='[ ebaywatch ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
-    elif (len(command) > 0 and (command[0] == 'delay')):
-        desc = "Calculate the perfect delay to use when botting Shopify. The delay calculated here will **never** get you banned!"
+
+        embed.add_field(name=':eye: !ebayviews [eBay listing URL], Example: `!ebayviews https://ebay.com/itm/1234`',value='Add 200 views to your eBay listing. Simply pass in your listing URL as a parameter! Please allow up to 5 minutes for views to be applied.')
+        embed.add_field(name=':watch: !ebaywatch [eBay listing URL] [number of watchers], Example: `!ebaywatch https://ebay.com/itm/1234 10',value="Add as many as 10 watchers to your eBay listing. Follow the example to make sure you call the command correctly! Please allow up to 5 minutes for watches to be applied.")
+        await client.send_message(ctx.message.author, embed=embed)
+### EBAY HELP COMMAND ------------------------------------------------------------------------------------------- EBAY HELP COMMAND ###
+
+### FINAL HELP MESSAGE ------------------------------------------------------------------------------------------- FINAL HELP MESSAGE ###
         embed = Embed(
-            color = 0xffffff,
-            description = desc
+            title=":warning:",
+            description='If you are having any troubles or issues, please open a ticket or DM an admin!',
+            color = 0xffffff
+            #description = BOT_DESCRIPTION
         )
-        
-        embed.add_field(name='Aliases', value='[ delay ]', inline=False)
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(author, embed=embed)
+        await client.send_message(ctx.message.author, embed=embed)
+### FINAL HELP MESSAGE ------------------------------------------------------------------------------------------- FINAL HELP MESSAGE ###
 
 ### CALENDAR START ------------------------------------------------------------------------------------------------ CALENDAR START
 @client.command(name='calendar', pass_context=True)

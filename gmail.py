@@ -1,4 +1,4 @@
-import random, re, asyncio
+import random, re
 
 class GmailJig(object):
     emails = ''
