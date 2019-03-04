@@ -34,7 +34,8 @@ def shopify_check(website):
         Adminwebsite = website + '/admin'
     else:
         Adminwebsite = website + 'admin'
-    
+    print("ADMIN URL: " + str(Adminwebsite))
+    print("URL AFTER CHECKING FOR HTTPS AND BACKSLASH: " + str(website))
     check = requests.get(Adminwebsite)
     if check != 200:
         return({"status":"FALSE","URL":website})
