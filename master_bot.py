@@ -325,7 +325,7 @@ async def custom_help(ctx, *command):
         await client.send_message(ctx.message.author, embed=embed)
 ### ACTIVATION HELP COMMAND ------------------------------------------------------------------------------------------- ACTIVATION HELP COMMAND ###
         embed = Embed(
-            title=":closed_lock_with_key: Authentication Commands".format(BOT_NAME),
+            title=":closed_lock_with_key: Authentication Commands",
             description="Commands to activate or cancel your membership.",
             color = 0xffffff
             #description = BOT_DESCRIPTION
@@ -381,8 +381,8 @@ async def custom_help(ctx, *command):
             #description = BOT_DESCRIPTION
         )
 
-        embed.add_field(name=':eye: !ebayviews [eBay listing URL]',value='\nExample: `!ebayviews https://ebay.com/itm/1234`\nAdd 200 views to your eBay listing. Simply pass in your listing URL as a parameter! Please allow up to 5 minutes for views to be applied.', inline=True)
-        embed.add_field(name=':watch: !ebaywatch [eBay listing URL] [number of watchers]',value="\nExample: `!ebaywatch https://ebay.com/itm/1234 10`\nAdd as many as 10 watchers to your eBay listing. Follow the example to make sure you call the command correctly! Please allow up to 5 minutes for watches to be applied.", inline=True)
+        embed.add_field(name=':eye: !ebayviews [eBay listing URL]\nExample: `!ebayviews https://ebay.com/itm/1234`',value='Add 200 views to your eBay listing. Simply pass in your listing URL as a parameter! Please allow up to 5 minutes for views to be applied.', inline=True)
+        embed.add_field(name=':watch: !ebaywatch [eBay listing URL] [number of watchers]\nExample: `!ebaywatch https://ebay.com/itm/1234 10`',value="Add as many as 10 watchers to your eBay listing. Follow the example to make sure you call the command correctly! Please allow up to 5 minutes for watches to be applied.", inline=True)
         await client.send_message(ctx.message.author, embed=embed)
 ### EBAY HELP COMMAND ------------------------------------------------------------------------------------------- EBAY HELP COMMAND ###
 
