@@ -493,7 +493,7 @@ async def post_calendar(ctx):
 
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
 @client.command()
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def delay(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
@@ -605,7 +605,7 @@ async def cancel(ctx, email):
 ### KRISPY KREME DONUT FOOD COMMAND ----------------------------------------------------------------------------------- KRISPY KREME DONUT FOOD COMMAND ###
 @client.command(name='donutuk', 
                 pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def donut_message(ctx, gmail):
     author = ctx.message.author
     await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
@@ -785,7 +785,7 @@ async def activate(ctx, email):
 @client.command(name='fee',
                 description='Calculates the seller fees applied by different websites',
                 pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def fee_calculator(ctx, sale_price):
     # Discord channel on which command was called
     channel = ctx.message.channel
@@ -809,7 +809,7 @@ async def fee_calculator(ctx, sale_price):
                 description='This command manipulates any gmail address passed to it as a parameter.',
                 aliases=['mail', 'email'],
                 pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def gmail_jig(ctx, email):
     gmail = GM.GmailJig()
     emails = gmail.run(str(email))
@@ -825,7 +825,7 @@ async def gmail_jig(ctx, email):
                 description='This command manipulates any residential address passed to it as a parameter.',
                 aliases=['addr', 'adr'],
                 pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def address_jig(ctx):
     address = AddressJig()
     adr = str(ctx.message.content) 
@@ -858,7 +858,7 @@ async def send_SMS(ctx):
 @client.command(name='ebayviews', 
                 description='Automatic eBay viewer for any listing. Views the given URL up to 200 times',
                 pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def ebay_view(ctx, url):
     if ebay_used_urls[0] != datetime.date.today():
         ebay_used_urls.clear()
@@ -888,7 +888,7 @@ async def ebay_view(ctx, url):
 @client.command(name='ebaywatch', 
                 description='Automatic eBay watcher for any listing. Watches the given URL 20 times',
                 pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def ebay_watch(ctx, url, watches):
     try: 
         if int(watches) < 21:
@@ -909,7 +909,7 @@ async def ebay_watch(ctx, url, watches):
                 description='Add To Cart command for any Shopify website. Generates a link leading the user ' +
                 'straight to the payment page. Takes in the item\'s URL as a parameter',
                 pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def add_to_cart(ctx, url):
     await client.send_message(ctx.message.channel, ":hourglass: standby... we are generating your links.")
     info = shopify.atc_link_gen(url)
@@ -929,7 +929,7 @@ async def add_to_cart(ctx, url):
     await client.send_message(ctx.message.channel, embed=embed2)
 
 @client.command(name='shopify', pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def shopifyTools(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="SHOPIFY ACCOUNTE GENERATOR", description="Generate accounts on any Shopify website.", color=0xffffff)
@@ -974,7 +974,7 @@ async def shopifyTools(ctx):
 @client.command(name='isshopify',
                 description='This command uses a given URL in order to determine whether a website is a shopify site or not.',
                 pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def shopify_check(ctx, url):
     check = shopify.shopify_check(url)
     if check['status'] == "TRUE":
@@ -991,7 +991,7 @@ async def shopify_check(ctx, url):
 
 ### START SOLEBOX ------------------------------------------------------------------------------------------------------------ START SOLEBOX
 @client.command(name='solebox', pass_context=True)
-@discord.ext.commands.has_role(MEMBER_ROLE
+@discord.ext.commands.has_role(MEMBER_ROLE)
 async def add_user2(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="SOLEBOX ACCOUNTE GENERATOR", description="Generate accounts on [Solebox](https://solebox.com).", color=0xffffff)
