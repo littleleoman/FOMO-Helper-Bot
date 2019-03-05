@@ -23,6 +23,9 @@
     "MEMBER":"Member",
     "RESTOCK_ROLE_ID":"483521623920738304",
     "MONITORS": ["shopify","undef-kith-bodega","dsm","palace","snkrs-drops-us","snkrs-drops-uk","snkrs-restocks-us","snkrs-restocks-uk",
-                "supreme-us","supreme-eu","aio-monitor","solebox","twitter","adidas-us","adidas-uk","funko-monitor","bot","bot-2","pinger-test"]
+                "supreme-us","supreme-eu","aio-monitor","solebox","twitter","adidas-us","adidas-uk","funko-monitor","bot","bot-2","pinger-test"],
+    "MEMBER_ROLE":"User",
+    "STAFF_ROLE":"Staff",
+    "ADMIN_ROLE":"Admin"
 
 }
