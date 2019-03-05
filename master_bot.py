@@ -606,7 +606,7 @@ async def cancel(ctx, email):
 ### KRISPY KREME DONUT FOOD COMMAND ----------------------------------------------------------------------------------- KRISPY KREME DONUT FOOD COMMAND ###
 @client.command(name='donutuk', 
                 pass_context=True)
-@has_any_role(STAFF_ROLE, MEMBER_ROLE)
+@client.has_any_role(STAFF_ROLE, MEMBER_ROLE)
 async def donut_message(ctx, gmail):
     author = ctx.message.author
     await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
