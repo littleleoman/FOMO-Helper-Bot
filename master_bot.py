@@ -109,6 +109,7 @@ async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
+    print("ROLES: " + str(MEMBER_ROLE) + ", " + str(STAFF_ROLE))
     print('------')
     await client.change_presence(game=discord.Game(name='!help'), status=None,afk=False)
     
