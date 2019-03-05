@@ -20,7 +20,6 @@ class AddressJig(object):
     def generate_address_two(self, address, ctx):
         if address.replace(' ', '') == '':
             return("INVALID")
-            #await client.send_message(ctx.message.author,"Please enter a valid address.")
         else:
             address_options = ['Apt', 'Apartment', 'Building', 'Bldg', 'Suite', 'Room', 'Condo', 'Unit']
             
@@ -36,8 +35,4 @@ class AddressJig(object):
                     num = random.randint(15, 500)
                 
                 self.addresses += code + ' ' + address + ' ' + address_2 + ' ' + str(num) + '\n'
-            
-            #embed = Embed(title="", color=0xff9300)
-            #embed.add_field(name='Jigged Addresses', value=self.addresses, inline=True)
             return(self.addresses)
-            #await client.send_message(ctx.message.author, embed=embed)

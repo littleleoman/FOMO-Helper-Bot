@@ -44,4 +44,3 @@ def feeCalc(sale_price):
             'fees':fees,
             'profits':profits
         }
-    

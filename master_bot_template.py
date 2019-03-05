@@ -50,8 +50,7 @@ posted_channels = dict()
 ### NECESSARY VARIABLE DECLARATIONS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- NECESSARY VARIABLE DECLARATIONS ###
 TOKEN = os.environ["BOT_TOKEN"]
 MONGODB_URI = os.environ["MONGODB_URI"]
-FOMO_STRIPE_KEY = userInfo['STRIPE_KEY']
-MOREHYPED_STRIPE_KEY = userInfo['MOREHYPED']
+STRIPE_KEY = userInfo['STRIPE_KEY']
 server_id = userInfo['server_id']
 footer_text = userInfo['footer_text']
 paying_member_role = userInfo['paying_member_role']
@@ -378,8 +377,8 @@ async def custom_help(ctx, *command):
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
-        embed2.add_field(name=':white_check_mark: !activate [email]\nExample: `!activate fomo@gmail.com`',value="Activate your subscription. Follow the example, if you have trouble, please open a ticket or DM an admin!", inline=True)
-        embed2.add_field(name=':sob: !cancel [email]\nExample: `!cancel fomo@gmail.com`', value='Cancel your subscription. You will remain a member until 30 days after your last payment and no longer will be charged.', inline=True)
+        embed2.add_field(name=':white_check_mark: !activate [email]\nExample: `!activate john@gmail.com`',value="Activate your subscription. Follow the example, if you have trouble, please open a ticket or DM an admin!", inline=True)
+        embed2.add_field(name=':sob: !cancel [email]\nExample: `!cancel john@gmail.com`', value='Cancel your subscription. You will remain a member until 30 days after your last payment and no longer will be charged.', inline=True)
 ### ACTIVATION HELP COMMAND ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ACTIVATION HELP COMMAND ###
 
 ### SHOPIFY HELP COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SHOPIFY HELP COMMAND ###
@@ -411,10 +410,10 @@ async def custom_help(ctx, *command):
             color = 0xffffff
             #description = BOT_DESCRIPTION
         )
-        embed5.add_field(name=":incoming_envelope: !gmail [gmail]\nExample: `!gmail fomo@gmail.com`",value="Generate additional email addresses using Gmail's period trick. I will need your full Gmail address like in the example.", inline=True)
+        embed5.add_field(name=":incoming_envelope: !gmail [gmail]\nExample: `!gmail johnny@gmail.com`",value="Generate additional email addresses using Gmail's period trick. I will need your full Gmail address like in the example.", inline=True)
         embed5.add_field(name=':mailbox_with_mail: !address ["address"]\nExample: `!address "1234 152nd Ave"`',value="Generate additional unique shipping addresses for the same address. These addresses are accepted by all shipping carriers. Use these to order more than 1 of the same item to the same place. Make sure to wrap you address in quotes like in the example!", inline=True)
         embed5.add_field(name=':moneybag: !fee [amount]\nExample: `!fee 1000`',value="Calculate seller fees and payouts for all major reselling platforms.", inline=True)
-        embed5.add_field(name=':doughnut: !donutuk [gmail prefix]\nExample: `!donutuk fomo`', value="Get a free Krispy Kreme doughnut, 100% legit and safe. Make sure to pass in your Gmail prefix as a paremeter. If your Gmail is fomo@gmail.com, send `!donutuk fomo`, for example.", inline=True)
+        embed5.add_field(name=':doughnut: !donutuk [gmail prefix]\nExample: `!donutuk johnny`', value="Get a free Krispy Kreme doughnut, 100% legit and safe. Make sure to pass in your Gmail prefix as a paremeter. If your Gmail is johnny@gmail.com, send `!donutuk johnny`, for example.", inline=True)
 ### TOOLS HELP COMMAND ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- TOOLS HELP COMMAND ###
 
 ### EBAY HELP COMMAND ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- EBAY HELP COMMAND ###
@@ -696,7 +695,7 @@ async def check(ctx):
                 role2 = get(ctx.message.server.roles, name=paying_member_role)
                 await client.remove_roles(member, role)
                 await client.remove_roles(member, role2)
-                await client.send_message(member,'Your free trial at ***{}*** has ended. Thanks for being with us! :heart:'.format(GROUP_NAME))
+                await client.send_message(member,'Your free trial at **{}** has ended. Thanks for being with us! :heart:'.format(GROUP_NAME))
                 await client.send_message(ctx.message.channel,"<@{}>'s Free Month has ended".format(member.id))
             else:
                 jsonID = json.loads(line)["id"]
@@ -704,7 +703,7 @@ async def check(ctx):
                 member = server.get_member(jsonID)
                 role = get(ctx.message.server.roles, name=fmRole)
                 await client.remove_roles(member, role)
-                await client.send_message(member,'Your free trial at ***{}*** has ended. If you are still owed a refund, please open a ticket :heart:'.format(GROUP_NAME))
+                await client.send_message(member,'Your free trial at **{}** has ended. If you are still owed a refund, please open a ticket :heart:'.format(GROUP_NAME))
                 await client.send_message(ctx.message.channel,"<@{}>'s Free Month has ended".format(member.id))
 
         else:
@@ -1196,41 +1195,23 @@ async def add_user2(ctx):
 ### START STRIPE AUTH --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- START STRIPE AUTH
 class Stripe(object):
     async def process_payment(self, message):
-        messiah = get(client.get_all_members(), id=discord_owner_id)
+        owner = get(client.get_all_members(), id=discord_owner_id)
         msg_data = message.content.split()
         token = msg_data[0]
-        email = msg_data[1].lower()
-        web_source = msg_data[2]
-        
+        email = msg_data[1].lower()        
         # Create a customer
-        if web_source == "FOMO":
-            customer = stripe.Customer.create(
-                api_key=FOMO_STRIPE_KEY,
-                source=token,
-                email=email
+        customer = stripe.Customer.create(
+            api_key=STRIPE_KEY,
+            source=token,
+            email=email
             )
-        else:
-            customer = stripe.Customer.create(
-                api_key=MOREHYPED_STRIPE_KEY,
-                source=token,
-                email=email
-            )
-         
         try:
             # Charge the Customer instead of the card
-            if web_source == "FOMO":
-                stripe.Charge.create(
-                    api_key=FOMO_STRIPE_KEY,
-                    amount=2000,
-                    currency='usd',
-                    customer=customer.id
-                )
-            else:
-                stripe.Charge.create(
-                    api_key=MOREHYPED_STRIPE_KEY,
-                    amount=2000,
-                    currency='usd',
-                    customer=customer.id
+            stripe.Charge.create(
+                api_key=STRIPE_KEY,
+                amount=2000,
+                currency='usd',
+                customer=customer.id
                 )
             
             now = datetime.datetime.now().date()
@@ -1246,7 +1227,6 @@ class Stripe(object):
                     "error_count": 0,
                     "sub_date": str(now),
                     "pay_date": str(now),
-                    "web_source": web_source
                 })
             else:
                 # Update an existing subscription with new information
@@ -1264,20 +1244,20 @@ class Stripe(object):
             body = e.json_body
             err = body.get('error', {})
             
-            await client.send_message(messiah, f"There was an error processing the payment for email {email}")
-            await client.send_message(messiah, f"Status is: {e.http_status}")
-            await client.send_message(messiah, f"Type is: {err.get('type')}")
-            await client.send_message(messiah, f"Code is: {err.get('code')}")
+            await client.send_message(owner, f"There was an error processing the payment for email {email}")
+            await client.send_message(owner, f"Status is: {e.http_status}")
+            await client.send_message(owner, f"Type is: {err.get('type')}")
+            await client.send_message(owner, f"Code is: {err.get('code')}")
         except stripe.error.RateLimitError as e:
-            await client.send_message(messiah, f"Rate limit error: {e}")
+            await client.send_message(owner, f"Rate limit error: {e}")
         except stripe.error.AuthenticationError as e:
-            await client.send_message(messiah, f"Authentication error: {e}")
+            await client.send_message(owner, f"Authentication error: {e}")
         except stripe.error.APIConnectionError as e:
-            await client.send_message(messiah, f"Stripe error: {e}")
+            await client.send_message(owner, f"Stripe error: {e}")
         except stripe.error.StripeError as e:
-            await client.send_message(messiah, f"Stripe error: {e}")
+            await client.send_message(owner, f"Stripe error: {e}")
         except Exception as e:
-            await client.send_message(messiah, f"Exception occurred during process_payment: {e}")
+            await client.send_message(owner, f"Exception occurred during process_payment: {e}")
     
     
     async def check_membership(self, ctx, email):
@@ -1318,7 +1298,6 @@ class Stripe(object):
             error_count = int(error_count)
             error_count += 1
             old_date = document['pay_date']
-            web_source = document['web_source']
             old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
             
             # TODO - fix removing old members from server and database  
@@ -1332,30 +1311,20 @@ class Stripe(object):
                     if paying_member_role in [role.name for role in user.roles]:
                         role = get(discord_server.roles, name=paying_member_role)
                         await client.remove_roles(user, role)
-            elif delta.days > 30 and (document['status'] == 'active' or 'pending'):
-                discord_id = None
-                user = None
-                if document['status'] == 'active':
-                    discord_id = document['discord_id']
-                    user = get(client.get_all_members(), id=discord_id)
+            if delta.days > 30 and (document['status'] == 'active'):
+                discord_id = document['discord_id']
+                user = get(client.get_all_members(), id=discord_id)
+                print(f'Active user: {user}')    
                 
                 customer_id = document['customer_id']
-                try: 
-                    if web_source == "FOMO":      
-                        charge = stripe.Charge.create(
-                            api_key=FOMO_STRIPE_KEY,
-                            amount=2000,
-                            currency='usd',
-                            customer=customer_id
-                        )
-                    else:
-                        charge = stripe.Charge.create(
-                            api_key=MOREHYPED_STRIPE_KEY,
-                            amount=2000,
-                            currency='usd',
-                            customer=customer_id
-                        )
-                          
+                try:     
+                    charge = stripe.Charge.create(
+                        api_key=STRIPE_KEY,
+                        amount=2000,
+                        currency='usd',
+                        customer=customer_id
+                    )
+                     
                     subscriptions.update_one({
                         "email": email 
                     }, {
@@ -1380,23 +1349,22 @@ class Stripe(object):
                     await client.send_message(messiah, f"Status is: {e.http_status}")
                     await client.send_message(messiah, f"Type is: {err.get('type')}")
                     await client.send_message(messiah, f"Code is: {err.get('code')}")
-                    
-                    if user != None:
-                        if error_count == 1:
-                            await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
-                                                        + "We will try two more times before cancelling your subscription. Please contact an admin as soon as possible.")
-                        elif error_count == 2:
-                            await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
-                                                        + "We will try one more time before cancelling your subscription. Please contact an admin as soon as possible.")
-                        else:
-                            await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
-                            await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
-                                                        + "We will now be cancelling your subscription.")
-                                 
-                            discord_user = discord_server.get_member(discord_id)
-                            print(f'Discord user: {discord_user}')
-                            role = get(discord_server.roles, name=paying_member_role)
-                            await client.remove_roles(discord_user, role)
+                        
+                    if error_count == 1:
+                        await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
+                                                    + "We will try two more times before cancelling your subscription. Please contact an admin as soon as possible.")
+                    elif error_count == 2:
+                        await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
+                                                    + "We will try one more time before cancelling your subscription. Please contact an admin as soon as possible.")
+                    else:
+                        await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
+                        await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
+                                                    + "We will now be cancelling your subscription.")
+                             
+                        discord_user = discord_server.get_member(discord_id)
+                        print(f'Discord user: {discord_user}')
+                        role = get(discord_server.roles, name=paying_member_role)
+                        await client.remove_roles(discord_user, role)
                 except stripe.error.RateLimitError as e:
                     await client.send_message(messiah, f"Rate limit error: {e}")
                     break

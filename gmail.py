@@ -10,7 +10,6 @@ class GmailJig(object):
     def run(self, email):
         if email.replace(' ', '') == "":
             return("FAILED")
-            #await client.send_message(ctx.message.author,"Empty input given. Please try again")
         else:
             return self.email_check(email)
             
@@ -24,7 +23,6 @@ class GmailJig(object):
         verified = re.search('(@gmail.+)', email)
         if verified == None:
             return("FAILED")
-            #await client.send_message(ctx.message.author,"Invalid email address. Please use a @gmail address")
         else:
             # Store email provider/second part of email address -> @gmail...
             email_suffix = verified.group()
@@ -35,7 +33,6 @@ class GmailJig(object):
                 return self.jig_email(prefix, email_suffix)
             else:
                 return("FAILED")
-                #await client.send_message(ctx.message.author,"Your email is not long enough. Please try another email")
     
     ''' Jigs a given gmail address.
     
@@ -101,8 +98,5 @@ class GmailJig(object):
             
             self.emails += email_var + email_suffix + '\n'
             count += 1
-            
-        #embed = Embed(title="", color=0xff2600)
-        #embed.add_field(name='Jigged Gmail', value=self.emails, inline=True)
         emails = self.emails
         return(emails)
