@@ -811,7 +811,9 @@ async def fee_calculator(ctx, sale_price):
                 pass_context=True)
 #@commands.has_permissions(send_messages=True)
 async def gmail_jig(ctx, email):
-    if ctx.message.author.server_permissions.read_message_history:
+    server = client.get_server(server_id)
+    member = server.get_member(ctx.message.author)
+    if member.server_permissions.read_message_history:
         pass
     else:
         return await client.send_message(ctx.message.channel, 'YOU ARE NOT A MEMBER!')
