@@ -10,7 +10,7 @@ from dateutil.relativedelta import *
 import gmail as GM
 from address import AddressJig
 from fee import feeCalc
-from discord.ext.commands import Bot, has_role, has_any_role, CheckFailure
+from discord.ext.commands import Bot, CheckFailure
 from discord.ext import commands
 from discord.utils import get
 from discord.errors import LoginFailure, HTTPException
@@ -409,7 +409,7 @@ async def post_calendar(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
     channel = '534057583426797568'
     #JORDAN 1 CRIMSON START --- EXAMPLE START
@@ -509,7 +509,7 @@ async def delay(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
     embed.set_footer(icon_url=icon_img, text=footer_text)
@@ -541,7 +541,7 @@ async def charge_daily(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     await STRIPE.recurring_charges()    
 
 
@@ -560,7 +560,7 @@ async def servers_list(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
     servers = client.servers
     message = "The connected servers are:\n"
@@ -585,7 +585,7 @@ async def remove_from_server(ctx, *args):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
     
     if len(args) < 2:
@@ -649,7 +649,7 @@ async def donut_message(ctx, gmail):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
     await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
     
@@ -684,7 +684,7 @@ async def check(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     date = datetime.datetime.today().strftime('%Y-%m-%d')
 
     f = open("FREE_MONTHS.txt", "r")
@@ -734,7 +734,7 @@ async def end(ctx, user : discord.Member):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     await client.delete_message(ctx.message)
     role = discord.utils.get(ctx.message.server.roles, name=fmRole)
     role2 = discord.utils.get(ctx.message.server.roles, name=paying_member_role)
@@ -760,7 +760,7 @@ async def freemonth(ctx, user : discord.Member):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     if paying_member_role in [role.name for role in user.roles]:
         member = user
         ids = member.id
@@ -857,7 +857,7 @@ async def fee_calculator(ctx, sale_price):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     # Discord channel on which command was called
     channel = ctx.message.channel
     response = feeCalc(sale_price)
@@ -888,7 +888,7 @@ async def gmail_jig(ctx, email):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     gmail = GM.GmailJig()
     emails = gmail.run(str(email))
     embed = Embed(title="TRICKED EMAILS:", description=emails, color=0xffffff)
@@ -911,7 +911,7 @@ async def address_jig(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     address = AddressJig()
     adr = str(ctx.message.content) 
     adr = adr.replace("!address ", "")
@@ -937,7 +937,7 @@ async def send_SMS(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     message = str(ctx.message.content).replace('!sendsms ','')
     send = SMS_CLIENT.send_sms(message)
     if send == "SENT":
@@ -958,7 +958,7 @@ async def ebay_view(ctx, url):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     if ebay_used_urls[0] != datetime.date.today():
         ebay_used_urls.clear()
         ebay_used_urls.append(datetime.date.today())
@@ -995,7 +995,7 @@ async def ebay_watch(ctx, url, watches):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     try: 
         if int(watches) < 21:
             ebay = EBAY.eBay()
@@ -1023,7 +1023,7 @@ async def add_to_cart(ctx, url):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     await client.send_message(ctx.message.channel, ":hourglass: standby... we are generating your links.")
     info = shopify.atc_link_gen(url)
     if info['links'] == 'ERROR' or info['image'] == 'ERROR':
@@ -1050,7 +1050,7 @@ async def shopifyTools(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
     embed = discord.Embed(title="SHOPIFY ACCOUNTE GENERATOR", description="Generate accounts on any Shopify website.", color=0xffffff)
     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/social-media-2092/100/social-35-512.png')
@@ -1102,7 +1102,7 @@ async def shopify_check(ctx, url):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     check = shopify.shopify_check(url)
     if check['status'] == "TRUE":
         embed = discord.Embed(title="SHOPIFY CHECK", description=":white_check_mark: ***[THE URL]({})*** __***IS***__ ***A SHOPIFY WEBSITE!***".format(check['URL']), color=0xffffff)
@@ -1126,7 +1126,7 @@ async def add_user2(ctx):
     else:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
-        await client.send_message(ctx.message.channel, embed=embed)
+        return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
     embed = discord.Embed(title="SOLEBOX ACCOUNTE GENERATOR", description="Generate accounts on [Solebox](https://solebox.com).", color=0xffffff)
     embed.set_thumbnail(url='https://i.imgur.com/GoEB99v.jpg')
