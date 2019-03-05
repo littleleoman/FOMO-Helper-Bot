@@ -32,7 +32,7 @@ posted_channels = dict()
 
 server_id = userInfo['server_id']
 footer_text = userInfo['footer_text']
-member_role = userInfo['paying_member_role']
+paying_member_role = userInfo['paying_member_role']
 sub_channel = userInfo['sub_channel']
 sitelist_link = userInfo['sitelist_link']
 BOT_NAME = userInfo['BOT_NAME']
@@ -89,7 +89,7 @@ async def sub_and_assign_roles(email, author):
     # Reference to the FOMO discord server
     discord_server = client.get_server(server_id)
 
-    role = get(discord_server.roles, name=member_role)
+    role = get(discord_server.roles, name=paying_member_role)
     user = discord_server.get_member(author.id)
     await client.add_roles(user, role)
 
@@ -130,7 +130,7 @@ async def on_member_remove(member):
             subscriptions.delete_one(query)
         else:
             for role in member.roles:
-                if member_role in role.name:
+                if paying_member_role in role.name:
                     result = subscriptions.update_one({
                         "discord_id": member.id
                     }, {
@@ -644,13 +644,13 @@ async def check(ctx):
     f = open("FREE_MONTHS.txt", "w")
     for line in lines:
         if f'"expiration": "{date}"'+"\n" not in line:
-            jsonMember = json.loads(line)[member_role]
+            jsonMember = json.loads(line)[paying_member_role]
             if jsonMember == "false":
                 jsonID = json.loads(line)["id"]
                 server = client.get_server(server_id)
                 member = server.get_member(jsonID)
                 role = get(ctx.message.server.roles, name=fmRole)
-                role2 = get(ctx.message.server.roles, name=member_role)
+                role2 = get(ctx.message.server.roles, name=paying_member_role)
                 await client.remove_roles(member, role)
                 await client.remove_roles(member, role2)
                 await client.send_message(member,'Your free trial at **FOMO** has ended. Follow us on [social media](https://twitter.com/fomo_supply) to grab a spot on our next restock! :heart:')
@@ -681,7 +681,7 @@ async def check(ctx):
 async def end(ctx, user : discord.Member):
     await client.delete_message(ctx.message)
     role = discord.utils.get(ctx.message.server.roles, name=fmRole)
-    role2 = discord.utils.get(ctx.message.server.roles, name=member_role)
+    role2 = discord.utils.get(ctx.message.server.roles, name=paying_member_role)
     await client.remove_roles(user, role)
     await client.remove_roles(user, role2)
     await client.say(f"{user} has lost his privileges.")
@@ -698,7 +698,7 @@ Hey there! Hope ya enjoyed your time!
 @client.command(name='freemonth', pass_context=True)
 @has_role(ADMIN_ROLE)
 async def freemonth(ctx, user : discord.Member):
-    if member_role in [role.name for role in user.roles]:
+    if paying_member_role in [role.name for role in user.roles]:
         member = user
         ids = member.id
         your_datetime = datetime.datetime.today()
@@ -717,7 +717,7 @@ async def freemonth(ctx, user : discord.Member):
             "id": ids,
             "start": date,
             "expiration": expire,
-            member_role: "true"
+            paying_member_role: "true"
         }
         with open("FREE_MONTHS.txt", 'a') as outfile:
             json.dump(data, outfile)
@@ -731,7 +731,7 @@ async def freemonth(ctx, user : discord.Member):
         expire = test.strftime('%Y-%m-%d')
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         role = discord.utils.get(member.server.roles, name=fmRole)
-        role2 = discord.utils.get(member.server.roles, name=member_role)
+        role2 = discord.utils.get(member.server.roles, name=paying_member_role)
         await client.send_message(ctx.message.channel, f"{user} has been given a **FREE MONTH** of access.")
         embed = discord.Embed(
             title = "Free Month!",
@@ -743,7 +743,7 @@ async def freemonth(ctx, user : discord.Member):
             "id": ids,
             "start": date,
             "expiration": expire,
-            member_role: "false"
+            paying_member_role: "false"
         }
         with open("FREE_MONTHS.txt", 'a') as outfile:
             json.dump(data, outfile)
@@ -1151,8 +1151,8 @@ class Stripe(object):
                 print(f'Inactive user: {user}')
                 
                 if user != None:
-                    if member_role in [role.name for role in user.roles]:
-                        role = get(discord_server.roles, name=member_role)
+                    if paying_member_role in [role.name for role in user.roles]:
+                        role = get(discord_server.roles, name=paying_member_role)
                         await client.remove_roles(user, role)
             if delta.days > 30 and (document['status'] == 'active'):
                 discord_id = document['discord_id']
@@ -1214,7 +1214,7 @@ class Stripe(object):
                              
                         discord_user = discord_server.get_member(discord_id)
                         print(f'Discord user: {discord_user}')
-                        role = get(discord_server.roles, name=member_role)
+                        role = get(discord_server.roles, name=paying_member_role)
                         await client.remove_roles(discord_user, role)
                 except stripe.error.RateLimitError as e:
                     await client.send_message(messiah, f"Rate limit error: {e}")
