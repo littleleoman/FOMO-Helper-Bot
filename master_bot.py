@@ -671,6 +671,7 @@ async def donut_message(ctx, gmail):
 ### FREE MONTH COMMAND START ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- FREE MONTH COMMAND START
 @client.command(name='fmCheck', pass_context=True)
 async def check(ctx):
+    freeMonths = db['free_month']
     server = client.get_server(server_id)
     member = server.get_member(ctx.message.author.id)
     if member.server_permissions.administrator:
@@ -681,10 +682,9 @@ async def check(ctx):
         return await client.send_message(ctx.message.channel, embed=embed)
     date = datetime.datetime.today().strftime('%Y-%m-%d')
 
-    with open("FREE_MONTHS.json", "r") as output:
-        data = json.load(output)
+    data = freeMonths.find({})
     for d in data:
-        expiration = datetime.datetime.strptime(d['exipration'],'%Y-%m-%d')
+        expiration = datetime.datetime.strptime(d['expiration'],'%Y-%m-%d')
         today = datetime.datetime.today()
         if today.day == expiration.day and today.month == expiration.month:
             if d[paying_member_role] == "false":
@@ -715,6 +715,7 @@ async def check(ctx):
 
 @client.command(name='fmEnd', pass_context=True)
 async def end(ctx, user : discord.Member):
+    freeMonths = db['free_month']
     serverr = client.get_server(server_id)
     server_member = serverr.get_member(ctx.message.author.id)
     if server_member.server_permissions.administrator:
@@ -736,11 +737,17 @@ Hope you enjoyed your time, thanks for being with us!!
     """,
     colour = 0xffffff
 )
+    check = freeMonths.find({'id': user.id}).count()
+    if check > 0:
+        freeMonths.delete_one({'id': user.id})
+    else:
+        await client.send_message(ctx.message.channel,'User was not found in the Free Month database.')
     await client.send_message(user, embed=embed)
 
 
 @client.command(name='freemonth', pass_context=True)
 async def freemonth(ctx, user : discord.Member):
+    freeMonths = db['free_month']
     server = client.get_server(server_id)
     member = server.get_member(ctx.message.author.id)
     if member.server_permissions.administrator:
@@ -770,8 +777,7 @@ async def freemonth(ctx, user : discord.Member):
             "expiration": expire,
             paying_member_role: "true"
         }
-        with open("FREE_MONTHS.json", 'a') as outfile:
-            json.dump(data, outfile)
+        freeMonths.insert_one(data)
         await client.add_roles(user, role)
     else:
         member = user
@@ -795,8 +801,7 @@ async def freemonth(ctx, user : discord.Member):
             "expiration": expire,
             paying_member_role: "false"
         }
-        with open("FREE_MONTHS.json", 'a') as outfile:
-            json.dump(data, outfile)
+        freeMonths.insert_one(data)
         await client.add_roles(user, role)
         await client.add_roles(user, role2)
 ### FREE MONTH COMMAND END -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- FREE MONTH COMMAND END ###
