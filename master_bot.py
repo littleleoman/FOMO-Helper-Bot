@@ -681,15 +681,12 @@ async def check(ctx):
         return await client.send_message(ctx.message.channel, embed=embed)
     date = datetime.datetime.today().strftime('%Y-%m-%d')
 
-    f = open("FREE_MONTHS.txt", "r")
-    lines = f.readlines()
-    f.close()
-    f = open("FREE_MONTHS.txt", "w")
-    for line in lines:
-        if f'"expiration": "{date}"'+"\n" not in line:
-            jsonMember = json.loads(line)[paying_member_role]
+    with open("FREE_MONTHS.json", "r") as output:
+        data = json.load(output)
+    for d in data:
+        if d['expiration'] == datetime.datetime.today():
             if jsonMember == "false":
-                jsonID = json.loads(line)["id"]
+                jsonID = d["id"]
                 server = client.get_server(server_id)
                 member = server.get_member(jsonID)
                 role = get(ctx.message.server.roles, name=fmRole)
@@ -708,13 +705,8 @@ async def check(ctx):
                 await client.send_message(ctx.message.channel,"<@{}>'s Free Month has ended".format(member.id))
 
         else:
-            f.write(line)
-    f.close()
-    f = open("FREE_MONTHS.txt", "r")
-    lines2 = f.readlines()
-    f.close()
-    if lines == lines2:
-        await client.send_message(ctx.message.channel, "Were all good.")
+            pass
+    await client.send_message(ctx.message.channel, "No Free Months have expired or none were found.")
         
 # member_role = '460930653350002698'
 # free_month_role = '493636552661008384'
@@ -738,7 +730,7 @@ async def end(ctx, user : discord.Member):
     embed = discord.Embed(
     title = "Your Subscription has Ended",
     description = """
-Hey there! Hope ya enjoyed your time!
+Hope you enjoyed your time, thanks for being with us!!
     """,
     colour = 0xffffff
 )
@@ -759,8 +751,8 @@ async def freemonth(ctx, user : discord.Member):
         member = user
         ids = member.id
         your_datetime = datetime.datetime.today()
-        test = your_datetime + relativedelta(months=1)
-        expire = test.strftime('%Y-%m-%d')
+        expire = your_datetime + relativedelta(months=1)
+        #expire = test.strftime('%Y-%m-%d')
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         role = discord.utils.get(member.server.roles, name=fmRole)
         await client.send_message(ctx.message.channel, f"{user} has been given a **FREE MONTH** of access.")
@@ -776,16 +768,14 @@ async def freemonth(ctx, user : discord.Member):
             "expiration": expire,
             paying_member_role: "true"
         }
-        with open("FREE_MONTHS.txt", 'a') as outfile:
+        with open("FREE_MONTHS.json", 'a') as outfile:
             json.dump(data, outfile)
-            outfile.write("\n")
         await client.add_roles(user, role)
     else:
         member = user
         ids = member.id
         your_datetime = datetime.datetime.today()
-        test = your_datetime + relativedelta(months=1)
-        expire = test.strftime('%Y-%m-%d')
+        expire = your_datetime + relativedelta(months=1)
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         role = discord.utils.get(member.server.roles, name=fmRole)
         role2 = discord.utils.get(member.server.roles, name=paying_member_role)
@@ -802,9 +792,8 @@ async def freemonth(ctx, user : discord.Member):
             "expiration": expire,
             paying_member_role: "false"
         }
-        with open("FREE_MONTHS.txt", 'a') as outfile:
+        with open("FREE_MONTHS.json", 'a') as outfile:
             json.dump(data, outfile)
-            outfile.write("\n")
         await client.add_roles(user, role)
         await client.add_roles(user, role2)
 ### FREE MONTH COMMAND END -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- FREE MONTH COMMAND END ###
