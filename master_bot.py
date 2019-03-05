@@ -70,6 +70,7 @@ twilio_from = userInfo['twilio_from']
 twilio_auth_token = userInfo['twilio_auth_token']
 twilio_sid = userInfo['twilio_sid']
 twilio_number = userInfo['twilio_number']
+CALENDAR_CHANNEL = userInfo['CALENDAR_CHANNEL']
 MONITOR_LIST = userInfo['MONITORS']
 fmRole = userInfo['FREE_MONTH']
 # Discord command triggers
@@ -319,7 +320,7 @@ async def on_message(message):
 
         if re.search('{}'.format(GROUP_NAME), message.content, re.IGNORECASE):
             if re.search('guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
-                embed=discord.Embed(title="{} GUIDE".format(GROUP_NAME), 
+                embed=discord.Embed(title="{} GUIDE".format(GROUP_NAME.upper()), 
                                     description="[CLICK HERE]({})".format(guide_link),
                                     colour=discord.Colour(0xffffff))
                 embed.set_thumbnail(url=icon_img)
@@ -328,7 +329,7 @@ async def on_message(message):
 
         
             elif re.search('sitelist|list|droplist', message.content, re.IGNORECASE):
-                embed=discord.Embed(title="{} SITELIST".format(GROUP_NAME), 
+                embed=discord.Embed(title="{} SITELIST".format(GROUP_NAME.upper()), 
                                     description="[CLICK HERE]({})".format(sitelist_link),
                                     colour=discord.Colour(0xffffff))
                 embed.set_thumbnail(url=icon_img)
@@ -365,7 +366,7 @@ async def on_message(message):
 async def custom_help(ctx, *command):    
     if len(command) == 0:
         embed1 = Embed(
-            title="__***{} COMMANDS***__".format(GROUP_NAME),
+            title="__***{} COMMANDS***__".format(GROUP_NAME.upper()),
             description="**List of commands I can run for you** :slight_smile:",
             color = 0xffffff
             #description = BOT_DESCRIPTION
@@ -478,7 +479,6 @@ async def post_calendar(ctx):
         embed.set_footer(text=footer_text,icon_url=icon_img)
         return await client.send_message(ctx.message.channel, embed=embed)
     author = ctx.message.author
-    channel = '534057583426797568'
     #JORDAN 1 CRIMSON START --- EXAMPLE START
     embed=discord.Embed(title='__**AIR JORDAN 1 RETRO HIGH HYPER CRIMSON**__', description="***JANUARY 24TH***", color=0xffffff)
     embed.set_thumbnail(url="https://stockx-360.imgix.net/Air-Jordan-1-Retro-High-Neutral-Grey-Hyper-Crimson/Images/Air-Jordan-1-Retro-High-Neutral-Grey-Hyper-Crimson/Lv2/img01.jpg")
@@ -560,7 +560,7 @@ async def post_calendar(ctx):
     response  = await client.wait_for_message(author=author)
 
     if 'y' in str(response.content).lower():
-        await client.send_message(client.get_channel(channel), embed=embed)
+        await client.send_message(client.get_channel(CALENDAR_CHANNEL), embed=embed)
         await client.send_message(author, 'MESSAGE POSTED')
     else:
         return await client.send_message(author, 'Please try again by saying `!calendar`')

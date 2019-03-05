@@ -19,7 +19,7 @@
     "STRIPE_KEY":"sk_live_L9N3yTtjVRnyySzf0nSn6BRD",
     "MOREHYPED":"sk_live_22BhRSioB4It4EgGxPZEM9Wr",
     "FREE_MONTH":"Free Month",
-    "MEMBER":"Member",
+    "CALENDAR_CHANNEL":"534057583426797568",
     "RESTOCK_ROLE_ID":"483521623920738304",
     "MONITORS": ["shopify","undef-kith-bodega","dsm","palace","snkrs-drops-us","snkrs-drops-uk","snkrs-restocks-us","snkrs-restocks-uk",
                 "supreme-us","supreme-eu","aio-monitor","solebox","twitter","adidas-us","adidas-uk","funko-monitor","bot","bot-2","pinger-test"]
