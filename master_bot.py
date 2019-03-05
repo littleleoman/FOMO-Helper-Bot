@@ -685,7 +685,7 @@ async def check(ctx):
         data = json.load(output)
     for d in data:
         if d['expiration'] == datetime.datetime.today():
-            if jsonMember == "false":
+            if d[paying_member_role] == "false":
                 jsonID = d["id"]
                 server = client.get_server(server_id)
                 member = server.get_member(jsonID)
@@ -694,9 +694,9 @@ async def check(ctx):
                 await client.remove_roles(member, role)
                 await client.remove_roles(member, role2)
                 await client.send_message(member,'Your free trial at ***{}*** has ended. Thanks for being with us! :heart:'.format(GROUP_NAME))
-                await client.send_message(ctx.message.channel,"<@{}>'s Free Month has ended".format(member.id))
+                await client.send_message(ctx.message.channel,"<@{}>'s Free Month has ended.".format(member.id))
             else:
-                jsonID = json.loads(line)["id"]
+                jsonID = d["id"]
                 server = client.get_server(server_id)
                 member = server.get_member(jsonID)
                 role = get(ctx.message.server.roles, name=fmRole)
@@ -706,7 +706,7 @@ async def check(ctx):
 
         else:
             pass
-    await client.send_message(ctx.message.channel, "No Free Months have expired or none were found.")
+    await client.send_message(ctx.message.channel, "Free Month data on file:\n```{}```".format(data))
         
 # member_role = '460930653350002698'
 # free_month_role = '493636552661008384'
@@ -755,7 +755,7 @@ async def freemonth(ctx, user : discord.Member):
         #expire = test.strftime('%Y-%m-%d')
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         role = discord.utils.get(member.server.roles, name=fmRole)
-        await client.send_message(ctx.message.channel, f"{user} has been given a **FREE MONTH** of access.")
+        await client.send_message(ctx.message.channel, f"<@{user}> has been given a **FREE MONTH** of access.")
         embed = discord.Embed(
             title = "Free Month!",
             description = f"Hello, since you're already a member you can claim a refund for this month's fee.",
@@ -779,7 +779,7 @@ async def freemonth(ctx, user : discord.Member):
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         role = discord.utils.get(member.server.roles, name=fmRole)
         role2 = discord.utils.get(member.server.roles, name=paying_member_role)
-        await client.send_message(ctx.message.channel, f"{user} has been given a **FREE MONTH** of access.")
+        await client.send_message(ctx.message.channel, f"@<{user.id}> has been given a **FREE MONTH** of access.")
         embed = discord.Embed(
             title = "Free Month!",
             description = f"Hello, you have gained free access to our servers for a **MONTH**!\nBe sure to browse our server and open a ticket if you need any help. Thanks for being with us :heart:",
