@@ -1,5 +1,5 @@
 from twilio.rest import Client
-import json, asyncio, pymongo
+import json, asyncio, pymongo, os
 from twilio.base.exceptions import TwilioRestException
 
 with open ('config.json','r') as output:
@@ -11,9 +11,9 @@ class SMS(object):
         self.account_sid = userInfo['twilio_sid']
         self.auth_token = userInfo['twilio_auth_token']
         self.sms_client = Client(self.account_sid, self.auth_token)
-        self.sms_db_client = pymongo.MongoClient(userInfo['mongo_sms_url'])
+        self.sms_db_client = pymongo.MongoClient(os.environ['MONGODB_URI'])
         self.sms_db = self.sms_db_client.get_database()
-        self.posts = self.sms_db.posts
+        self.posts = self.sms_db.sms_messages
 
     async def is_valid_number(self, number):
         twilio_client = Client(self.account_sid, self.auth_token)

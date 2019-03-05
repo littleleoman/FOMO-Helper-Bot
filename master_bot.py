@@ -60,7 +60,6 @@ sitelist_link = userInfo['sitelist_link']
 GROUP_NAME = userInfo['GROUP_NAME']
 guide_link = userInfo['guide_link']
 restock_role_id = "<@&{}>".format(userInfo['RESTOCK_ROLE_ID'])
-mongo_sms_url = userInfo['mongo_sms_url']
 discord_owner_id = userInfo['discord_owner_id']
 icon_img = userInfo['icon_img']
 twitter_consumer_key = userInfo['twitter_consumer_key']
