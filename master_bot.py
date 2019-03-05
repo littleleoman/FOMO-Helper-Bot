@@ -494,7 +494,6 @@ async def post_calendar(ctx):
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
 @client.command(name='delay',
                 pass_context=True)
-@has_permissions(read_message_history=True)
 async def delay_calc(ctx):
     if ctx.message.author.server_permissions.read_message_history == False:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't a member or staff member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
@@ -873,7 +872,6 @@ async def address_jig(ctx):
     @param rul: Url for item to be viewed '''
 ### SMS SEND COMMAND --------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 @client.command(name='sendsms')
-@has_permissions(manage_channels=True)
 async def send_SMS(ctx):
     if ctx.message.author.server_permissions.manage_channels == False:
         embed = discord.Embed(title=':no_entry_sign: You must be a staff member to use this command!')
