@@ -782,7 +782,7 @@ async def freemonth(ctx, user : discord.Member):
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         role = discord.utils.get(member.server.roles, name=fmRole)
         role2 = discord.utils.get(member.server.roles, name=paying_member_role)
-        await client.send_message(ctx.message.channel, f"@<{user.id}> has been given a **FREE MONTH** of access.")
+        await client.send_message(ctx.message.channel, f"<@{user.id}> has been given a **FREE MONTH** of access.")
         embed = discord.Embed(
             title = "Free Month!",
             description = f"Hello, you have gained free access to our servers for a **MONTH**!\nBe sure to browse our server and open a ticket if you need any help. Thanks for being with us :heart:",
