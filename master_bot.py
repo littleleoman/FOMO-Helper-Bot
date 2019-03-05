@@ -52,11 +52,6 @@ twilio_sid = userInfo['twilio_sid']
 twilio_number = userInfo['twilio_number']
 MONITOR_LIST = userInfo['MONITORS']
 fmRole = userInfo['FREE_MONTH']
-# ROLES FOR USERS WHO CAN CALL CERTAIN COMMANDS (FOR HAS ANY ROLE CHECK)
-STAFF_ROLE = userInfo["STAFF_ROLE"]
-MEMBER_ROLE = userInfo["MEMBER_ROLE"]
-ADMIN_ROLE = userInfo["ADMIN_ROLE"]
-ROLES_CHECK = [STAFF_ROLE, MEMBER_ROLE, ADMIN_ROLE]
 # Discord command triggers
 BOT_PREFIX = ("?", "!")
 # General Discord Bot Description
@@ -107,7 +102,6 @@ async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
-    print("ROLES: " + str(MEMBER_ROLE) + ", " + str(STAFF_ROLE))
     print('------')
     await client.change_presence(game=discord.Game(name='!help'), status=None,afk=False)
     
@@ -227,6 +221,13 @@ async def on_message(message):
             embed.add_field(name="NUMBER ON FILE:", value=response['number'])
             embed.set_footer(icon_url=icon_img, text=footer_text)
             await client.send_message(message.author, embed=embed)
+        elif response['number'] == 'INVALID':
+                embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
+                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+                embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
+                embed.set_footer(icon_url=icon_img, text=footer_text)
+                await client.send_message(message.author, embed=embed)
+
         else:
             embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
