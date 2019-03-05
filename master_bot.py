@@ -494,7 +494,6 @@ async def post_calendar(ctx):
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
 @client.command(name='delay',
                 pass_context=True)
-                @has_any_role(STAFF_ROLE, MEMBER_ROLE)
 @has_any_role(STAFF_ROLE, MEMBER_ROLE)
 async def delay_calc(ctx):
     author = ctx.message.author
