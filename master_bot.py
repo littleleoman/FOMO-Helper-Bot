@@ -1288,10 +1288,12 @@ class Stripe(object):
                     if paying_member_role in [role.name for role in user.roles]:
                         role = get(discord_server.roles, name=paying_member_role)
                         await client.remove_roles(user, role)
-            if delta.days > 30 and (document['status'] == 'active'):
-                discord_id = document['discord_id']
-                user = get(client.get_all_members(), id=discord_id)
-                print(f'Active user: {user}')    
+            elif delta.days > 30 and (document['status'] == 'active' or 'pending'):
+                discord_id = None
+                user = None
+                if document['status'] == 'active':
+                    discord_id = document['discord_id']
+                    user = get(client.get_all_members(), id=discord_id)
                 
                 customer_id = document['customer_id']
                 try: 
@@ -1334,22 +1336,23 @@ class Stripe(object):
                     await client.send_message(messiah, f"Status is: {e.http_status}")
                     await client.send_message(messiah, f"Type is: {err.get('type')}")
                     await client.send_message(messiah, f"Code is: {err.get('code')}")
-                        
-                    if error_count == 1:
-                        await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
-                                                    + "We will try two more times before cancelling your subscription. Please contact an admin as soon as possible.")
-                    elif error_count == 2:
-                        await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
-                                                    + "We will try one more time before cancelling your subscription. Please contact an admin as soon as possible.")
-                    else:
-                        await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
-                        await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
-                                                    + "We will now be cancelling your subscription.")
-                             
-                        discord_user = discord_server.get_member(discord_id)
-                        print(f'Discord user: {discord_user}')
-                        role = get(discord_server.roles, name=paying_member_role)
-                        await client.remove_roles(discord_user, role)
+                    
+                    if user != None:
+                        if error_count == 1:
+                            await client.send_message(user, "Our first attempt to charge you for your recurring subscription has failed." 
+                                                        + "We will try two more times before cancelling your subscription. Please contact an admin as soon as possible.")
+                        elif error_count == 2:
+                            await client.send_message(user, "Our second attempt to charge you for your recurring subscription has failed." 
+                                                        + "We will try one more time before cancelling your subscription. Please contact an admin as soon as possible.")
+                        else:
+                            await client.send_message(messiah, f"Please cancel the subscription for the user with email: {email}")
+                            await client.send_message(user, "Our final attempt to charge you for your recurring subscription has failed." 
+                                                        + "We will now be cancelling your subscription.")
+                                 
+                            discord_user = discord_server.get_member(discord_id)
+                            print(f'Discord user: {discord_user}')
+                            role = get(discord_server.roles, name=paying_member_role)
+                            await client.remove_roles(discord_user, role)
                 except stripe.error.RateLimitError as e:
                     await client.send_message(messiah, f"Rate limit error: {e}")
                     break
