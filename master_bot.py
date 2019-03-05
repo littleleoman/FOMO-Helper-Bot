@@ -727,26 +727,18 @@ async def end(ctx, user : discord.Member):
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
         return await client.send_message(ctx.message.channel, embed=embed)
-    await client.delete_message(ctx.message)
-    role = discord.utils.get(ctx.message.server.roles, name=fmRole)
-    role2 = discord.utils.get(ctx.message.server.roles, name=paying_member_role)
-    await client.remove_roles(user, role)
-    await client.remove_roles(user, role2)
-    await client.say(f":no_entry_sign: <@{user.id}> has lost his privileges.")
-    embed = discord.Embed(
-    title = ":sob: Your Free Month has Ended",
-    description = """
-Hope you enjoyed your time, thanks for being with us!!
-    """,
-    colour = 0xffffff
-)
     check = freeMonths.find({'id': user.id}).count()
     if check > 0:
+        role = discord.utils.get(ctx.message.server.roles, name=fmRole)
+        role2 = discord.utils.get(ctx.message.server.roles, name=paying_member_role)
+        await client.remove_roles(user, role)
+        await client.remove_roles(user, role2)
+        await client.say(f":no_entry_sign: <@{user.id}> has lost his privileges.")
+        embed = discord.Embed(title = ":sob: Your Free Month has Ended", description = "Hope you enjoyed your time, thanks for being with us! :heart:", colour = 0xffffff)
         freeMonths.delete_one({'id': user.id})
+        await client.send_message(user, embed=embed)
     else:
         await client.send_message(ctx.message.channel,'User was not found in the Free Month database.')
-    await client.send_message(user, embed=embed)
-
 
 @client.command(name='freemonth', pass_context=True)
 async def freemonth(ctx, user : discord.Member):
