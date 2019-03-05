@@ -696,7 +696,7 @@ async def check(ctx):
                 role2 = get(ctx.message.server.roles, name=paying_member_role)
                 await client.remove_roles(member, role)
                 await client.remove_roles(member, role2)
-                await client.send_message(member,'Your free trial at ***{}*** has ended. Thanks for being with us! :heart:'.format(GROUP_NAME))
+                await client.send_message(member,':sob: Your free trial at ***{}*** has ended. Thanks for being with us! :heart:'.format(GROUP_NAME))
                 await client.send_message(ctx.message.channel,"<@{}>'s Free Month has ended.".format(member.id))
                 count += 1
             else:
@@ -705,7 +705,7 @@ async def check(ctx):
                 member = server.get_member(jsonID)
                 role = get(ctx.message.server.roles, name=fmRole)
                 await client.remove_roles(member, role)
-                await client.send_message(member,'Your free trial at ***{}*** has ended. If you are still owed a refund, please open a ticket :heart:'.format(GROUP_NAME))
+                await client.send_message(member,':sob: Your free trial at ***{}*** has ended. If you are still owed a refund, please open a ticket :heart:'.format(GROUP_NAME))
                 await client.send_message(ctx.message.channel,":no_entry_sign: <@{}>'s Free Month has ended".format(member.id))
                 count += 1
         else:
@@ -734,7 +734,7 @@ async def end(ctx, user : discord.Member):
     await client.remove_roles(user, role2)
     await client.say(f":no_entry_sign: <@{user.id}> has lost his privileges.")
     embed = discord.Embed(
-    title = "Your Subscription has Ended",
+    title = ":sob: Your Free Month has Ended",
     description = """
 Hope you enjoyed your time, thanks for being with us!!
     """,
@@ -769,8 +769,8 @@ async def freemonth(ctx, user : discord.Member):
         role = discord.utils.get(member.server.roles, name=fmRole)
         await client.send_message(ctx.message.channel, f":white_check_mark: <@{user.id}> has been given a **FREE MONTH** of access.")
         embed = discord.Embed(
-            title = "Free Month!",
-            description = f"Hello, since you're already a member you can claim a refund for this month's fee.",
+            title = ":slight_smile: Free Month!",
+            description = f"Make sure to open a ticket or contact an admin to claim your refund!",
             color = 0xffffff
         )
         await client.send_message(user, embed=embed)
@@ -793,7 +793,7 @@ async def freemonth(ctx, user : discord.Member):
         role2 = discord.utils.get(member.server.roles, name=paying_member_role)
         await client.send_message(ctx.message.channel, f":white_check_mark: <@{user.id}> has been given a **FREE MONTH** of access.")
         embed = discord.Embed(
-            title = "Free Month!",
+            title = ":slight_smile: Free Month!",
             description = f"Hello, you have gained free access to our servers for a **MONTH**!\nBe sure to browse our server and open a ticket if you need any help. Thanks for being with us :heart:",
             color = 0xffffff
         )
