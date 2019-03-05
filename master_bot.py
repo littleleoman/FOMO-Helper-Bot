@@ -684,7 +684,9 @@ async def check(ctx):
     with open("FREE_MONTHS.json", "r") as output:
         data = json.load(output)
     for d in data:
-        if d['expiration'] == datetime.datetime.today():
+        expiration = datetime.datetime.strptime(d['exipration'],'%Y-%m-%d')
+        today = datetime.datetime.today()
+        if today.day == expiration.day and today.month == expiration.month:
             if d[paying_member_role] == "false":
                 jsonID = d["id"]
                 server = client.get_server(server_id)
@@ -752,7 +754,7 @@ async def freemonth(ctx, user : discord.Member):
         ids = member.id
         your_datetime = datetime.datetime.today()
         expire = your_datetime + relativedelta(months=1)
-        #expire = test.strftime('%Y-%m-%d')
+        expire = expire.strftime('%Y-%m-%d')
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         role = discord.utils.get(member.server.roles, name=fmRole)
         await client.send_message(ctx.message.channel, f"<@{user}> has been given a **FREE MONTH** of access.")
@@ -776,6 +778,7 @@ async def freemonth(ctx, user : discord.Member):
         ids = member.id
         your_datetime = datetime.datetime.today()
         expire = your_datetime + relativedelta(months=1)
+        expire = expire.strftime('%Y-%m-%d')
         date = datetime.datetime.today().strftime('%Y-%m-%d')
         role = discord.utils.get(member.server.roles, name=fmRole)
         role2 = discord.utils.get(member.server.roles, name=paying_member_role)
