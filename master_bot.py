@@ -492,10 +492,9 @@ async def post_calendar(ctx):
 ### CALENDAR END ------------------------------------------------------------------------------------------------ CALENDAR START
 
 ### START DELAY FUNCTION ------------------------------------------------------------------------------- START DELAY FUNCTION ###
-@client.command(name='delay',
-                pass_context=True)
+@client.command()
 @has_any_role(STAFF_ROLE, MEMBER_ROLE, ADMIN_ROLE)
-async def delay_calc(ctx):
+async def delay(ctx):
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
     embed.set_footer(icon_url=icon_img, text=footer_text)
