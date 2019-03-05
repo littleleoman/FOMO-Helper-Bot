@@ -143,6 +143,4 @@ def tiny(url):
         return None
     else:
         page = BeautifulSoup(raw_HTML.text, 'lxml')
-        return page.find_all('div', {'class': 'indent'})[1].b.string
-    
-    
+        return page.find_all('div', {'class': 'indent'})[1].b.string   
