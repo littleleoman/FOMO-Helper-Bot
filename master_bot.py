@@ -397,11 +397,12 @@ async def custom_help(ctx, *command):
 ### CALENDAR START ------------------------------------------------------------------------------------------------ CALENDAR START
 @client.command(name='calendar', pass_context=True)
 async def post_calendar(ctx):
-    if ctx.message.author.server_permissions.manage_channels == False:
+    if not ctx.message.author.server_permissions.manage_channels:
         embed = discord.Embed(title=':no_entry_sign: You must be a staff member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.author, embed=embed)
-
+    else:
+        pass
     author = ctx.message.author
     channel = '534057583426797568'
     #JORDAN 1 CRIMSON START --- EXAMPLE START
@@ -495,10 +496,12 @@ async def post_calendar(ctx):
 @client.command(name='delay',
                 pass_context=True)
 async def delay_calc(ctx):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't a member or staff member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     author = ctx.message.author
     embed = discord.Embed(title="UNBANNABLE SHOPIFY MONITOR DELAY CALCULATOR", description="How many proxies do you have?", color=0xffffff)
     embed.set_footer(icon_url=icon_img, text=footer_text)
@@ -523,8 +526,10 @@ async def delay_calc(ctx):
 @client.command(name='chargedaily',
                 pass_context=True)
 async def charge_daily(ctx):
-    if ctx.message.author.server_permissions.administrator == False:
+    if not ctx.message.author.server_permissions.administrator:
         return await client.send_message(ctx.message.channel, 'You are not an admin.')
+    else:
+        pass
     await STRIPE.recurring_charges()    
 
 
@@ -536,8 +541,10 @@ async def charge_daily(ctx):
                 description='Displays a list of servers the bot is connected to.',
                 pass_context=True)
 async def servers_list(ctx):
-    if ctx.message.author.server_permissions.administrator == False:
+    if not ctx.message.author.server_permissions.administrator:
         return await client.send_message(ctx.message.channel, 'You are not an admin.')
+    else:
+        pass
     author = ctx.message.author
     servers = client.servers
     message = "The connected servers are:\n"
@@ -555,8 +562,10 @@ async def servers_list(ctx):
                 description='Removes bot from any unauthorized servers.',
                 pass_context=True)
 async def remove_from_server(ctx, *args):
-    if ctx.message.author.server_permissions.administrator == False:
+    if not ctx.message.author.server_permissions.administrator:
         return await client.send_message(ctx.message.channel, 'You are not an admin.')
+    else:
+        pass
     author = ctx.message.author
     
     if len(args) < 2:
@@ -613,10 +622,12 @@ async def cancel(ctx, email):
 @client.command(name='donutuk', 
                 pass_context=True)
 async def donut_message(ctx, gmail):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.author, embed=embed)
+    else:
+        pass
     author = ctx.message.author
     await client.send_message(author, ":hourglass: Please wait, we are working on your free doughnut...")
     
@@ -644,10 +655,12 @@ async def donut_message(ctx, gmail):
 ### FREE MONTH COMMAND START ---------------------------------------------------------------------------------------- FREE MONTH COMMAND START
 @client.command(name='fmCheck', pass_context=True)
 async def check(ctx):
-    if ctx.message.author.server_permissions.administrator == False:
+    if not ctx.message.author.server_permissions.administrator:
         embed = discord.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     date = datetime.datetime.today().strftime('%Y-%m-%d')
 
     f = open("FREE_MONTHS.txt", "r")
@@ -690,10 +703,12 @@ async def check(ctx):
 
 @client.command(name='fmEnd', pass_context=True)
 async def end(ctx, user : discord.Member):
-    if ctx.message.author.server_permissions.administrator == False:
+    if not ctx.message.author.server_permissions.administrator:
         embed = discord.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     await client.delete_message(ctx.message)
     role = discord.utils.get(ctx.message.server.roles, name=fmRole)
     role2 = discord.utils.get(ctx.message.server.roles, name=member_role)
@@ -712,10 +727,12 @@ Hey there! Hope ya enjoyed your time!
 
 @client.command(name='freemonth', pass_context=True)
 async def freemonth(ctx, user : discord.Member):
-    if ctx.message.author.server_permissions.administrator == False:
+    if not ctx.message.author.server_permissions.administrator:
         embed = discord.Embed(title=':no_entry_sign: You must be an Admin to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     if member_role in [role.name for role in user.roles]:
         member = user
         ids = member.id
@@ -805,10 +822,12 @@ async def activate(ctx, email):
                 description='Calculates the seller fees applied by different websites',
                 pass_context=True)
 async def fee_calculator(ctx, sale_price):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     # Discord channel on which command was called
     channel = ctx.message.channel
     response = feeCalc(sale_price)
@@ -832,10 +851,12 @@ async def fee_calculator(ctx, sale_price):
                 aliases=['mail', 'email'],
                 pass_context=True)
 async def gmail_jig(ctx, email):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     gmail = GM.GmailJig()
     emails = gmail.run(str(email))
     embed = Embed(title="TRICKED EMAILS:", description=emails, color=0xffffff)
@@ -851,10 +872,12 @@ async def gmail_jig(ctx, email):
                 aliases=['addr', 'adr'],
                 pass_context=True)
 async def address_jig(ctx):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     address = AddressJig()
     adr = str(ctx.message.content) 
     adr = adr.replace("!address ", "")
@@ -873,10 +896,12 @@ async def address_jig(ctx):
 ### SMS SEND COMMAND --------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 @client.command(name='sendsms')
 async def send_SMS(ctx):
-    if ctx.message.author.server_permissions.manage_channels == False:
+    if not ctx.message.author.server_permissions.manage_channels :
         embed = discord.Embed(title=':no_entry_sign: You must be a staff member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     message = str(ctx.message.content).replace('!sendsms ','')
     send = SMS_CLIENT.send_sms(message)
     if send == "SENT":
@@ -890,10 +915,12 @@ async def send_SMS(ctx):
                 description='Automatic eBay viewer for any listing. Views the given URL up to 200 times',
                 pass_context=True)
 async def ebay_view(ctx, url):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     if ebay_used_urls[0] != datetime.date.today():
         ebay_used_urls.clear()
         ebay_used_urls.append(datetime.date.today())
@@ -923,10 +950,12 @@ async def ebay_view(ctx, url):
                 description='Automatic eBay watcher for any listing. Watches the given URL 20 times',
                 pass_context=True)
 async def ebay_watch(ctx, url, watches):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     try: 
         if int(watches) < 21:
             ebay = EBAY.eBay()
@@ -947,10 +976,12 @@ async def ebay_watch(ctx, url, watches):
                 'straight to the payment page. Takes in the item\'s URL as a parameter',
                 pass_context=True)
 async def add_to_cart(ctx, url):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     await client.send_message(ctx.message.channel, ":hourglass: standby... we are generating your links.")
     info = shopify.atc_link_gen(url)
     if info['links'] == 'ERROR' or info['image'] == 'ERROR':
@@ -970,10 +1001,12 @@ async def add_to_cart(ctx, url):
 
 @client.command(name='shopify', pass_context=True)
 async def shopifyTools(ctx):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     author = ctx.message.author
     embed = discord.Embed(title="SHOPIFY ACCOUNTE GENERATOR", description="Generate accounts on any Shopify website.", color=0xffffff)
     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/social-media-2092/100/social-35-512.png')
@@ -1018,10 +1051,12 @@ async def shopifyTools(ctx):
                 description='This command uses a given URL in order to determine whether a website is a shopify site or not.',
                 pass_context=True)
 async def shopify_check(ctx, url):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     check = shopify.shopify_check(url)
     if check['status'] == "TRUE":
         embed = discord.Embed(title="SHOPIFY CHECK", description=":white_check_mark: ***[THE URL]({})*** __***IS***__ ***A SHOPIFY WEBSITE!***".format(check['URL']), color=0xffffff)
@@ -1038,10 +1073,12 @@ async def shopify_check(ctx, url):
 ### START SOLEBOX ------------------------------------------------------------------------------------------------------------ START SOLEBOX
 @client.command(name='solebox', pass_context=True)
 async def add_user2(ctx):
-    if ctx.message.author.server_permissions.read_message_history == False:
+    if not ctx.message.author.server_permissions.read_message_history:
         embed = discord.Embed(title=':no_entry_sign: You must be a member to use this command!')
         embed.set_footer(icon_url=icon_img, text=footer_text)
         return await client.send_message(ctx.message.channel, embed=embed)
+    else:
+        pass
     author = ctx.message.author
     embed = discord.Embed(title="SOLEBOX ACCOUNTE GENERATOR", description="Generate accounts on [Solebox](https://solebox.com).", color=0xffffff)
     embed.set_thumbnail(url='https://i.imgur.com/GoEB99v.jpg')
