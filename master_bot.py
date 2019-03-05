@@ -809,8 +809,12 @@ async def fee_calculator(ctx, sale_price):
                 description='This command manipulates any gmail address passed to it as a parameter.',
                 aliases=['mail', 'email'],
                 pass_context=True)
-@commands.has_permissions(send_messages=True)
+#@commands.has_permissions(send_messages=True)
 async def gmail_jig(ctx, email):
+    if ctx.message.author.server_permissions.read_message_history:
+        pass
+    else:
+        return await client.send_message(ctx.message.channel, 'YOU ARE NOT A MEMBER!')
     gmail = GM.GmailJig()
     emails = gmail.run(str(email))
     embed = Embed(title="TRICKED EMAILS:", description=emails, color=0xffffff)
