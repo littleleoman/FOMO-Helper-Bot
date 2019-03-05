@@ -812,7 +812,7 @@ async def fee_calculator(ctx, sale_price):
 #@commands.has_permissions(send_messages=True)
 async def gmail_jig(ctx, email):
     server = client.get_server(server_id)
-    member = server.get_member(ctx.message.author)
+    member = server.get_member(ctx.message.author.id)
     if member.server_permissions.read_message_history:
         pass
     else:
