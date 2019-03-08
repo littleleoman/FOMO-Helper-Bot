@@ -931,7 +931,7 @@ async def send_SMS(ctx):
         embed.set_footer(text=footer_text,icon_url=icon_img)
         return await client.send_message(ctx.message.channel, embed=embed)
     message = str(ctx.message.content)
-    send = SMS_CLIENT.send_sms(message)
+    send = await SMS_CLIENT.send_sms(message)
     if send == "SENT":
         await client.send_message(ctx.message.author, "MESSAGE SENT!")
     else:
