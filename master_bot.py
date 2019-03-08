@@ -923,7 +923,7 @@ async def address_jig(ctx):
 @client.command(name='sendsms')
 async def send_SMS(ctx):
     server = client.get_server(server_id)
-    idd = ctx.message.author.id
+    idd = str(ctx.message.author.id)
     member = server.get_member(idd)
     print(str(member))
     if member.server_permissions.manage_channels:
