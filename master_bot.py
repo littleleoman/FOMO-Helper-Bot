@@ -930,7 +930,7 @@ async def send_SMS(ctx):
         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
         embed.set_footer(text=footer_text,icon_url=icon_img)
         return await client.send_message(ctx.message.channel, embed=embed)
-    message = str(ctx.message.content).replace('!sendsms ','')
+    message = str(ctx.message.content)
     send = SMS_CLIENT.send_sms(message)
     if send == "SENT":
         await client.send_message(ctx.message.author, "MESSAGE SENT!")

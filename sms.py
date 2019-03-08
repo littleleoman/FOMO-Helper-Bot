@@ -117,7 +117,6 @@ class SMS(object):
 
     async def send_sms(self, message):
         users = self.posts.find({})
-        msg = str(message.content)
         msg = msg.replace('sms!send ', '')
         for user in users:
             number = user['number_+']
