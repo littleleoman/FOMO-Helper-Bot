@@ -920,12 +920,10 @@ async def address_jig(ctx):
 ### SEND SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 ### SEND SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 ### SEND SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
-@client.command(name='sendsms')
+@client.command(name='sendsms', pass_context=True)
 async def send_SMS(ctx):
     server = client.get_server(server_id)
-    idd = str(ctx.message.author.id)
-    member = server.get_member(idd)
-    print(str(member))
+    member = server.get_member(ctx.message.author.id)
     if member.server_permissions.manage_channels:
         pass
     else:
