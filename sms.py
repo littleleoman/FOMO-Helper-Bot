@@ -117,17 +117,22 @@ class SMS(object):
 
     async def send_sms(self, message):
         users = self.posts.find({})
-        msg = message.replace('sms!send ', '')
+        msg = message.replace('!sendsms ', '')
         for user in users:
             number = user['number_+']
-            sms_message = self.sms_client.messages.create(
-                to=number,
-                from_=userInfo['twilio_number'],
-                body=msg)
-            
+            try:
+                sms_message = self.sms_client.messages.create(
+                    to=number,
+                    from_=userInfo['twilio_number'],
+                    body=msg)
+                if "queued" or "sent" or "delivered" in sms_message.status:
+                    print("SMS SENT: " + sms_message.status)
+            except:
+                print("ERROR SENDING SMS: " + sms_message.status + ": " + number)
+       
             if "queued" or "sent" or "delivered" in sms_message.status:
                 print("SMS SENT: " + sms_message.status)
-                return("SENT")
             else:
                 print("ERROR SENDING SMS: " + sms_message.status)
-                return("FAILED")
+        return("FINISHED")
+        

@@ -922,6 +922,7 @@ async def address_jig(ctx):
 ### SEND SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 @client.command(name='sendsms', pass_context=True)
 async def send_SMS(ctx):
+    await client.send_message(ctx.message.author, ':hourglass: Working...')
     server = client.get_server(server_id)
     member = server.get_member(ctx.message.author.id)
     if member.server_permissions.manage_channels:
@@ -932,7 +933,7 @@ async def send_SMS(ctx):
         return await client.send_message(ctx.message.channel, embed=embed)
     message = str(ctx.message.content)
     send = await SMS_CLIENT.send_sms(message)
-    if send == "SENT":
+    if send == "FINISHED":
         await client.send_message(ctx.message.author, "MESSAGE SENT!")
     else:
         await client.send_message(ctx.message.author, "MESSAGE FAILED!")
