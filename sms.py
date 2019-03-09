@@ -128,7 +128,7 @@ class SMS(object):
         for user in users:
             number = user['number_+']
             numbers_list.append("{\"binding_type\":\"sms\",\"address\":\"" + number + "\"}")
-        notification = self.sms_client.notify.services(userInfo['twilio_service_id']).notifications.create(
+        notification = self.sms_client.notify.services(userInfo['twilio_service_sid']).notifications.create(
             to_binding=numbers_list,
             body = msg
         )
