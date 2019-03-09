@@ -116,12 +116,6 @@ class SMS(object):
             return({"DELETED":"TRUE"})
 
     async def send_sms(self, message):
-        notification = self.sms_client.notify.services(userInfo['twilio_service_id']).notifications.create(
-            to_binding=[
-                "{\"binding_type\":\"sms\",\"address\":\"+15555555555\"}"
-            ],
-            body = ""
-        )
         numbers_list = []
         users = self.posts.find({})
         msg = message.replace('!sendsms ', '')
