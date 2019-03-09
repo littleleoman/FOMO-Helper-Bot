@@ -116,23 +116,36 @@ class SMS(object):
             return({"DELETED":"TRUE"})
 
     async def send_sms(self, message):
+        notification = self.sms_client.notify.services(userInfo['twilio_service_id']).notifications.create(
+            to_binding=[
+                "{\"binding_type\":\"sms\",\"address\":\"+15555555555\"}"
+            ],
+            body = ""
+        )
+        numbers_list = []
         users = self.posts.find({})
         msg = message.replace('!sendsms ', '')
         for user in users:
             number = user['number_+']
-            try:
-                sms_message = self.sms_client.messages.create(
-                    to=number,
-                    from_=userInfo['twilio_number'],
-                    body=msg)
-                if "queued" or "sent" or "delivered" in sms_message.status:
-                    print("SMS SENT: " + sms_message.status)
-            except:
-                print("ERROR SENDING SMS: " + sms_message.status + ": " + number)
+            numbers_list.append("{\"binding_type\":\"sms\",\"address\":\"" + number + "\"}")
+        notification = self.sms_client.notify.services(userInfo['twilio_service_id']).notifications.create(
+            to_binding=numbers_list,
+            body = msg
+        )
+        print(notification)
+            # try:
+            #     sms_message = self.sms_client.messages.create(
+            #         to=number,
+            #         from_=userInfo['twilio_number'],
+            #         body=msg)
+            #     if "queued" or "sent" or "delivered" in sms_message.status:
+            #         print("SMS SENT: " + sms_message.status)
+            # except:
+            #     print("ERROR SENDING SMS: " + sms_message.status + ": " + number)
        
-            if "queued" or "sent" or "delivered" in sms_message.status:
-                print("SMS SENT: " + sms_message.status)
-            else:
-                print("ERROR SENDING SMS: " + sms_message.status)
+            # if "queued" or "sent" or "delivered" in sms_message.status:
+            #     print("SMS SENT: " + sms_message.status)
+            # else:
+            #     print("ERROR SENDING SMS: " + sms_message.status)
         return("FINISHED")
         
