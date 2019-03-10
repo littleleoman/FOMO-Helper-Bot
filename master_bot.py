@@ -577,7 +577,7 @@ async def post_calendar(ctx):
 ### START DELAY FUNCTION ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- START DELAY FUNCTION ###
 ### START DELAY FUNCTION ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- START DELAY FUNCTION ###
 ### START DELAY FUNCTION ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- START DELAY FUNCTION ###
-@client.command()
+@client.command(name='delay', pass_context=True)
 async def delay(ctx):
     server = client.get_server(server_id)
     member = server.get_member(ctx.message.author.id)
