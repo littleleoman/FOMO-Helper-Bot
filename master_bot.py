@@ -83,8 +83,10 @@ client = discord.ext.commands.Bot(command_prefix=BOT_PREFIX)#, description=BOT_D
 client.remove_command('help')
 # Reference to Mongo/Heroku database
 db = None
-# Reference to subscriptions collection
+# Reference to collections in database
 subscriptions = None
+chargeDate = None 
+# Ebay 
 ebay_used_urls = []
 # Stripe class reference
 STRIPE = None
@@ -137,10 +139,28 @@ async def on_message(message):
     # Don't want the bot to reply to itself
     if message.author == client.user:
         return 
-
-
-
-
+    
+### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
+    now = datetime.datetime.now().date()
+    cursor = chargeDate.find({})
+    
+    for index,document in enumerate(cursor):
+        old_date = document['charge_date']
+        old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
+            
+        delta = now - old_date
+        if delta.days > 0:
+            chargeDate.update_one({
+                "charge_date": old_date
+            }, {
+                "$set": {
+                    "charge_date": str(now)
+                }
+            })
+            STRIPE.recurring_charges()
+### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
+            
+        
 
 
 ### AUTHENTICATION/CHARGING ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
@@ -1447,18 +1467,18 @@ async def on_member_remove(member):
                         }
                     }, upsert=False)
 ### ADMIN STRIPE COMMANDS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- ADMIN STRIPE COMMANDS ###
-@client.command(name='chargedaily',
-                pass_context=True)
-async def charge_daily(ctx):
-    server = client.get_server(server_id)
-    member = server.get_member(ctx.message.author.id)
-    if member.server_permissions.administrator:
-        pass
-    else:
-        embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
-        embed.set_footer(text=footer_text,icon_url=icon_img)
-        return await client.send_message(ctx.message.channel, embed=embed)
-    await STRIPE.recurring_charges()    
+# @client.command(name='chargedaily',
+#                 pass_context=True)
+# async def charge_daily(ctx):
+#     server = client.get_server(server_id)
+#     member = server.get_member(ctx.message.author.id)
+#     if member.server_permissions.administrator:
+#         pass
+#     else:
+#         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
+#         embed.set_footer(text=footer_text,icon_url=icon_img)
+#         return await client.send_message(ctx.message.channel, embed=embed)
+#     await STRIPE.recurring_charges()    
 
 
 ''' Function for personal use; check if any other Discord server got access to FOMO Helper,
@@ -1600,6 +1620,7 @@ if __name__ == "__main__":
         db = db_client.get_default_database()
         subscriptions = db['subscriptions']
         subscriptions.create_index('email')
+        chargeDate = db['chargeDate']
         ebay_used_urls.append(datetime.date.today())
         STRIPE = Stripe()
         KRISPYKREME = KK.KrispyKreme()
