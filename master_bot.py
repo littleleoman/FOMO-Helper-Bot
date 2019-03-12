@@ -155,7 +155,7 @@ async def on_message(message):
         
         if delta.days > 0:
             chargeDate.update_one({
-                "charge_date": old_date
+                "charge_date": str(old_date)
             }, {
                 "$set": {
                     "charge_date": str(now)
