@@ -149,7 +149,10 @@ async def on_message(message):
         old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
             
         delta = now - old_date
-        print(f"DELTA {delta}")
+        print(f"DELTA {delta.days}")
+        print(f"Now {str(now)}")
+        print(f"Old {old_date}")
+        
         if delta.days > 0:
             chargeDate.update_one({
                 "charge_date": old_date
