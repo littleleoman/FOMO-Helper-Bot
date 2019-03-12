@@ -149,6 +149,7 @@ async def on_message(message):
         old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
             
         delta = now - old_date
+        print(f"DELTA {delta}")
         if delta.days > 0:
             chargeDate.update_one({
                 "charge_date": old_date
@@ -157,7 +158,7 @@ async def on_message(message):
                     "charge_date": str(now)
                 }
             })
-            STRIPE.recurring_charges()
+            await STRIPE.recurring_charges()
 ### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
             
         
