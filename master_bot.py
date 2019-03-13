@@ -1631,6 +1631,7 @@ if __name__ == "__main__":
         KRISPYKREME = KK.KrispyKreme()
         SUCCESS_POSTER = success.SuccessPoster()
         SMS_CLIENT = SMS_CLIENT.SMS()
+        lastRecurringCheck = None
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
