@@ -144,8 +144,8 @@ async def on_message(message):
 ### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
     now = datetime.datetime.now().date()
     
-    if (now != lastRecurringCheck):
-        lastRecurringCheck = now
+    if (now != self.lastRecurringCheck):
+        self.lastRecurringCheck = now
         cursor = chargeDate.find({})
         
         for index,document in enumerate(cursor):
