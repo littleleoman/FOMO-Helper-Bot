@@ -94,6 +94,8 @@ STRIPE = None
 KRISPYKREME = None
 SUCCESS_POSTER = None
 SMS = None 
+
+lastRecurringCheck = None
 # Header to make the requests
 headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
 ### NECESSARY VARIABLE DECLARATIONS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- NECESSARY VARIABLE DECLARATIONS ###
@@ -101,7 +103,6 @@ headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleW
 ### NECESSARY VARIABLE DECLARATIONS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- NECESSARY VARIABLE DECLARATIONS ###
 ### NECESSARY VARIABLE DECLARATIONS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- NECESSARY VARIABLE DECLARATIONS ###
 ### NECESSARY VARIABLE DECLARATIONS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- NECESSARY VARIABLE DECLARATIONS ###
-
 
 
 
@@ -142,23 +143,26 @@ async def on_message(message):
     
 ### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
     now = datetime.datetime.now().date()
-    cursor = chargeDate.find({})
     
-    for index,document in enumerate(cursor):
-        old_date = document['charge_date']
-        old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
-            
-        delta = now - old_date
+    if (now != lastRecurringCheck):
+        lastRecurringCheck = now
+        cursor = chargeDate.find({})
         
-        if delta.days > 0:
-            chargeDate.update_one({
-                "charge_date": str(old_date)
-            }, {
-                "$set": {
-                    "charge_date": str(now)
-                }
-            })
-            await STRIPE.recurring_charges()
+        for index,document in enumerate(cursor):
+            old_date = document['charge_date']
+            old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
+                
+            delta = now - old_date
+            
+            if delta.days > 0:
+                chargeDate.update_one({
+                    "charge_date": str(old_date)
+                }, {
+                    "$set": {
+                        "charge_date": str(now)
+                    }
+                })
+                await STRIPE.recurring_charges()
 ### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
             
         
