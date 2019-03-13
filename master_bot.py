@@ -94,8 +94,6 @@ STRIPE = None
 KRISPYKREME = None
 SUCCESS_POSTER = None
 SMS = None 
-
-lastRecurringCheck = None
 # Header to make the requests
 headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
 ### NECESSARY VARIABLE DECLARATIONS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- NECESSARY VARIABLE DECLARATIONS ###
@@ -145,24 +143,22 @@ async def on_message(message):
     now = datetime.datetime.now().date()
     cursor = chargeDate.find({})
         
-    if (lastRecurringCheck == 0 or lastRecurringCheck != now):
-        lastRecurringCheck = now
-        
-        for index,document in enumerate(cursor):
-            old_date = document['charge_date']
-            old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
-                
-            delta = now - old_date
+
+    for index,document in enumerate(cursor):
+        old_date = document['charge_date']
+        old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
             
-            if delta.days > 0:
-                chargeDate.update_one({
-                    "charge_date": str(old_date)
-                }, {
-                    "$set": {
-                        "charge_date": str(now)
-                    }
-                })
-                await STRIPE.recurring_charges()
+        delta = now - old_date
+            
+        if delta.days > 0:
+            chargeDate.update_one({
+                "charge_date": str(old_date)
+            }, {
+                "$set": {
+                    "charge_date": str(now)
+                }
+            })
+            await STRIPE.recurring_charges()
 ### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
             
         
@@ -1631,7 +1627,6 @@ if __name__ == "__main__":
         KRISPYKREME = KK.KrispyKreme()
         SUCCESS_POSTER = success.SuccessPoster()
         SMS_CLIENT = SMS_CLIENT.SMS()
-        lastRecurringCheck = 0
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
