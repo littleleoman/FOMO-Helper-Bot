@@ -95,7 +95,7 @@ KRISPYKREME = None
 SUCCESS_POSTER = None
 SMS = None 
 
-lastRecurringCheck = "N/A"
+lastRecurringCheck = None
 # Header to make the requests
 headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'}
 ### NECESSARY VARIABLE DECLARATIONS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- NECESSARY VARIABLE DECLARATIONS ###
@@ -143,10 +143,10 @@ async def on_message(message):
     
 ### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
     now = datetime.datetime.now().date()
-    
-    if (now != self.lastRecurringCheck):
-        self.lastRecurringCheck = now
-        cursor = chargeDate.find({})
+    cursor = chargeDate.find({})
+        
+    if (lastRecurringCheck == 0 or lastRecurringCheck != now):
+        lastRecurringCheck = now
         
         for index,document in enumerate(cursor):
             old_date = document['charge_date']
@@ -1631,6 +1631,7 @@ if __name__ == "__main__":
         KRISPYKREME = KK.KrispyKreme()
         SUCCESS_POSTER = success.SuccessPoster()
         SMS_CLIENT = SMS_CLIENT.SMS()
+        lastRecurringCheck = 0
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
