@@ -592,7 +592,237 @@ async def post_calendar(ctx):
 ### CALENDAR END ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ CALENDAR START
 
 
+### RELEASE & LINK START ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK START
+### RELEASE & LINK START ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK START
+### RELEASE & LINK START ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK START
+### RELEASE & LINK START ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK START
+### RELEASE & LINK START ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK START
+@client.command(name='release', pass_context=True)
+async def new_release(ctx):
+    server = client.get_server(server_id)
+    member = server.get_member(ctx.message.author.id)
+    if member.server_permissions.manage_channels:
+        pass
+    else:
+        embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
+        embed.set_footer(text=footer_text,icon_url=icon_img)
+        return await client.send_message(ctx.message.channel, embed=embed)
+    
+    author = ctx.message.author
 
+    sample=discord.Embed(title=':calendar: **YEEZY 700 GEODE**', description='March 23rd', color=0xffffff)
+    sample.set_thumbnail(url='https://cdn.discordapp.com/attachments/554679133494312964/554679767442522142/geode.jpg')
+    
+    sample.add_field(name=":dollar: RETAIL:", value='USD $300', inline=True)
+    sample.add_field(name=":moneybag: RESELL:", value='[CLICK HERE](https://stockx.com/adidas-yeezy-boost-700-v2-geode)', inline=True)
+    sample.add_field(name="MONEY SIZES:", value='BAE SIZES', inline=True)
+    sample.add_field(name="STYLE CODE:", value='`EG6860`', inline=True)
+    sample.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+
+
+    await client.send_message(ctx.message.channel, embed=sample)
+    await client.send_message(ctx.message.channel, 'Sample message. Send anything to continue.')
+    start = await client.wait_for_message(author=author)
+    start = start.content
+    if 'CANCEL' in start.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Release Product Title')
+    title = await client.wait_for_message(author=author)
+    title = title.content
+    if 'CANCEL' in title.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Release Product Date')
+    date = await client.wait_for_message(author=author)
+    date = date.content
+    if 'CANCEL' in date.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Release Product Image URL')
+    image = await client.wait_for_message(author=author)
+    image = image.content
+    if 'CANCEL' in image.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Release Product Retail')
+    retail = await client.wait_for_message(author=author)
+    retail = retail.content
+    if 'CANCEL' in retail.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Release Product StockX/Suplexed URL')
+    URL = await client.wait_for_message(author=author)
+    URL = URL.content
+    if 'CANCEL' in URL.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Release Product Money Sizes')
+    sizes = await client.wait_for_message(author=author)
+    sizes = sizes.content
+    if 'CANCEL' in sizes.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Release Product Style Code (please double-check)')
+    style = await client.wait_for_message(author=author)
+    style = style.content
+    if 'CANCEL' in style.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    embed=discord.Embed(title=':calendar: **{}**'.format(title), description='{}'.format(date), color=0xffffff)
+    embed.set_thumbnail(url='{}'.format(image))
+    
+    embed.add_field(name=":dollar: RETAIL:", value='{}'.format(retail), inline=True)
+    embed.add_field(name=":moneybag: RESELL:", value='[CLICK HERE]({})'.format(URL), inline=True)
+    embed.add_field(name="MONEY SIZES:", value='{}'.format(sizes), inline=True)
+    embed.add_field(name="STYLE CODE:", value='`{}`'.format(style), inline=True)
+    embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+    await client.send_message(ctx.message.channel, "LOOKING GOOD? Yes or no?", embed=embed)
+    confirmation = await client.wait_for_message(author=author)
+    confirmation = confirmation.content
+    if 'n' in confirmation.lower():
+        return await client.send_message(ctx.message.channel, 'CANCELLED')
+    elif 'y' in confirmation.lower():
+        await client.send_message(ctx.message.channel, 'Channel to send message in?')
+        channel = await client.wait_for_message(author=author)
+        channel = channel.channel_mentions[0]
+        await client.send_message(channel, embed=embed)
+
+@client.command(name='link', pass_context=True)
+async def new_link(ctx):
+    server = client.get_server(server_id)
+    member = server.get_member(ctx.message.author.id)
+    if member.server_permissions.manage_channels:
+        pass
+    else:
+        embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
+        embed.set_footer(text=footer_text,icon_url=icon_img)
+        return await client.send_message(ctx.message.channel, embed=embed)
+        
+    author = ctx.message.author
+    sample=discord.Embed(title=':globe_with_meridians: **UNDEFEATED**', description='Off White Nike Air Force 1', color=0xffffff)
+    sample.set_thumbnail(url='http://cdn.shopify.com/s/files/1/0282/5850/products/apparel_tshirts_undefeated_logo-SS-tee_80043.4view_3.color_black_grande.jpg')
+    
+    sample.add_field(name=":link: Early Link", value='`https://undefeated.com/products/off-white-the-ten-volt-force-example`', inline=True)
+    sample.add_field(name=":shopping_cart: Variant", value='19021341720649\n19021341753417\n19021341786185\n19021341851721\n19021341884489\n19021341917257\n19021341950025\n19021341982793\n19021342015561', inline=True)
+    sample.add_field(name="Sizes", value='7\n8\n8.5\n9.5\n10\n10.5\n11\n12\n13')
+    sample.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+
+    await client.send_message(ctx.message.channel, embed=sample)
+    await client.send_message(ctx.message.channel, 'Sample message. Send anything to continue.')
+    start = await client.wait_for_message(author=author)
+    start = start.content
+    if 'CANCEL' in start.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Early Link Website Title')
+    store = await client.wait_for_message(author=author)
+    store = store.content
+    if 'CANCEL' in store.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Early Link Product Release Time (include time zone. Example: 10AM EST)')
+    time = await client.wait_for_message(author=author)
+    time = time.content
+    if 'CANCEL' in time.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Early Link Website Logo (enter image URL)')
+    logo = await client.wait_for_message(author=author)
+    logo = logo.content
+    if 'CANCEL' in logo.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Early Link')
+    link = await client.wait_for_message(author=author)
+    link = link.content
+    if 'CANCEL' in link.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+
+    await client.send_message(ctx.message.channel, 'Is the site a Shopify Website?')
+    isShopify = await client.wait_for_message(author=author)
+    isShopify = isShopify.content
+    if 'CANCEL' in isShopify.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+    if 'y' in isShopify.lower():
+        isShopify = ':white_check_mark:'
+    elif 'n' in isShopify.lower():
+        isShopify = ':no_entry_sign:'
+
+    await client.send_message(ctx.message.channel, 'Variants? Yes or No?')
+    variantQ = await client.wait_for_message(author=author)
+    variantQ = variantQ.content
+    if 'CANCEL' in variantQ.upper():
+        return await client.send_message(ctx.message.author, 'CANCELLED')
+    
+    if 'Y' in variantQ.upper():
+        await client.send_message(ctx.message.channel, 'How Many Variants?')
+        variantC = await client.wait_for_message(author=author)
+        variantC = variantC.content
+        variantC = int(variantC)
+        start = 0
+        sizes = list()
+        variants = list()
+        while start < variantC:
+            await client.send_message(ctx.message.channel, 'Size (enter just the number, i.e "7.5")')
+            size = await client.wait_for_message(author=author)
+            size = size.content
+            if 'CANCEL' in size.upper():
+                return await client.send_message(ctx.message.author, 'CANCELLED')
+            sizes.append(size)
+            await client.send_message(ctx.message.channel, 'Variant (enter just the numbers, i.e "503920390502335")')
+            variant = await client.wait_for_message(author=author)
+            variant = variant.content
+            if 'CANCEL' in variant.upper():
+                return await client.send_message(ctx.message.author, 'CANCELLED')
+            variants.append(variant)
+            start += 1
+        variantStr = ''
+        sizeStr = ''
+        for var in variants:
+            variantStr += str(var) + '\n'
+        for size in sizes:
+            sizeStr += str(size) + '\n'
+        embed=discord.Embed(title=':globe_with_meridians: **{}**'.format(store), description='{}'.format(time), color=0xffffff)
+        embed.set_thumbnail(url='{}'.format(logo))
+        embed.add_field(name=":link: Early Link", value='`{}`'.format(link), inline=False)
+        embed.add_field(name=":shopping_cart: Variant", value='{}'.format(variantStr), inline=True)
+        embed.add_field(name="Sizes", value='{}'.format(sizeStr), inline=True)
+        embed.add_field(name="Shopify?", value='{}'.format(isShopify), inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        await client.send_message(ctx.message.channel, 'Channel to Post In')
+        channel = await client.wait_for_message(author=author)
+        channel = channel.channel_mentions[0]
+        await client.send_message(ctx.message.channel, "LOOKING GOOD? Yes or no?", embed=embed)
+        confirmation = await client.wait_for_message(author=author)
+        confirmation = confirmation.content
+        if 'n' in confirmation.lower():
+            return await client.send_message(ctx.message.channel, 'CANCELLED')
+        elif 'y' in confirmation.lower():
+            await client.send_message(channel, embed=embed)
+            return await client.send_message(ctx.message.channel, 'POSTED!')
+    elif 'N' in variantQ.upper():
+        embed=discord.Embed(title=':globe_with_meridians: **{}**'.format(store), description='{}'.format(time), color=0xffffff)
+        embed.set_thumbnail(url='{}'.format(logo))
+        embed.add_field(name=":link: Early Link", value='`{}`'.format(link), inline=False)
+        embed.add_field(name="Shopify?", value='{}'.format(isShopify), inline=False)
+        embed.set_footer(icon_url="https://i.imgur.com/5fSzax1.jpg", text="Powered by FOMO | @FOMO_supply")
+        await client.send_message(ctx.message.channel, 'Channel to Post In')
+        channel = await client.wait_for_message(author=author)
+        channel = channel.channel_mentions[0]
+        await client.send_message(ctx.message.channel, "LOOKING GOOD? Yes or no?", embed=embed)
+        confirmation = await client.wait_for_message(author=author)
+        confirmation = confirmation.content
+        if 'n' in confirmation.lower():
+            return await client.send_message(ctx.message.channel, 'CANCELLED')
+        elif 'y' in confirmation.lower():
+            await client.send_message(channel, embed=embed)
+            return await client.send_message(ctx.message.channel, 'POSTED!')
+### RELEASE & LINK END ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK END
+### RELEASE & LINK END ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK END
+### RELEASE & LINK END ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK END
+### RELEASE & LINK END ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK END
+### RELEASE & LINK END ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ RELEASE & LINK END
 
 
 ### START DELAY FUNCTION ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- START DELAY FUNCTION ###
