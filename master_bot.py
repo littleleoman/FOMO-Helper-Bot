@@ -1464,14 +1464,14 @@ class Stripe(object):
             if web_source == "FOMO":
                 stripe.Charge.create(
                     api_key=FOMO_STRIPE_KEY,
-                    amount=1500,
+                    amount=2000,
                     currency='usd',
                     customer=customer.id
                 )
             else:
                 stripe.Charge.create(
                     api_key=MOREHYPED_STRIPE_KEY,
-                    amount=1500,
+                    amount=2000,
                     currency='usd',
                     customer=customer.id
                 )
@@ -1587,14 +1587,14 @@ class Stripe(object):
                     if web_source == "FOMO":      
                         charge = stripe.Charge.create(
                             api_key=FOMO_STRIPE_KEY,
-                            amount=1500,
+                            amount=2000,
                             currency='usd',
                             customer=customer_id
                         )
                     else:
                         charge = stripe.Charge.create(
                             api_key=MOREHYPED_STRIPE_KEY,
-                            amount=1500,
+                            amount=2000,
                             currency='usd',
                             customer=customer_id
                         )
