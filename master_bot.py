@@ -933,7 +933,7 @@ async def check(ctx):
     date = datetime.datetime.today().strftime('%Y-%m-%d')
 
     data = freeMonths.find({})
-    count = 0
+    #count = 0
     for d in data:
         expiration = datetime.datetime.strptime(d['expiration'],'%Y-%m-%d')
         today = datetime.datetime.today()
@@ -959,9 +959,7 @@ async def check(ctx):
                 await client.send_message(ctx.message.channel,":no_entry_sign: <@{}>'s Free Month has ended".format(member.id))
                 count += 1
         else:
-            pass
-    if count == 0:
-        await client.send_message(ctx.message.channel, "No Free Months have Expired.")
+            await client.send_message(ctx.message.channel, "No Free Months have Expired.")
         
 # member_role = '460930653350002698'
 # free_month_role = '493636552661008384'
