@@ -933,10 +933,13 @@ async def check(ctx):
     date = datetime.datetime.today().strftime('%Y-%m-%d')
 
     data = freeMonths.find({})
-    #count = 0
+    count = 0
     for d in data:
+        print(d)
         expiration = datetime.datetime.strptime(d['expiration'],'%Y-%m-%d')
         today = datetime.datetime.today()
+        print(str(expiration))
+        print(str(today))
         if today.day == expiration.day and today.month == expiration.month:
             if d[paying_member_role] == "false":
                 jsonID = d["id"]
@@ -949,6 +952,7 @@ async def check(ctx):
                 await client.send_message(member,':sob: Your free trial at ***{}*** has ended. Thanks for being with us! :heart:'.format(GROUP_NAME))
                 await client.send_message(ctx.message.channel,"<@{}>'s Free Month has ended.".format(member.id))
                 count += 1
+                print("FOUND ONE")
             else:
                 jsonID = d["id"]
                 server = client.get_server(server_id)
@@ -958,6 +962,7 @@ async def check(ctx):
                 await client.send_message(member,':sob: Your free trial at ***{}*** has ended. If you are still owed a refund, please open a ticket :heart:'.format(GROUP_NAME))
                 await client.send_message(ctx.message.channel,":no_entry_sign: <@{}>'s Free Month has ended".format(member.id))
                 count += 1
+                print("FOUND ONE")
         else:
             await client.send_message(ctx.message.channel, "No Free Months have Expired.")
         
