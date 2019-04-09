@@ -209,7 +209,7 @@ async def on_message(message):
                         has_posted = pinger.channel_check(str(message.channel), keyword, sub_key, posted_channels)
                         if has_posted == False:
                             posted_channels[str(message.channel)].append((datetime.datetime.time(datetime.datetime.now().replace(microsecond=0)), keyword, sub_key))
-                            embed = discord.Embed(title="KEYWORD MATCHED!", description=f"{sub_key}", color=0xffffff)
+                            embed = discord.Embed(title="KEYWORD MATCHED!", description=f"`{sub_key}`", color=0xffffff)
                             embed.set_footer(icon_url=icon_img, text=footer_text)
                             await client.send_message(message.channel, restock_role_id, embed=embed)     
         else:
@@ -222,7 +222,7 @@ async def on_message(message):
                             has_posted = pinger.channel_check(str(message.channel), keyword, sub_key, posted_channels)
                             if has_posted == False:
                                 posted_channels[str(message.channel)].append((datetime.datetime.time(datetime.datetime.now().replace(microsecond=0)), keyword, sub_key))
-                                embed = discord.Embed(title="KEYWORD MATCHED!", description=f"{sub_key}", color=0xffffff)
+                                embed = discord.Embed(title="KEYWORD MATCHED!", description=f"`{sub_key}`", color=0xffffff)
                                 embed.set_footer(icon_url=icon_img, text=footer_text)
                                 await client.send_message(message.channel, restock_role_id, embed=embed)
 ### MONITOR PINGER ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- MONITOR PINGER ###
