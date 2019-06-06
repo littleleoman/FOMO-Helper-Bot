@@ -140,33 +140,33 @@ async def on_message(message):
         return 
     
 ### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
-    now = datetime.datetime.now().date()
-    cursor = chargeDate.find({})
-        
+#    now = datetime.datetime.now().date()
+#    cursor = chargeDate.find({})
+#        
 
-    for index,document in enumerate(cursor):
-        old_date = document['charge_date']
-        old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
+#    for index,document in enumerate(cursor):
+#        old_date = document['charge_date']
+#        old_date = datetime.datetime.strptime(old_date, "%Y-%m-%d").date()
             
-        delta = now - old_date
+#        delta = now - old_date
             
-        if delta.days > 0:
-            chargeDate.update_one({
-                "charge_date": str(old_date)
-            }, {
-                "$set": {
-                    "charge_date": str(now)
-                }
-            })
-            await STRIPE.recurring_charges()
+#        if delta.days > 0:
+#            chargeDate.update_one({
+#                "charge_date": str(old_date)
+#            }, {
+#                "$set": {
+#                    "charge_date": str(now)
+#                }
+#            })
+#            await STRIPE.recurring_charges()
 ### RECURRING CHARGE ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
             
         
 
 
 ### AUTHENTICATION/CHARGING ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
-    if message.channel.name == sub_channel:
-        await STRIPE.process_payment(message)
+#    if message.channel.name == sub_channel:
+#        await STRIPE.process_payment(message)
 ### AUTHENTICATION/CHARGING ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ AUTHENTICATION/CHARGING ###
 
 
