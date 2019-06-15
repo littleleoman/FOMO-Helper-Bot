@@ -1676,30 +1676,30 @@ async def sub_and_assign_roles(email, author):
 ''' Method triggered by server event when a member leaves the Discord group 
     @param member: User leaving the server. '''
 
-@client.event
-async def on_member_remove(member):
-    # Search for user data in database
-    data = subscriptions.find_one({"discord_id": f"{member.id}"})
-    # Take no actions if no data found in database
-    if data == None:
-        pass
-    else:
-        # Switch user's subscription status
-        status = data["status"]
-        
-        if status == "disabled":
-            query = { "discord_id": f"{member.id}" }
-            subscriptions.delete_one(query)
-        else:
-            for role in member.roles:
-                if paying_member_role in role.name:
-                    result = subscriptions.update_one({
-                        "discord_id": member.id
-                    }, {
-                        "$set": {
-                            "status": "pending"
-                        }
-                    }, upsert=False)
+#@client.event
+#async def on_member_remove(member):
+#    # Search for user data in database
+#    data = subscriptions.find_one({"discord_id": f"{member.id}"})
+#    # Take no actions if no data found in database
+#    if data == None:
+#        pass
+#    else:
+#        # Switch user's subscription status
+#        status = data["status"]
+#        
+#        if status == "disabled":
+#            query = { "discord_id": f"{member.id}" }
+#            subscriptions.delete_one(query)
+#        else:
+#            for role in member.roles:
+#                if paying_member_role in role.name:
+#                    result = subscriptions.update_one({
+#                        "discord_id": member.id
+#                    }, {
+#                        "$set": {
+#                            "status": "pending"
+#                        }
+#                    }, upsert=False)
 ### ADMIN STRIPE COMMANDS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- ADMIN STRIPE COMMANDS ###
 # @client.command(name='chargedaily',
 #                 pass_context=True)
