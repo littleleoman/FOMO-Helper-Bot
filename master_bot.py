@@ -5,7 +5,7 @@ Created on Jul 15, 2018
 ### IMPORTS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- IMPORTS ###
 ### IMPORTS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- IMPORTS ###
 import asyncio, datetime, pinger, discord, json, success, os, pymongo, re, requests, _thread, stripe, shopify, solebox
-import sms as SMS_CLIENT
+#import sms as SMS_CLIENT
 import ebay as EBAY
 import krispykreme as KK
 from dateutil.relativedelta import *
@@ -236,92 +236,92 @@ async def on_message(message):
 ### SMS COMMANDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ SMS COMMANDS ###    
 ### SMS COMMANDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ SMS COMMANDS ###    
 ### SMS COMMANDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ SMS COMMANDS ###    
-    if message.content.startswith('sms!help'):
-        embed = Embed(title="SMS HELP CENTER", color=0xffffff)
-        embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-        embed.add_field(name="sms!add", value="Adds your number to the database.")
-        embed.add_field(name="sms!check", value="Checks if your number is in the database.")
-        embed.add_field(name="sms!update", value="Updates your number in the database.")
-        embed.add_field(name="sms!stop", value="Removes your number from the database.")
-        embed.set_footer(icon_url=icon_img, text=footer_text)
-        await client.send_message(message.author, embed=embed)
-    elif message.content.startswith('sms!stop'):
-        response = await SMS_CLIENT.remove_user(message.author.id)
-        print(response)
-        if (response["DELETED"] == "TRUE"):
-            embed = Embed(title="REMOVED", description="You will no longer receive SMS alerts.", color=0xffffff)
-            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
-            embed.set_footer(icon_url=icon_img, text=footer_text)
-            await client.send_message(message.author, embed=embed)
-        else:
-            embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
-            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
-            embed.set_footer(icon_url=icon_img, text=footer_text)
-            await client.send_message(message.author, embed=embed)
-    elif message.content.startswith('sms!update'):
-        number = str(message.content)
-        number = number.replace("sms!update ","")
-        response = await SMS_CLIENT.update_user(message.author.id, number)
-        print(response)
-        if (response['result'] == 'SUCCESS'):
-            embed = Embed(title="SUCCESS!", description="Your number on file was updated.", color=0xffffff)
-            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.add_field(name="NUMBER ON FILE:", value=response['number'])
-            embed.set_footer(icon_url=icon_img, text=footer_text)
-            await client.send_message(message.author, embed=embed)
-        elif response['number'] == 'INVALID':
-                embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
-                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
-                embed.set_footer(icon_url=icon_img, text=footer_text)
-                await client.send_message(message.author, embed=embed)
+    # if message.content.startswith('sms!help'):
+    #     embed = Embed(title="SMS HELP CENTER", color=0xffffff)
+    #     embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #     embed.add_field(name="sms!add", value="Adds your number to the database.")
+    #     embed.add_field(name="sms!check", value="Checks if your number is in the database.")
+    #     embed.add_field(name="sms!update", value="Updates your number in the database.")
+    #     embed.add_field(name="sms!stop", value="Removes your number from the database.")
+    #     embed.set_footer(icon_url=icon_img, text=footer_text)
+    #     await client.send_message(message.author, embed=embed)
+    # elif message.content.startswith('sms!stop'):
+    #     response = await SMS_CLIENT.remove_user(message.author.id)
+    #     print(response)
+    #     if (response["DELETED"] == "TRUE"):
+    #         embed = Embed(title="REMOVED", description="You will no longer receive SMS alerts.", color=0xffffff)
+    #         embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #         embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
+    #         embed.set_footer(icon_url=icon_img, text=footer_text)
+    #         await client.send_message(message.author, embed=embed)
+    #     else:
+    #         embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
+    #         embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #         embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
+    #         embed.set_footer(icon_url=icon_img, text=footer_text)
+    #         await client.send_message(message.author, embed=embed)
+    # elif message.content.startswith('sms!update'):
+    #     number = str(message.content)
+    #     number = number.replace("sms!update ","")
+    #     response = await SMS_CLIENT.update_user(message.author.id, number)
+    #     print(response)
+    #     if (response['result'] == 'SUCCESS'):
+    #         embed = Embed(title="SUCCESS!", description="Your number on file was updated.", color=0xffffff)
+    #         embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #         embed.add_field(name="NUMBER ON FILE:", value=response['number'])
+    #         embed.set_footer(icon_url=icon_img, text=footer_text)
+    #         await client.send_message(message.author, embed=embed)
+    #     elif response['number'] == 'INVALID':
+    #             embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
+    #             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #             embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
+    #             embed.set_footer(icon_url=icon_img, text=footer_text)
+    #             await client.send_message(message.author, embed=embed)
 
-        else:
-            embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
-            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
-            embed.set_footer(icon_url=icon_img, text=footer_text)
-            await client.send_message(message.author, embed=embed)
-    elif message.content.startswith('sms!check'):
-        response = await SMS_CLIENT.check_user(message.author.id)
-        print(response)
-        if response['result'] == 'SUCCESS':
-            embed = Embed(title="FOUND!", description="You were found in the database: `{}`".format(response['number']), color=0xffffff)
-            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.add_field(name="TO UPDATE YOUR NUMBER ON FILE, SAY:", value="sms!update")
-            embed.set_footer(icon_url=icon_img, text=footer_text)
-            await client.send_message(message.author, embed=embed)
-        else:
-            embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
-            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.add_field(name="TO ADD YOUR NUMBER, SAY:", value="sms!add followed by your number with the country & area code.")
-            embed.set_footer(icon_url=icon_img, text=footer_text)
-            await client.send_message(message.author, embed=embed)
-    elif message.content.startswith('sms!add'):
-        number = str(message.content)
-        number = number.replace("sms!add ","")
-        response = await SMS_CLIENT.add_user(message.author.id, number)
-        print(response)
-        if response['result'] == 'DUPLICATE':
-            embed = Embed(title="FOUND!", description="You are already in the database.", color=0xffffff)
-            embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-            embed.add_field(name="TO UPDATE YOUR NUMBER, SAY:", value="sms!update")
-            embed.set_footer(icon_url=icon_img, text=footer_text)
-            await client.send_message(message.author, embed=embed)
-        elif response['result'] == 'FAILED':
-                embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
-                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
-                embed.set_footer(icon_url=icon_img, text=footer_text)
-                await client.send_message(message.author, embed=embed)
-        elif response['result'] == 'SUCCESS':
-                embed = Embed(title="SUCCESS!", description="You have been added to the database.", color=0xffffff)
-                embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
-                embed.add_field(name="Number on File:", value=response['number'])
-                embed.set_footer(icon_url=icon_img, text=footer_text)
-                await client.send_message(message.author, embed=embed)
+    #     else:
+    #         embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
+    #         embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #         embed.add_field(name="LEARN MORE BY SAYING:", value="sms!help")
+    #         embed.set_footer(icon_url=icon_img, text=footer_text)
+    #         await client.send_message(message.author, embed=embed)
+    # elif message.content.startswith('sms!check'):
+    #     response = await SMS_CLIENT.check_user(message.author.id)
+    #     print(response)
+    #     if response['result'] == 'SUCCESS':
+    #         embed = Embed(title="FOUND!", description="You were found in the database: `{}`".format(response['number']), color=0xffffff)
+    #         embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #         embed.add_field(name="TO UPDATE YOUR NUMBER ON FILE, SAY:", value="sms!update")
+    #         embed.set_footer(icon_url=icon_img, text=footer_text)
+    #         await client.send_message(message.author, embed=embed)
+    #     else:
+    #         embed = Embed(title="NOT FOUND!", description="You were not found in the database.", color=0xffffff)
+    #         embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #         embed.add_field(name="TO ADD YOUR NUMBER, SAY:", value="sms!add followed by your number with the country & area code.")
+    #         embed.set_footer(icon_url=icon_img, text=footer_text)
+    #         await client.send_message(message.author, embed=embed)
+    # elif message.content.startswith('sms!add'):
+    #     number = str(message.content)
+    #     number = number.replace("sms!add ","")
+    #     response = await SMS_CLIENT.add_user(message.author.id, number)
+    #     print(response)
+    #     if response['result'] == 'DUPLICATE':
+    #         embed = Embed(title="FOUND!", description="You are already in the database.", color=0xffffff)
+    #         embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #         embed.add_field(name="TO UPDATE YOUR NUMBER, SAY:", value="sms!update")
+    #         embed.set_footer(icon_url=icon_img, text=footer_text)
+    #         await client.send_message(message.author, embed=embed)
+    #     elif response['result'] == 'FAILED':
+    #             embed = Embed(title="FAILED", description="Make sure you format your number correctly", color=0xffffff)
+    #             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #             embed.add_field(name="FOR EXAMPLE:", value="sms!add +13058554140")
+    #             embed.set_footer(icon_url=icon_img, text=footer_text)
+    #             await client.send_message(message.author, embed=embed)
+    #     elif response['result'] == 'SUCCESS':
+    #             embed = Embed(title="SUCCESS!", description="You have been added to the database.", color=0xffffff)
+    #             embed.set_thumbnail(url='https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png')
+    #             embed.add_field(name="Number on File:", value=response['number'])
+    #             embed.set_footer(icon_url=icon_img, text=footer_text)
+    #             await client.send_message(message.author, embed=embed)
 
  ### SMS COMMANDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ SMS COMMANDS ###    
  ### SMS COMMANDS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ SMS COMMANDS ###    
@@ -1174,23 +1174,23 @@ async def address_jig(ctx):
 ### SEND SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 ### SEND SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 ### SEND SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
-@client.command(name='sendsms', pass_context=True)
-async def send_SMS(ctx):
-    await client.send_message(ctx.message.author, ':hourglass: Working...')
-    server = client.get_server(server_id)
-    member = server.get_member(ctx.message.author.id)
-    if member.server_permissions.manage_channels:
-        pass
-    else:
-        embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
-        embed.set_footer(text=footer_text,icon_url=icon_img)
-        return await client.send_message(ctx.message.channel, embed=embed)
-    message = str(ctx.message.content)
-    send = await SMS_CLIENT.send_sms(message)
-    if send == "FINISHED":
-        await client.send_message(ctx.message.author, "MESSAGE SENT!")
-    else:
-        await client.send_message(ctx.message.author, "MESSAGE FAILED!")
+#@client.command(name='sendsms', pass_context=True)
+# async def send_SMS(ctx):
+#     await client.send_message(ctx.message.author, ':hourglass: Working...')
+#     server = client.get_server(server_id)
+#     member = server.get_member(ctx.message.author.id)
+#     if member.server_permissions.manage_channels:
+#         pass
+#     else:
+#         embed = discord.Embed(title=":no_entry_sign: YOU DO NOT HAVE PERMISSIONS TO USE THIS COMMAND!", description="It looks like you aren't member. If you believe this is a mistake, please open a ticket or contact an admin!", color=0xffffff)
+#         embed.set_footer(text=footer_text,icon_url=icon_img)
+#         return await client.send_message(ctx.message.channel, embed=embed)
+#     message = str(ctx.message.content)
+#     send = await SMS_CLIENT.send_sms(message)
+#     if send == "FINISHED":
+#         await client.send_message(ctx.message.author, "MESSAGE SENT!")
+#     else:
+#         await client.send_message(ctx.message.author, "MESSAGE FAILED!")
 ### SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 ### SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
 ### SMS SEND COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS SEND COMMAND ###
@@ -1859,7 +1859,7 @@ if __name__ == "__main__":
         STRIPE = Stripe()
         KRISPYKREME = KK.KrispyKreme()
         SUCCESS_POSTER = success.SuccessPoster()
-        SMS_CLIENT = SMS_CLIENT.SMS()
+        #SMS_CLIENT = SMS_CLIENT.SMS()
         client.run(TOKEN)
     except (HTTPException, LoginFailure) as e:
         client.loop.run_until_complete(client.logout())
