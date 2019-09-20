@@ -336,32 +336,32 @@ async def on_message(message):
 ### GUIDE AND SITELIST COMMANDS --------------------------------------------------------------------------------------------------------------------------------------------------------------------- GUIDE AND SITELIST COMMANDS ###
 ### GUIDE AND SITELIST COMMANDS --------------------------------------------------------------------------------------------------------------------------------------------------------------------- GUIDE AND SITELIST COMMANDS ###
     # Make sure the message sent is not a command
-   # if not message.content.startswith('!') and not message.content.startswith('?'):
+    if not message.content.startswith('!') and not message.content.startswith('?'):
         # Automate responses by displaying specific output based on user message if necessary
 
-      #  if re.search('{}'.format(GROUP_NAME), message.content, re.IGNORECASE):
-          #  if re.search('guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
-           #     embed=discord.Embed(title="{} Basics".format(GROUP_NAME.upper()), 
-          #                          description="[CLICK HERE]({})".format(guide_link),
-           #                         colour=discord.Colour(0xffffff))
-           #     embed.set_thumbnail(url=icon_img)
-          #      embed.set_footer(icon_url=icon_img, text=footer_text)
-          #      await client.send_message(message.channel, embed=embed)
+        if re.search('{}'.format(GROUP_NAME), message.content, re.IGNORECASE):
+            if re.search('fomo|guide|how\s+to|works|work|tutorial', message.content, re.IGNORECASE):
+                embed=discord.Embed(title="{} Basics".format(GROUP_NAME.upper()), 
+                                    description="[CLICK HERE]({})".format(guide_link),
+                                    colour=discord.Colour(0xffffff))
+                embed.set_thumbnail(url=icon_img)
+                embed.set_footer(icon_url=icon_img, text=footer_text)
+                await client.send_message(message.channel, embed=embed)
 
         
-         #   elif re.search('sitelist|list|droplist', message.content, re.IGNORECASE):
-         #       embed=discord.Embed(title="{} SITELIST".format(GROUP_NAME.upper()), 
-         #                           description="[CLICK HERE]({})".format(sitelist_link),
-         #                           colour=discord.Colour(0xffffff))
-        #        embed.set_thumbnail(url=icon_img)
-        #        embed.set_footer(icon_url=icon_img, text=footer_text)
-        #        await client.send_message(message.channel, embed=embed)
+            elif re.search('sitelist|list|droplist', message.content, re.IGNORECASE):
+                embed=discord.Embed(title="{} SITELIST".format(GROUP_NAME.upper()), 
+                                    description="[CLICK HERE]({})".format(sitelist_link),
+                                    colour=discord.Colour(0xffffff))
+                embed.set_thumbnail(url=icon_img)
+                embed.set_footer(icon_url=icon_img, text=footer_text)
+                await client.send_message(message.channel, embed=embed)
 ### GUIDE AND SITELIST COMMANDS --------------------------------------------------------------------------------------------------------------------------------------------------------------------- GUIDE AND SITELIST COMMANDS ###
 ### GUIDE AND SITELIST COMMANDS --------------------------------------------------------------------------------------------------------------------------------------------------------------------- GUIDE AND SITELIST COMMANDS ###
 ### GUIDE AND SITELIST COMMANDS --------------------------------------------------------------------------------------------------------------------------------------------------------------------- GUIDE AND SITELIST COMMANDS ###
-   # else:
-        # If it's a command that was sent, process the command normally
-    #    await client.process_commands(message)
+    else:
+         #If it's a command that was sent, process the command normally
+        await client.process_commands(message)
 ### END ON MESSAGE: SUCCESS POSTING, MONITOR PINGER, AUTHENTICATION, GUIDES AND SITELIST, SMS COMMANDS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 ### END ON MESSAGE: SUCCESS POSTING, MONITOR PINGER, AUTHENTICATION, GUIDES AND SITELIST, SMS COMMANDS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 ### END ON MESSAGE: SUCCESS POSTING, MONITOR PINGER, AUTHENTICATION, GUIDES AND SITELIST, SMS COMMANDS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
