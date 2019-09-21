@@ -417,12 +417,12 @@ async def custom_help(ctx, *command):
 ### SHOPIFY HELP COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SHOPIFY HELP COMMAND ###
 
 ### SMS HELP COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS HELP COMMAND ###
-        embed4 = Embed(
-            title=":speech_left: __***SMS NOTIFICATIONS***__",
-            description='**Say `sms!help` to learn about my SMS commands.**',
-            color = 0xffffff
-            #description = BOT_DESCRIPTION
-        )
+       # embed4 = Embed(
+       #     title=":speech_left: __***SMS NOTIFICATIONS***__",
+       #     description='**Say `sms!help` to learn about my SMS commands.**',
+       #     color = 0xffffff
+      #      #description = BOT_DESCRIPTION
+     #   )
 ### SMS HELP COMMAND --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- SMS HELP COMMAND ###
 
 ### TOOLS HELP COMMAND ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- TOOLS HELP COMMAND ###
@@ -465,7 +465,7 @@ async def custom_help(ctx, *command):
         embeds.append(embed1)
         embeds.append(embed2)
         embeds.append(embed3)
-        embeds.append(embed4)
+        #embeds.append(embed4)
         embeds.append(embed5)
         embeds.append(embed6)
         embeds.append(embed7)
