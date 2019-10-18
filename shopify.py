@@ -5,7 +5,7 @@
 import names
 import random
 import requests
-from python_anticaptcha import AnticaptchaClient, NoCaptchaTaskProxylessTask
+from imagetyperzapi3.imagetyperzapi import ImageTyperzAPI
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import re
@@ -74,12 +74,14 @@ def shopify_gen(website, email):
         sitekey = '6LeoeSkTAAAAAA9rkZs5oS82l69OEYjKRZAiKdaF'
         captcha_url = website
         api_key = captcha_api
-
-        client = AnticaptchaClient(api_key)
-        task = NoCaptchaTaskProxylessTask(captcha_url, sitekey)
-        job = client.createTask(task)
-        job.join()
-        captoken = job.get_solution_response()
+        ita = ImageTyperzAPI(captcha_api)      # init imagetyperz api obj
+        
+        recaptcha_params = {
+            'page_url' : captcha_url,
+            'sitekey' : sitekey,
+            'type' : 1,                     # optional, 1 - normal recaptcha, 2 - invisible recaptcha, 3 - v3 recaptcha, default: 1
+        }
+        
         auth_token = find_auth_token(submit_account.text)
 
         captcha_data = {
@@ -87,7 +89,13 @@ def shopify_gen(website, email):
             'authenticity_token':auth_token,
             'g-recaptcha-response':captoken
         }
-
+        captcha_id = ita.submit_recaptcha(recaptcha_params)
+        while ita.in_progress():    # while it's still in progress
+            print("Waiting for Captcha...")
+	        sleep(10)               # sleep for 10 seconds and recheck
+        recaptcha_response = ita.retrieve_recaptcha(captcha_id)           # captcha_id is optional, if not given, will use last captcha id submited
+        print ('Recaptcha response: {}'.format(recaptcha_response)) 
+        
         submit_captcha = session.post(account_url,data=captcha_data,headers=headers,verify=False)
 
         if submit_captcha.status_code == 200 or 302 and submit_captcha.url != challenge_url:
