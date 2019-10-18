@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 import re
 import os
 import json
+from time import sleep
 
 headers = {
     'Upgrade-Insecure-Requests': '1',
