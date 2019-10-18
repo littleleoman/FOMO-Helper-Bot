@@ -68,7 +68,7 @@ def shopify_gen(website, email):
     if website.endswith('/') == False:
         account_url = website + '/account'
         challenge_url = website + '/challenge'
-    else:w
+    else:
         account_url = website + 'account'
         challenge_url = website + 'challenge'
         pass
