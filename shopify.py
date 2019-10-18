@@ -78,7 +78,7 @@ def shopify_gen(website, email):
                                   headers=headers)
 
     if submit_account.url == challenge_url:
-        print 'CAPTCHA REQUESTED, PLEASE WAIT...\n'
+        print('CAPTCHA REQUESTED, PLEASE WAIT...\n')
         sitekey = '6LeoeSkTAAAAAA9rkZs5oS82l69OEYjKRZAiKdaF'
         captcha_url = website
         api_key = captcha_api
@@ -93,10 +93,10 @@ def shopify_gen(website, email):
                         'g-recaptcha-response': captoken}
         captcha_id = ita.submit_recaptcha(recaptcha_params)
         while ita.in_progress():
-            print 'waiting for captcha...'
+            print('waiting for captcha...')
             sleep(10)
         recaptcha_response = ita.retrieve_recaptcha(captcha_id)
-        print 'Recaptcha response: {}'.format(recaptcha_response)
+        print('Recaptcha response: {}'.format(recaptcha_response))
 
         submit_captcha = session.post(account_url, data=captcha_data,
                 headers=headers, verify=False)
