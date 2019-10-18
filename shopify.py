@@ -91,9 +91,9 @@ def shopify_gen(website, email):
             'g-recaptcha-response':captoken
         }
         captcha_id = ita.submit_recaptcha(recaptcha_params)
-        while ita.in_progress():
-            print("Waiting for Captcha...")
-	    sleep(10)
+	while ita.in_progress():
+		print("waiting for captcha...")
+		sleep(10)
         recaptcha_response = ita.retrieve_recaptcha(captcha_id)
         print ('Recaptcha response: {}'.format(recaptcha_response)) 
         
