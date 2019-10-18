@@ -91,8 +91,8 @@ def shopify_gen(website, email):
         }
         captcha_id = ita.submit_recaptcha(recaptcha_params)
         while ita.in_progress():    # while it's still in progress
-            print("Waiting for Captcha...")
-	    sleep(10)               # sleep for 10 seconds and recheck
+        	print("Waiting for Captcha...")
+		sleep(10)               # sleep for 10 seconds and recheck
         recaptcha_response = ita.retrieve_recaptcha(captcha_id)           # captcha_id is optional, if not given, will use last captcha id submited
         print ('Recaptcha response: {}'.format(recaptcha_response)) 
         
