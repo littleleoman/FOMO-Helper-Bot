@@ -90,9 +90,13 @@ def shopify_gen(website, email):
         auth_token = find_auth_token(submit_account.text)
 
         captcha_id = ita.submit_recaptcha(recaptcha_params)
-        while ita.in_progress():
-            print('waiting for captcha...')
-            sleep(10)
+        try:
+            while ita.in_progress():
+                print('waiting for captcha...')
+                sleep(10)
+        except:
+            print("Took too long to solve captcha")
+            return("Took too long to solve captcha")
         recaptcha_response = ita.retrieve_recaptcha(captcha_id)
         print('Recaptcha response: {}'.format(recaptcha_response))
         captcha_data = {'utf-8': '', 'authenticity_token': auth_token,
